@@ -36,4 +36,10 @@ public class MemberPrivate {
 
     @Column(name = "mem_pw_update")
     private LocalDateTime memPwUpdate;
+
+    // 회원 private 정보 수정(비밀번호 제외)
+    public void updateMemberPrivate(String memPhone, String memAddress) {
+        this.memPhone = memPhone;
+        this.memAddress = memAddress;
+    }
 }

@@ -29,4 +29,10 @@ public class Member {
 
     @Column(name = "mem_role", nullable = false, length = 20)
     private String memRole;
+
+    // 회원 기본 정보 수정
+    public void updateMember(String memNickname, String memImg) {
+        this.memNickname = memNickname;
+        this.memImg = memImg;
+    }
 }
