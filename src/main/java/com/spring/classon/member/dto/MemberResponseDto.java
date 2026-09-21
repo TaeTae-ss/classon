@@ -1,5 +1,6 @@
 package com.spring.classon.member.dto;
 
+// password 제외 회원 정보 조회용 dto
 import lombok.*;
 
 import java.time.LocalDateTime;
