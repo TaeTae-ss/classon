@@ -6,6 +6,10 @@ import com.spring.classon.instructor.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.*;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -55,30 +59,50 @@ public class InstructorServiceImpl implements InstructorService {
     @Override
     public InstructorDocumentResponseDto addDocument(
             Long reqNo,
-            String docName,
-            String docUrl
+            MultipartFile file
     ) {
 
-        InstructorRequest request =
-                instructorRequestRepository.findById(reqNo)
-                        .orElseThrow(() ->
-                                new IllegalArgumentException("존재하지 않는 강사 신청입니다."));
+        // 강사 신청 확인
+        instructorRequestRepository.findById(reqNo)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("존재하지 않는 강사 신청입니다."));
 
-        InstructorDocument document = InstructorDocument.builder()
-                .reqNo(request.getReqNo())
-                .docName(docName)
-                .docUrl(docUrl)
-                .docCreatedAt(java.time.LocalDateTime.now())
-                .build();
+        try {
+            // 파일 저장 폴더
+            Path uploadPath = Paths.get(
+                    System.getProperty("user.dir"),
+                    "uploads",
+                    "instructor"
+            );
 
-        InstructorDocument savedDocument =
-                instructorDocumentRepository.save(document);
+            Files.createDirectories(uploadPath);
 
-        return InstructorDocumentResponseDto.builder()
-                .docNo(savedDocument.getDocNo())
-                .reqNo(savedDocument.getReqNo())
-                .docName(savedDocument.getDocName())
-                .docUrl(savedDocument.getDocUrl())
-                .build();
+            // 업로드 파일 저장
+            String fileName = file.getOriginalFilename();
+            Path filePath = uploadPath.resolve(fileName);
+
+            file.transferTo(filePath);
+
+            // 증빙자료 정보 저장
+            InstructorDocument document = InstructorDocument.builder()
+                    .reqNo(reqNo)
+                    .docName(fileName)
+                    .docUrl(filePath.toString())
+                    .docCreatedAt(java.time.LocalDateTime.now())
+                    .build();
+
+            InstructorDocument savedDocument =
+                    instructorDocumentRepository.save(document);
+
+            return InstructorDocumentResponseDto.builder()
+                    .docNo(savedDocument.getDocNo())
+                    .reqNo(savedDocument.getReqNo())
+                    .docName(savedDocument.getDocName())
+                    .docUrl(savedDocument.getDocUrl())
+                    .build();
+
+        } catch (IOException e) {
+            throw new IllegalArgumentException("파일 저장에 실패했습니다.");
+        }
     }
 }

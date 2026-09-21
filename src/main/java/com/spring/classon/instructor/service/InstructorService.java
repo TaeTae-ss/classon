@@ -1,6 +1,7 @@
 package com.spring.classon.instructor.service;
 
 import com.spring.classon.instructor.dto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface InstructorService {
 
@@ -13,7 +14,6 @@ public interface InstructorService {
     // 강사 신청 증빙자료 등록
     InstructorDocumentResponseDto addDocument(
             Long reqNo,
-            String docName,
-            String docUrl
+            MultipartFile file
     );
 }

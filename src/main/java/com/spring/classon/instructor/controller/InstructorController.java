@@ -5,6 +5,7 @@ import com.spring.classon.instructor.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/instructor")
@@ -38,11 +39,10 @@ public class InstructorController {
     @PostMapping("/{reqNo}/documents")
     public ResponseEntity<InstructorDocumentResponseDto> addDocument(
             @PathVariable Long reqNo,
-            @RequestParam String docName,
-            @RequestParam String docUrl) {
+            @RequestParam("file") MultipartFile file) {
 
         return ResponseEntity.ok(
-                instructorService.addDocument(reqNo, docName, docUrl)
+                instructorService.addDocument(reqNo, file)
         );
     }
 }
