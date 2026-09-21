@@ -16,4 +16,7 @@ public interface InstructorService {
             Long reqNo,
             MultipartFile file
     );
+
+    // 강사 신청 승인/거절
+    void updateInstructorStatus(Long reqNo, InstructorApprovalDto dto);
 }

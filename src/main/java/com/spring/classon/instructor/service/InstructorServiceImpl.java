@@ -18,6 +18,7 @@ public class InstructorServiceImpl implements InstructorService {
 
     private final InstructorRequestRepository instructorRequestRepository;
     private final InstructorDocumentRepository instructorDocumentRepository;
+    private final InstructorRejectionRepository instructorRejectionRepository;
 
     // 강사 신청
     @Override
@@ -103,6 +104,28 @@ public class InstructorServiceImpl implements InstructorService {
 
         } catch (IOException e) {
             throw new IllegalArgumentException("파일 저장에 실패했습니다.");
+        }
+    }
+
+    // 강사 신청 승인/거절
+    @Override
+    public void updateInstructorStatus(Long reqNo, InstructorApprovalDto dto) {
+
+        InstructorRequest request =
+                instructorRequestRepository.findById(reqNo)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException("존재하지 않는 강사 신청입니다."));
+
+        request.updateStatus(dto.getReqStatus());
+
+        if ("REJECTED".equals(dto.getReqStatus())) {
+
+            InstructorRejection rejection = InstructorRejection.builder()
+                    .reqNo(reqNo)
+                    .rejReason(dto.getRejReason())
+                    .build();
+
+            instructorRejectionRepository.save(rejection);
         }
     }
 }
