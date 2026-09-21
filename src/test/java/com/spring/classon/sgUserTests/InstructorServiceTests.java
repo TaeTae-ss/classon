@@ -2,7 +2,7 @@ package com.spring.classon.sgUserTests;
 
 import com.spring.classon.instructor.dto.*;
 import com.spring.classon.instructor.entity.*;
-import com.spring.classon.instructor.repository.InstructorRequestRepository;
+import com.spring.classon.instructor.repository.*;
 import com.spring.classon.instructor.service.InstructorService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +21,9 @@ public class InstructorServiceTests {
 
     @Autowired
     private InstructorRequestRepository instructorRequestRepository;
+
+    @Autowired
+    private InstructorRejectionRepository instructorRejectionRepository;
 
     @Test
     public void 강사신청_테스트() {
@@ -138,5 +141,93 @@ public class InstructorServiceTests {
         System.out.println("신청 번호: " + result.getReqNo());
         System.out.println("파일명: " + result.getDocName());
         System.out.println("파일 경로: " + result.getDocUrl());
+    }
+
+    @Test
+    public void 강사신청_승인_테스트() {
+
+        // 테스트할 강사 신청 생성
+        InstructorRequest request = InstructorRequest.builder()
+                .memNo(4L)
+                .reqIntroduction("도자기 강사입니다.")
+                .reqCareer("종로구 햇빛 도자기 공방 운영 3년")
+                .reqStatus("NEW")
+                .build();
+
+        instructorRequestRepository.save(request);
+
+        // 승인 요청
+        InstructorApprovalDto dto =
+                new InstructorApprovalDto("APPROVED", null);
+
+        instructorService.updateInstructorStatus(
+                request.getReqNo(),
+                dto
+        );
+
+        // 변경된 신청 조회
+        InstructorRequest result =
+                instructorRequestRepository.findById(request.getReqNo())
+                        .orElseThrow();
+
+        // 승인 상태 확인
+        assertThat(result.getReqStatus()).isEqualTo("APPROVED");
+
+        // 승인 결과 출력
+        System.out.println("===== 강사 신청 승인 테스트 =====");
+        System.out.println("신청 번호: " + result.getReqNo());
+        System.out.println("회원 번호: " + result.getMemNo());
+        System.out.println("신청 상태: " + result.getReqStatus());
+    }
+
+    @Test
+    public void 강사신청_거절_테스트() {
+
+        // 테스트할 강사 신청 생성
+        InstructorRequest request = InstructorRequest.builder()
+                .memNo(4L)
+                .reqIntroduction("도자기 강사입니다.")
+                .reqCareer("종로구 햇빛 도자기 공방 운영 3년")
+                .reqStatus("NEW")
+                .build();
+
+        instructorRequestRepository.save(request);
+
+        // 거절 요청
+        InstructorApprovalDto dto =
+                new InstructorApprovalDto(
+                        "REJECTED",
+                        "경력 증빙자료가 부족합니다."
+                );
+
+        instructorService.updateInstructorStatus(
+                request.getReqNo(),
+                dto
+        );
+
+        // 변경된 신청 조회
+        InstructorRequest result =
+                instructorRequestRepository.findById(request.getReqNo())
+                        .orElseThrow();
+
+        // 거절 상태 확인
+        assertThat(result.getReqStatus()).isEqualTo("REJECTED");
+
+        // 거절 사유 조회
+        InstructorRejection rejection =
+                instructorRejectionRepository.findByReqNo(request.getReqNo())
+                        .orElseThrow();
+
+        // 거절 사유 확인
+        assertThat(rejection.getReqNo()).isEqualTo(request.getReqNo());
+        assertThat(rejection.getRejReason())
+                .isEqualTo("경력 증빙자료가 부족합니다.");
+
+        // 거절 결과 출력
+        System.out.println("===== 강사 신청 거절 테스트 =====");
+        System.out.println("신청 번호: " + result.getReqNo());
+        System.out.println("회원 번호: " + result.getMemNo());
+        System.out.println("신청 상태: " + result.getReqStatus());
+        System.out.println("거절 사유: " + rejection.getRejReason());
     }
 }
