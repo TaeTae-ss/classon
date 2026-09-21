@@ -10,6 +10,9 @@ public interface MemberService {
     // 회원 정보 수정
     void updateMember(Long memNo, MemberUpdateDto dto);
 
+    // 비밀번호 변경
+    void updatePassword(Long memNo, MemberPasswordUpdateDto dto);
+
     // 회원 탈퇴
     void deleteMember(Long memNo);
 }

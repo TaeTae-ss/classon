@@ -42,4 +42,10 @@ public class MemberPrivate {
         this.memPhone = memPhone;
         this.memAddress = memAddress;
     }
+
+    // 비밀번호 변경
+    public void updatePassword(String memPassword, LocalDateTime memPwUpdate) {
+        this.memPassword = memPassword;
+        this.memPwUpdate = memPwUpdate;
+    }
 }

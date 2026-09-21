@@ -5,6 +5,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class MemberUpdateDto {
 
     private String memNickname;

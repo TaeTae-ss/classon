@@ -7,6 +7,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -55,6 +57,18 @@ public class MemberServiceImpl implements MemberService {
         memberPrivate.updateMemberPrivate(
                 dto.getMemPhone(),
                 dto.getMemAddress()
+        );
+    }
+
+    @Override
+    public void updatePassword(Long memNo, MemberPasswordUpdateDto dto) {
+
+        MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
+                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+
+        memberPrivate.updatePassword(
+                dto.getNewPassword(),
+                LocalDateTime.now()
         );
     }
 
