@@ -1,7 +1,6 @@
-package com.spring.classon.memberTests;
+package com.spring.classon.sgUserTests;
 
-import com.spring.classon.member.dto.MemberResponseDto;
-import com.spring.classon.member.dto.MemberUpdateDto;
+import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.repository.*;
 import com.spring.classon.member.service.MemberService;
@@ -64,6 +63,15 @@ public class MemberServiceTests {
         assertThat(result.getMemPhone()).isEqualTo("010-1546-8551");
         assertThat(result.getMemAddress()).isEqualTo("서울시 강남구");
         assertThat(result.getMemRole()).isEqualTo("USER");
+
+        // 조회 결과 출력
+        System.out.println("===== 회원정보 조회 테스트 =====");
+        System.out.println("회원 번호: " + result.getMemNo());
+        System.out.println("이메일: " + result.getMemEmail());
+        System.out.println("닉네임: " + result.getMemNickname());
+        System.out.println("전화번호: " + result.getMemPhone());
+        System.out.println("주소: " + result.getMemAddress());
+        System.out.println("권한: " + result.getMemRole());
     }
 
     @Test
@@ -117,5 +125,13 @@ public class MemberServiceTests {
         // 회원 개인정보가 제대로 수정됐는지 확인
         assertThat(updatedMemberPrivate.getMemPhone()).isEqualTo("010-3333-4444");
         assertThat(updatedMemberPrivate.getMemAddress()).isEqualTo("서울시 서초구");
+
+        // 수정 결과 출력
+        System.out.println("===== 회원정보 수정 테스트 =====");
+        System.out.println("회원 번호: " + updatedMember.getMemNo());
+        System.out.println("닉네임: " + updatedMember.getMemNickname());
+        System.out.println("전화번호: " + updatedMemberPrivate.getMemPhone());
+        System.out.println("주소: " + updatedMemberPrivate.getMemAddress());
+        System.out.println("프로필 이미지: " + updatedMember.getMemImg());
     }
 }
