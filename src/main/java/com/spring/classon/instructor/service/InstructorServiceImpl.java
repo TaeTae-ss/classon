@@ -2,6 +2,7 @@ package com.spring.classon.instructor.service;
 
 import com.spring.classon.instructor.dto.*;
 import com.spring.classon.instructor.entity.*;
+import com.spring.classon.instructor.mapper.InstructorMapper;
 import com.spring.classon.instructor.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,17 +20,14 @@ public class InstructorServiceImpl implements InstructorService {
     private final InstructorRequestRepository instructorRequestRepository;
     private final InstructorDocumentRepository instructorDocumentRepository;
     private final InstructorRejectionRepository instructorRejectionRepository;
+    private final InstructorMapper instructorMapper;
 
     // 강사 신청
     @Override
     public Long applyInstructor(Long memNo, InstructorRequestDto dto) {
 
-        InstructorRequest request = InstructorRequest.builder()
-                .memNo(memNo)
-                .reqIntroduction(dto.getReqIntroduction())
-                .reqCareer(dto.getReqCareer())
-                .reqStatus("NEW")
-                .build();
+        InstructorRequest request =
+                instructorMapper.toEntity(memNo, dto, "NEW");
 
         InstructorRequest savedRequest =
                 instructorRequestRepository.save(request);
@@ -47,13 +45,7 @@ public class InstructorServiceImpl implements InstructorService {
                         .orElseThrow(() ->
                                 new IllegalArgumentException("존재하지 않는 강사 신청입니다."));
 
-        return InstructorResponseDto.builder()
-                .reqNo(request.getReqNo())
-                .memNo(request.getMemNo())
-                .reqIntroduction(request.getReqIntroduction())
-                .reqCareer(request.getReqCareer())
-                .reqStatus(request.getReqStatus())
-                .build();
+        return instructorMapper.toResponseDto(request);
     }
 
     // 강사 신청 증빙자료 등록
