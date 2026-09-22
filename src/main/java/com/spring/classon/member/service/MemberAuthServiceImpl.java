@@ -1,5 +1,6 @@
 package com.spring.classon.member.service;
 
+import com.spring.classon.common.service.EmailService;
 import com.spring.classon.member.dto.SignupRequestDto;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.mapper.MemberMapper;
@@ -20,6 +21,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     private final MemberRepository memberRepository;
     private final MemberPrivateRepository memberPrivateRepository;
     private final MemberMapper memberMapper;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입
@@ -39,6 +41,13 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         // 이메일 중복 확인
         if (memberPrivateRepository.existsByMemEmail(requestDto.getMemEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+
+        // 이메일 인증 확인
+        if (!emailService.isVerified(requestDto.getMemEmail())) {
+            throw new IllegalArgumentException(
+                    "이메일 인증을 완료해 주세요."
+            );
         }
 
         // 닉네임 중복 확인
