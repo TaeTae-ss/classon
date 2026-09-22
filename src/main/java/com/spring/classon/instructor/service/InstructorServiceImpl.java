@@ -2,6 +2,7 @@ package com.spring.classon.instructor.service;
 
 import com.spring.classon.instructor.dto.*;
 import com.spring.classon.instructor.entity.*;
+import com.spring.classon.instructor.mapper.InstructorDocumentMapper;
 import com.spring.classon.instructor.mapper.InstructorMapper;
 import com.spring.classon.instructor.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class InstructorServiceImpl implements InstructorService {
     private final InstructorDocumentRepository instructorDocumentRepository;
     private final InstructorRejectionRepository instructorRejectionRepository;
     private final InstructorMapper instructorMapper;
+    private final InstructorDocumentMapper instructorDocumentMapper;
 
     // 강사 신청
     @Override
@@ -77,22 +79,17 @@ public class InstructorServiceImpl implements InstructorService {
             file.transferTo(filePath);
 
             // 증빙자료 정보 저장
-            InstructorDocument document = InstructorDocument.builder()
-                    .reqNo(reqNo)
-                    .docName(fileName)
-                    .docUrl(filePath.toString())
-                    .docCreatedAt(java.time.LocalDateTime.now())
-                    .build();
+            InstructorDocument document =
+                    instructorDocumentMapper.toEntity(
+                            reqNo,
+                            fileName,
+                            filePath.toString()
+                    );
 
             InstructorDocument savedDocument =
                     instructorDocumentRepository.save(document);
 
-            return InstructorDocumentResponseDto.builder()
-                    .docNo(savedDocument.getDocNo())
-                    .reqNo(savedDocument.getReqNo())
-                    .docName(savedDocument.getDocName())
-                    .docUrl(savedDocument.getDocUrl())
-                    .build();
+            return instructorDocumentMapper.toResponseDto(savedDocument);
 
         } catch (IOException e) {
             throw new IllegalArgumentException("파일 저장에 실패했습니다.");
