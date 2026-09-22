@@ -22,4 +22,13 @@ public class EmailController {
 
         emailService.sendEmail(email, authCode);
     }
+
+    // 인증번호 확인
+    @PostMapping("/verify")
+    public boolean verifyEmail(
+            @RequestParam String email,
+            @RequestParam String authCode
+    ) {
+        return emailService.verifyEmail(email, authCode);
+    }
 }
