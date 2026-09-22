@@ -2,6 +2,7 @@ package com.spring.classon.member.service;
 
 import com.spring.classon.member.dto.SignupRequestDto;
 import com.spring.classon.member.entity.*;
+import com.spring.classon.member.mapper.MemberMapper;
 import com.spring.classon.member.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
     private final MemberRepository memberRepository;
     private final MemberPrivateRepository memberPrivateRepository;
+    private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입
@@ -58,23 +60,17 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 passwordEncoder.encode(requestDto.getMemPassword());
 
         // 회원 기본 정보 저장
-        Member member = Member.builder()
-                .memNickname(requestDto.getMemNickname())
-                .memCreatedAt(LocalDateTime.now())
-                .memRole("USER")
-                .build();
+        Member member = memberMapper.toEntity(requestDto);
 
         memberRepository.save(member);
 
         // 회원 개인정보 저장
-        MemberPrivate memberPrivate = MemberPrivate.builder()
-                .member(member)
-                .memEmail(requestDto.getMemEmail())
-                .memPassword(encodedPassword)
-                .memPhone(requestDto.getMemPhone())
-                .memAddress(requestDto.getMemAddress())
-                .memPwUpdate(LocalDateTime.now())
-                .build();
+        MemberPrivate memberPrivate =
+                memberMapper.toPrivateEntity(
+                        requestDto,
+                        member,
+                        encodedPassword
+                );
 
         memberPrivateRepository.save(memberPrivate);
     }
