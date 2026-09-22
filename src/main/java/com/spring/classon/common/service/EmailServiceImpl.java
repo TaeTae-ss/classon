@@ -6,7 +6,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -15,6 +15,8 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
     private final Map<String, AuthCodeInfo> authCodeMap = new ConcurrentHashMap<>();
+    // 인증 완료 이메일 저장
+    private final Set<String> verifiedEmails = ConcurrentHashMap.newKeySet();
 
 
     // 인증 메일 발송
@@ -72,6 +74,15 @@ public class EmailServiceImpl implements EmailService {
         // 인증 성공 후 인증번호 삭제
         authCodeMap.remove(email);
 
+        // 인증 완료 처리
+        verifiedEmails.add(email);
+
         return true;
+    }
+
+    // 이메일 인증 여부 확인
+    @Override
+    public boolean isVerified(String email) {
+        return verifiedEmails.contains(email);
     }
 }
