@@ -39,7 +39,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
         if (!Pattern.matches(passwordRegex, requestDto.getMemPassword())) {
             throw new IllegalArgumentException(
-                    "비밀번호는 영문과 숫자를 포함한 8~20자여야 합니다."
+                    "비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해 주세요."
             );
         }
 
