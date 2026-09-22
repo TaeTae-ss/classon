@@ -80,7 +80,7 @@ public class MemberAuthServiceTests {
 
         // 권한 확인
         assertThat(member.getMemRole())
-                .isEqualTo("MEMBER");
+                .isEqualTo("USER");
 
         // 이메일 확인
         assertThat(memberPrivate.getMemEmail())
@@ -93,6 +93,38 @@ public class MemberAuthServiceTests {
         // 입력한 비밀번호와 암호화된 비밀번호 비교
         assertThat(passwordMatches)
                 .isTrue();
+    }
+
+    @Test
+    void 이메일_형식_검증_테스트() {
+
+        SignupRequestDto requestDto = SignupRequestDto.builder()
+                .memNickname("이메일테스트")
+                .memEmail("sujung11naver.com")
+                .memPassword("sujung1234")
+                .memPhone("010-8115-3251")
+                .memAddress("수원시")
+                .build();
+
+        try {
+
+            memberAuthService.signup(requestDto);
+
+        } catch (IllegalArgumentException e) {
+
+            // 이메일 형식 오류 확인
+            System.out.println("========== 이메일 형식 검증 ==========");
+            System.out.println("입력한 이메일 : " + requestDto.getMemEmail());
+            System.out.println("오류 메시지 : " + e.getMessage());
+            System.out.println("====================================");
+
+            assertThat(e.getMessage())
+                    .isEqualTo("올바른 이메일 형식으로 입력해 주세요.");
+
+            return;
+        }
+
+        throw new AssertionError("이메일 형식 오류가 발생하지 않았습니다.");
     }
 
     @Test

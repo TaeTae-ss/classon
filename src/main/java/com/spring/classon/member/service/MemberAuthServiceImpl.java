@@ -24,6 +24,16 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     @Override
     public void signup(SignupRequestDto requestDto) {
 
+        // 이메일 형식 확인
+        String emailRegex =
+                "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+
+        if (!Pattern.matches(emailRegex, requestDto.getMemEmail())) {
+            throw new IllegalArgumentException(
+                    "올바른 이메일 형식으로 입력해 주세요."
+            );
+        }
+
         // 이메일 중복 확인
         if (memberPrivateRepository.existsByMemEmail(requestDto.getMemEmail())) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
@@ -51,7 +61,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         Member member = Member.builder()
                 .memNickname(requestDto.getMemNickname())
                 .memCreatedAt(LocalDateTime.now())
-                .memRole("MEMBER")
+                .memRole("USER")
                 .build();
 
         memberRepository.save(member);
