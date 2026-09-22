@@ -4,6 +4,8 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SignupRequestDto {
 
     private String memNickname;
