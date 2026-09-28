@@ -2,6 +2,7 @@ package com.spring.classon.member.service;
 
 import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
+import com.spring.classon.member.mapper.MemberMapper;
 import com.spring.classon.member.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final MemberPrivateRepository memberPrivateRepository;
+    private final MemberMapper memberMapper;
 
     // 회원 정보 조회
     @Override
@@ -27,16 +29,7 @@ public class MemberServiceImpl implements MemberService {
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
                 .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
 
-        return MemberResponseDto.builder()
-                .memNo(member.getMemNo())
-                .memEmail(memberPrivate.getMemEmail())
-                .memNickname(member.getMemNickname())
-                .memPhone(memberPrivate.getMemPhone())
-                .memAddress(memberPrivate.getMemAddress())
-                .memImg(member.getMemImg())
-                .memRole(member.getMemRole())
-                .memCreatedAt(member.getMemCreatedAt())
-                .build();
+        return memberMapper.toResponseDto(member, memberPrivate);
     }
 
     // 회원 정보 수정
