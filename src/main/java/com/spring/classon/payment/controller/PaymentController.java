@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/payment")
 @RequiredArgsConstructor
@@ -42,6 +44,17 @@ public class PaymentController {
     @GetMapping("/{payNo}")
     public ResponseEntity<PaymentDTO> getPayment(@PathVariable Long payNo) {
         PaymentDTO response = paymentService.getPayment(payNo);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 특정 예약의 결제 이력
+    @GetMapping("/reservation/{rsvNo}")
+    public ResponseEntity<List<PaymentDTO>> getPaymentsByReservation(
+            @PathVariable Long rsvNo
+    ) {
+        List<PaymentDTO> response =
+                paymentService.getPaymentListByReservation(rsvNo);
 
         return ResponseEntity.ok(response);
     }

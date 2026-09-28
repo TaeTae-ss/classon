@@ -1,5 +1,6 @@
 package com.spring.classon.reservation.service;
 
+import com.spring.classon.payment.service.PaymentService;
 import com.spring.classon.reservation.dto.ReservationDTO;
 import com.spring.classon.reservation.entity.Reservation;
 import com.spring.classon.reservation.entity.ReservationStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ReservationServiceImpl implements ReservationService{
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
+    private final PaymentService paymentService;
 
     //예약 등록
     @Override
@@ -85,6 +87,7 @@ public class ReservationServiceImpl implements ReservationService{
 
     // 예약 취소
     @Override
+    @Transactional
     public void cancelReservation(Long rsvNo, String cancelReason) {
 
         Reservation reservation = reservationRepository.findById(rsvNo)
