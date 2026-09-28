@@ -50,18 +50,40 @@ public class Reservation {
     @Column(name = "RSV_COMPLETED_AT")
     private LocalDateTime rsvCompletedAt;
 
+    // 예약 확정
+    public void confirm() {
+        if (this.rsvStatus != ReservationStatus.WAIT) {
+            throw new IllegalStateException(
+                    "예약 대기 상태의 예약만 확정할 수 있습니다."
+            );
+        }
 
-    public enum ReservationStatus {
-        WAIT,
-        CONFIRMED,
-        CANCEL,
-        COMPLETED
+        this.rsvStatus = ReservationStatus.CONFIRMED;
+        this.rsvConfirmedAt = LocalDateTime.now();
     }
 
     // 예약 취소
     public void cancel(String cancelReason) {
+        if (this.rsvStatus != ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException(
+                    "확정된 예약만 취소할 수 있습니다."
+            );
+        }
+
         this.rsvStatus = ReservationStatus.CANCEL;
         this.rsvCancelReason = cancelReason;
         this.rsvCanceledAt = LocalDateTime.now();
+    }
+
+    // 수강 완료
+    public void complete() {
+        if (this.rsvStatus != ReservationStatus.CONFIRMED) {
+            throw new IllegalStateException(
+                    "확정된 예약만 수강 완료 처리할 수 있습니다."
+            );
+        }
+
+        this.rsvStatus = ReservationStatus.COMPLETED;
+        this.rsvCompletedAt = LocalDateTime.now();
     }
 }
