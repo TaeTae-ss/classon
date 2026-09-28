@@ -2,6 +2,7 @@ package com.spring.classon.reservation.service;
 
 import com.spring.classon.reservation.dto.ReservationDTO;
 import com.spring.classon.reservation.entity.Reservation;
+import com.spring.classon.reservation.entity.ReservationStatus;
 import com.spring.classon.reservation.mapper.ReservationMapper;
 import com.spring.classon.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,27 @@ public class ReservationServiceImpl implements ReservationService{
 
     //예약 등록
     @Override
+    @Transactional
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
+        // 중복 예약 검사
+        List<ReservationStatus> activeStatuses = List.of(
+                ReservationStatus.WAIT,
+                ReservationStatus.CONFIRMED
+        );
+
+        boolean exists = reservationRepository
+                .existsByMemNoAndSchNoAndRsvStatusIn(
+                        reservationDTO.getMemNo(),
+                        reservationDTO.getSchNo(),
+                        activeStatuses
+                );
+
+        if (exists) {
+            throw new IllegalStateException(
+                    "이미 해당 일정에 예약한 회원입니다."
+            );
+        }
+
         Reservation reservation = reservationMapper.toEntity(reservationDTO);
         Reservation savedReservation = reservationRepository.save(reservation);
 
@@ -58,6 +79,10 @@ public class ReservationServiceImpl implements ReservationService{
                 .orElseThrow(() -> new IllegalArgumentException(
                         "예약 정보를 찾을 수 없습니다. 예약 번호: " + rsvNo
                 ));
+
+        if (reservation.getRsvStatus() == ReservationStatus.CANCEL) {
+            throw new IllegalStateException("이미 취소된 예약입니다.");
+        }
 
         reservation.cancel(cancelReason);
     }

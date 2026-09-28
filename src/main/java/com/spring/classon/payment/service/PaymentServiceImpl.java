@@ -7,6 +7,7 @@ import com.spring.classon.payment.entity.Payment;
 import com.spring.classon.payment.entity.PaymentStatus;
 import com.spring.classon.payment.repository.PaymentRepository;
 import com.spring.classon.reservation.entity.Reservation;
+import com.spring.classon.reservation.entity.ReservationStatus;
 import com.spring.classon.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -34,11 +36,43 @@ public class PaymentServiceImpl implements PaymentService{
                         new IllegalArgumentException("예약 정보를 찾을 수 없습니다.")
                 );
 
-        // 이미 결제가 존재하는 경우
-        if (paymentRepository.existsByReservation(reservation)) {
+        // 이미 예약이 확정된 경우
+        if (reservation.getRsvStatus() == ReservationStatus.CONFIRMED) {
             throw new IllegalStateException(
-                    "이미 결제가 생성된 예약입니다."
+                    "이미 확정된 예약입니다."
             );
+        }
+
+        // 취소된 예약은 결제할 수 없음
+        if (reservation.getRsvStatus() == ReservationStatus.CANCEL) {
+            throw new IllegalStateException(
+                    "취소된 예약은 결제할 수 없습니다."
+            );
+        }
+
+        // 가장 최근 결제 확인
+        Optional<Payment> latestPayment = paymentRepository
+                .findTopByReservationOrderByPayCreatedAtDesc(reservation);
+
+        if (latestPayment.isPresent()) {
+
+            Payment payment = latestPayment.get();
+
+            // 아직 결제 진행 중
+            if (payment.getPayStatus() == PaymentStatus.WAIT) {
+                throw new IllegalStateException(
+                        "이미 결제 진행 중인 주문이 있습니다."
+                );
+            }
+
+            // 이미 결제 완료
+            if (payment.getPayStatus() == PaymentStatus.PAID) {
+                throw new IllegalStateException(
+                        "이미 결제가 완료된 예약입니다."
+                );
+            }
+
+            // FAILED 또는 CANCEL이면 새로운 결제 생성 가능
         }
 
         // 현재 예약 금액 사용
