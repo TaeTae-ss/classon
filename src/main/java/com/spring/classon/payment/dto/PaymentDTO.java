@@ -1,5 +1,6 @@
 package com.spring.classon.payment.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.classon.payment.entity.Payment;
 import com.spring.classon.payment.entity.PaymentStatus;
 import lombok.*;
@@ -20,8 +21,11 @@ public class PaymentDTO {
     private Integer payAmount;
     private PaymentStatus payStatus;
     private String payKey;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime payCreatedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime payPaidAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime payCanceledAt;
 
     public PaymentDTO(Payment payment) {

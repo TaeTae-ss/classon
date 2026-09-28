@@ -1,5 +1,6 @@
 package com.spring.classon.reservation.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.classon.reservation.entity.ReservationStatus;
 import lombok.*;
 
@@ -26,11 +27,15 @@ public class ReservationDTO {
 
     private ReservationStatus rsvStatus;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime rsvCreatedAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime rsvConfirmedAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime rsvCanceledAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime rsvCompletedAt;
 }
