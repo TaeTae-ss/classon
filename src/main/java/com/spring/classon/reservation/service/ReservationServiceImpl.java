@@ -71,6 +71,18 @@ public class ReservationServiceImpl implements ReservationService{
                 .toList();
     }
 
+    // 회원 예약 내역 조회
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDTO> getReservationListByMember(Long memNo) {
+
+        return reservationRepository
+                .findAllByMemNoOrderByRsvCreatedAtDesc(memNo)
+                .stream()
+                .map(reservationMapper::toDTO)
+                .toList();
+    }
+
     // 예약 취소
     @Override
     public void cancelReservation(Long rsvNo, String cancelReason) {
