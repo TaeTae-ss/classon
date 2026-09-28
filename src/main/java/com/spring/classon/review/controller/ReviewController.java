@@ -2,6 +2,7 @@ package com.spring.classon.review.controller;
 
 import com.spring.classon.review.dto.ReviewDTO;
 import com.spring.classon.review.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class ReviewController {
 
     //등록
     @PostMapping
-    public Long register(@RequestBody ReviewDTO reviewDTO){
+    public Long register(@Valid @RequestBody ReviewDTO reviewDTO){
         Long revNo = reviewService.register(reviewDTO);
 
         return revNo;

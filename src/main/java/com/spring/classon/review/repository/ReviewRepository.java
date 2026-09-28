@@ -19,4 +19,8 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
         """)
     List<Review> findByMemNo(@Param("memNo") Long memNo);
 
+    boolean existsByRsvNo(Long rsvNo);
+
+
+
 }
