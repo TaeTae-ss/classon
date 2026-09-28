@@ -1,6 +1,6 @@
 package com.spring.classon.reservation.dto;
 
-import com.spring.classon.reservation.entity.Reservation.ReservationStatus;
+import com.spring.classon.reservation.entity.ReservationStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
