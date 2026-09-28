@@ -28,8 +28,16 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public List<ReviewDTO> getList(Long clsNo){
+    public List<ReviewDTO> getClassList(Long clsNo){
         List<Review> reviews = reviewRepository.findByClsNo(clsNo);
+        List<ReviewDTO> reviewDTOList = reviewMapper.toDTOList(reviews);
+
+        return reviewDTOList;
+    }
+
+    @Override
+    public List<ReviewDTO> getMemberList(Long memNo){
+        List<Review> reviews = reviewRepository.findByMemNo(memNo);
         List<ReviewDTO> reviewDTOList = reviewMapper.toDTOList(reviews);
 
         return reviewDTOList;

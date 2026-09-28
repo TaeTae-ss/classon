@@ -22,9 +22,17 @@ public class ReviewController {
     }
 
     @GetMapping("/class/{clsNo}")
-    public List<ReviewDTO> getList(@PathVariable Long clsNo) {
+    public List<ReviewDTO> getClassList(@PathVariable Long clsNo) {
 
-        List<ReviewDTO> reviewDTOList = reviewService.getList(clsNo);
+        List<ReviewDTO> reviewDTOList = reviewService.getClassList(clsNo);
+
+        return reviewDTOList;
+    }
+
+    @GetMapping("/member/{memNo}")
+    public List<ReviewDTO> getMemberList(@PathVariable Long memNo){
+
+        List<ReviewDTO> reviewDTOList = reviewService.getMemberList(memNo);
 
         return reviewDTOList;
     }

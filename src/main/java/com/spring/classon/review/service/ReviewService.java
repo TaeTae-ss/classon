@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ReviewService {
     Long register(ReviewDTO reviewDTO);
-    List<ReviewDTO> getList(Long clsNo);
+    List<ReviewDTO> getClassList(Long clsNo);   //클래스별 후기
+    List<ReviewDTO> getMemberList(Long memNo);  //회원별 후기
 
 }
