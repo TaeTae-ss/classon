@@ -14,6 +14,7 @@ import java.util.List;
 public class ReviewController {
     final ReviewService reviewService;
 
+    //등록
     @PostMapping
     public Long register(@RequestBody ReviewDTO reviewDTO){
         Long revNo = reviewService.register(reviewDTO);
@@ -21,6 +22,7 @@ public class ReviewController {
         return revNo;
     }
 
+    //클래스 상세보기 후기 조회
     @GetMapping("/class/{clsNo}")
     public List<ReviewDTO> getClassList(@PathVariable Long clsNo) {
 
@@ -29,6 +31,7 @@ public class ReviewController {
         return reviewDTOList;
     }
 
+    //회원별 후기 조회
     @GetMapping("/member/{memNo}")
     public List<ReviewDTO> getMemberList(@PathVariable Long memNo){
 
@@ -36,5 +39,16 @@ public class ReviewController {
 
         return reviewDTOList;
     }
+
+    @DeleteMapping("/{revNo}")
+    public void remove(@PathVariable Long revNo){
+        reviewService.remove(revNo);
+    }
+
+    @PatchMapping("/{revNo}/blind")
+    public void blind(@PathVariable Long revNo){
+        reviewService.blind(revNo);
+    }
+
 
 }

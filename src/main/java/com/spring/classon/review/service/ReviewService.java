@@ -8,5 +8,7 @@ public interface ReviewService {
     Long register(ReviewDTO reviewDTO);
     List<ReviewDTO> getClassList(Long clsNo);   //클래스별 후기
     List<ReviewDTO> getMemberList(Long memNo);  //회원별 후기
+    void remove(Long revNo);
+    void blind(Long revNo);
 
 }

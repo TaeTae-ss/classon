@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -41,6 +42,19 @@ public class ReviewServiceImpl implements ReviewService {
         List<ReviewDTO> reviewDTOList = reviewMapper.toDTOList(reviews);
 
         return reviewDTOList;
+    }
+
+    @Override
+    public void remove(Long revNo){
+        reviewRepository.deleteById(revNo);
+    }
+
+    @Override
+    public void blind(Long revNo){
+        Optional<Review> result = reviewRepository.findById(revNo);
+        Review review = result.orElseThrow();
+
+        review.setRevStatus("Y");
     }
 
 }
