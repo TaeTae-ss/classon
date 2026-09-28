@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface FavoriteRepository extends JpaRepository<Favorite , Long > {
-    List<Favorite> findByMemNo(Long memNo);
+    List<Favorite> findByMemNoOrderByFavNoDesc(Long memNo);
+    boolean existsByMemNoAndClsNo(Long memNo, Long clsNo);
 }

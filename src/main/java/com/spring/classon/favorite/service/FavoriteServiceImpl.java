@@ -22,6 +22,15 @@ public class FavoriteServiceImpl implements FavoriteService{
     @Override
     public Long register(FavoriteDTO favoriteDTO){
 
+        boolean exists = favoriteRepository.existsByMemNoAndClsNo(
+                favoriteDTO.getMemNo(),
+                favoriteDTO.getClsNo()
+        );
+
+        if (exists) {
+            throw new IllegalStateException("이미 찜한 클래스입니다.");
+        }
+
         Favorite favorite = favoriteMapper.toEntity(favoriteDTO);
         Favorite savedFavorite = favoriteRepository.save(favorite);
 
@@ -32,7 +41,7 @@ public class FavoriteServiceImpl implements FavoriteService{
     @Override
     public List<FavoriteDTO> getList(Long memNo) {
 
-        List<Favorite> favorites = favoriteRepository.findByMemNo(memNo);
+        List<Favorite> favorites = favoriteRepository.findByMemNoOrderByFavNoDesc(memNo);
 
         List<FavoriteDTO> favoriteDTOList =
                 favoriteMapper.toDTOList(favorites);
