@@ -1,6 +1,6 @@
 package com.spring.classon.instructor.mapper;
 
-import com.spring.classon.instructor.dto.InstructorDocumentResponseDto;
+import com.spring.classon.instructor.dto.InstructorDocumentResponseDTO;
 import com.spring.classon.instructor.entity.InstructorDocument;
 import org.springframework.stereotype.Component;
 
@@ -24,10 +24,10 @@ public class InstructorDocumentMapper {
     }
 
     // 증빙자료 조회 DTO 변환
-    public InstructorDocumentResponseDto toResponseDto(
+    public InstructorDocumentResponseDTO toResponseDto(
             InstructorDocument document
     ) {
-        return InstructorDocumentResponseDto.builder()
+        return InstructorDocumentResponseDTO.builder()
                 .docNo(document.getDocNo())
                 .reqNo(document.getReqNo())
                 .docName(document.getDocName())

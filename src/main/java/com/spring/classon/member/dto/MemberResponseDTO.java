@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @AllArgsConstructor
-public class MemberResponseDto {
+public class MemberResponseDTO {
 
     private Long memNo;
     private String memEmail;

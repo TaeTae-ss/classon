@@ -15,7 +15,7 @@ public class MemberController {
 
     // 회원 정보 조회
     @GetMapping("/{memNo}")
-    public ResponseEntity<MemberResponseDto> getMember(
+    public ResponseEntity<MemberResponseDTO> getMember(
             @PathVariable Long memNo) {
 
         return ResponseEntity.ok(memberService.getMember(memNo));
@@ -25,7 +25,7 @@ public class MemberController {
     @PatchMapping("/{memNo}")
     public ResponseEntity<Void> updateMember(
             @PathVariable Long memNo,
-            @RequestBody MemberUpdateDto dto) {
+            @RequestBody MemberUpdateDTO dto) {
 
         memberService.updateMember(memNo, dto);
 
@@ -36,7 +36,7 @@ public class MemberController {
     @PatchMapping("/{memNo}/password")
     public ResponseEntity<Void> updatePassword(
             @PathVariable Long memNo,
-            @RequestBody MemberPasswordUpdateDto dto) {
+            @RequestBody MemberPasswordUpdateDTO dto) {
 
         memberService.updatePassword(memNo, dto);
 

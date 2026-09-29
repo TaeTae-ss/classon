@@ -20,8 +20,8 @@ public class Payment {
     @Column(name = "PAY_NO")
     private Long payNo;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "RSV_NO", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "RSV_NO", nullable = false)
     private Reservation reservation;
 
     @Column(name = "ORDER_NO", nullable = false, unique = true, length = 100)

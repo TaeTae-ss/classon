@@ -18,7 +18,7 @@ public class InstructorController {
     @PostMapping("/{memNo}")
     public ResponseEntity<Long> applyInstructor(
             @PathVariable Long memNo,
-            @RequestBody InstructorRequestDto dto) {
+            @RequestBody InstructorRequestDTO dto) {
 
         Long reqNo = instructorService.applyInstructor(memNo, dto);
 
@@ -27,7 +27,7 @@ public class InstructorController {
 
     // 강사 신청 상태 조회
     @GetMapping("/{reqNo}")
-    public ResponseEntity<InstructorResponseDto> getInstructorRequest(
+    public ResponseEntity<InstructorResponseDTO> getInstructorRequest(
             @PathVariable Long reqNo) {
 
         return ResponseEntity.ok(
@@ -37,7 +37,7 @@ public class InstructorController {
 
     // 강사 신청 증빙자료 등록
     @PostMapping("/{reqNo}/documents")
-    public ResponseEntity<InstructorDocumentResponseDto> addDocument(
+    public ResponseEntity<InstructorDocumentResponseDTO> addDocument(
             @PathVariable Long reqNo,
             @RequestParam("file") MultipartFile file) {
 

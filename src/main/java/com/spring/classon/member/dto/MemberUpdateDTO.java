@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberUpdateDto {
+public class MemberUpdateDTO {
 
     private String memNickname;
     private String memPhone;
