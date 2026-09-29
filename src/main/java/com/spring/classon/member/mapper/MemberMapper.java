@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 public class MemberMapper {
 
     // 회원 정보 조회 DTO 변환
-    public MemberResponseDto toResponseDto(
+    public MemberResponseDTO toResponseDto(
             Member member,
             MemberPrivate memberPrivate) {
 
-        return MemberResponseDto.builder()
+        return MemberResponseDTO.builder()
                 .memNo(member.getMemNo())
                 .memEmail(memberPrivate.getMemEmail())
                 .memNickname(member.getMemNickname())
@@ -27,7 +27,7 @@ public class MemberMapper {
     }
 
     // 회원 기본 정보 Entity 변환
-    public Member toEntity(SignupRequestDto dto) {
+    public Member toEntity(SignupRequestDTO dto) {
 
         return Member.builder()
                 .memNickname(dto.getMemNickname())
@@ -38,7 +38,7 @@ public class MemberMapper {
 
     // 회원 개인정보 Entity 변환
     public MemberPrivate toPrivateEntity(
-            SignupRequestDto dto,
+            SignupRequestDTO dto,
             Member member,
             String encodedPassword
     ) {

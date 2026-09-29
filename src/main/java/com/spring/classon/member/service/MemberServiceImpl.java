@@ -21,7 +21,7 @@ public class MemberServiceImpl implements MemberService {
 
     // 회원 정보 조회
     @Override
-    public MemberResponseDto getMember(Long memNo) {
+    public MemberResponseDTO getMember(Long memNo) {
 
         Member member = memberRepository.findById(memNo)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -34,7 +34,7 @@ public class MemberServiceImpl implements MemberService {
 
     // 회원 정보 수정
     @Override
-    public void updateMember(Long memNo, MemberUpdateDto dto) {
+    public void updateMember(Long memNo, MemberUpdateDTO dto) {
 
         Member member = memberRepository.findById(memNo)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -54,7 +54,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void updatePassword(Long memNo, MemberPasswordUpdateDto dto) {
+    public void updatePassword(Long memNo, MemberPasswordUpdateDTO dto) {
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
                 .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));

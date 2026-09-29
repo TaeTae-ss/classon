@@ -32,7 +32,7 @@ public class InstructorServiceTests {
         Long memNo = 4L;
 
         // 강사 신청 정보
-        InstructorRequestDto dto = new InstructorRequestDto(
+        InstructorRequestDTO dto = new InstructorRequestDTO(
                 "도자기 강사로 활동하고 싶습니다.",
                 "종로구 햇빛 도자기 공방 운영 3년"
         );
@@ -76,7 +76,7 @@ public class InstructorServiceTests {
         instructorRequestRepository.save(request);
 
         // 강사 신청 조회
-        InstructorResponseDto result =
+        InstructorResponseDTO result =
                 instructorService.getInstructorRequest(request.getReqNo());
 
         // 조회된 신청 정보가 제대로 나오는지 확인
@@ -120,7 +120,7 @@ public class InstructorServiceTests {
         );
 
         // 증빙자료 등록
-        InstructorDocumentResponseDto result =
+        InstructorDocumentResponseDTO result =
                 instructorService.addDocument(
                         request.getReqNo(),
                         file
@@ -157,8 +157,8 @@ public class InstructorServiceTests {
         instructorRequestRepository.save(request);
 
         // 승인 요청
-        InstructorApprovalDto dto =
-                new InstructorApprovalDto("APPROVED", null);
+        InstructorApprovalDTO dto =
+                new InstructorApprovalDTO("APPROVED", null);
 
         instructorService.updateInstructorStatus(
                 request.getReqNo(),
@@ -194,8 +194,8 @@ public class InstructorServiceTests {
         instructorRequestRepository.save(request);
 
         // 거절 요청
-        InstructorApprovalDto dto =
-                new InstructorApprovalDto(
+        InstructorApprovalDTO dto =
+                new InstructorApprovalDTO(
                         "REJECTED",
                         "경력 증빙자료가 부족합니다."
                 );

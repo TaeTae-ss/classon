@@ -1,6 +1,6 @@
 package com.spring.classon.member.controller;
 
-import com.spring.classon.member.dto.SignupRequestDto;
+import com.spring.classon.member.dto.SignupRequestDTO;
 import com.spring.classon.member.service.MemberAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class MemberAuthController {
     // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<Void> signup(
-            @RequestBody SignupRequestDto requestDto) {
+            @RequestBody SignupRequestDTO requestDto) {
 
         memberAuthService.signup(requestDto);
 

@@ -1,6 +1,6 @@
 package com.spring.classon.sgUserTests;
 
-import com.spring.classon.member.dto.SignupRequestDto;
+import com.spring.classon.member.dto.SignupRequestDTO;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.repository.*;
 import com.spring.classon.member.service.MemberAuthService;
@@ -32,7 +32,7 @@ public class MemberAuthServiceTests {
     void 회원가입_테스트() {
 
         // 회원가입 정보
-        SignupRequestDto requestDto = SignupRequestDto.builder()
+        SignupRequestDTO requestDto = SignupRequestDTO.builder()
                 .memNickname("수정")
                 .memEmail("su11@naver.com")
                 .memPassword("sujung1234")
@@ -98,7 +98,7 @@ public class MemberAuthServiceTests {
     @Test
     void 이메일_형식_검증_테스트() {
 
-        SignupRequestDto requestDto = SignupRequestDto.builder()
+        SignupRequestDTO requestDto = SignupRequestDTO.builder()
                 .memNickname("이메일테스트")
                 .memEmail("sujung11naver.com")
                 .memPassword("sujung1234")
@@ -131,7 +131,7 @@ public class MemberAuthServiceTests {
     void 이메일_중복확인_테스트() {
 
         // 이메일 중복 확인을 위한 회원가입 정보
-        SignupRequestDto requestDto = SignupRequestDto.builder()
+        SignupRequestDTO requestDto = SignupRequestDTO.builder()
                 .memNickname("수정")
                 .memEmail("su11@naver.com")
                 .memPassword("sujung1234")
@@ -159,7 +159,7 @@ public class MemberAuthServiceTests {
     void 닉네임_중복확인_테스트() {
 
         // 닉네임 중복 확인을 위한 회원가입 정보
-        SignupRequestDto requestDto = SignupRequestDto.builder()
+        SignupRequestDTO requestDto = SignupRequestDTO.builder()
                 .memNickname("수정")
                 .memEmail("su11@naver.com")
                 .memPassword("sujung1234")
@@ -186,7 +186,7 @@ public class MemberAuthServiceTests {
     @Test
     void 비밀번호_형식_검증_테스트() {
 
-        SignupRequestDto requestDto = SignupRequestDto.builder()
+        SignupRequestDTO requestDto = SignupRequestDTO.builder()
                 .memNickname("수정")
                 .memEmail("su11@naver.com")
                 .memPassword("12")

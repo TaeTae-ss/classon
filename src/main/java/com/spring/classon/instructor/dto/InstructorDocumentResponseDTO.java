@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @Builder
 @AllArgsConstructor
-public class InstructorDocumentResponseDto {
+public class InstructorDocumentResponseDTO {
 
     private Long docNo;
     private Long reqNo;
