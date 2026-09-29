@@ -19,4 +19,14 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
         """)
     List<Review> findByMemNo(@Param("memNo") Long memNo);
 
+    //상품별 평균 평점 일괄 조회 (블라인드 제외)
+    @Query("""
+        SELECT review.clsNo, AVG(review.revRating)
+        FROM Review review
+        WHERE review.clsNo IN :clsNos
+        AND review.revStatus = 'N'
+        GROUP BY review.clsNo
+        """)
+    List<Object[]> findAvgRatingByClsNos(@Param("clsNos") List<Long> clsNos);
+
 }
