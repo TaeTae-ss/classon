@@ -15,6 +15,8 @@ public interface ReservationService {
     // 예약 목록 조회
     List<ReservationDTO> getReservationList();
 
+    // 회원 예약 목록 조회
+    List<ReservationDTO> getReservationListByMember(Long memNo);
     // 예약 취소
     void cancelReservation(Long rsvNo, String cancelReason);
 }

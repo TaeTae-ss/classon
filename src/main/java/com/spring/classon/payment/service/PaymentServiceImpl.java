@@ -5,8 +5,10 @@ import com.spring.classon.payment.dto.PaymentCreateDTO;
 import com.spring.classon.payment.dto.PaymentDTO;
 import com.spring.classon.payment.entity.Payment;
 import com.spring.classon.payment.entity.PaymentStatus;
+import com.spring.classon.payment.mapper.PaymentMapper;
 import com.spring.classon.payment.repository.PaymentRepository;
 import com.spring.classon.reservation.entity.Reservation;
+import com.spring.classon.reservation.entity.ReservationStatus;
 import com.spring.classon.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,6 +27,7 @@ public class PaymentServiceImpl implements PaymentService{
 
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
+    private final PaymentMapper paymentMapper;
 
     // 결제 생성
     @Override
@@ -34,11 +39,43 @@ public class PaymentServiceImpl implements PaymentService{
                         new IllegalArgumentException("예약 정보를 찾을 수 없습니다.")
                 );
 
-        // 이미 결제가 존재하는 경우
-        if (paymentRepository.existsByReservation(reservation)) {
+        // 이미 예약이 확정된 경우
+        if (reservation.getRsvStatus() == ReservationStatus.CONFIRMED) {
             throw new IllegalStateException(
-                    "이미 결제가 생성된 예약입니다."
+                    "이미 확정된 예약입니다."
             );
+        }
+
+        // 취소된 예약은 결제할 수 없음
+        if (reservation.getRsvStatus() == ReservationStatus.CANCEL) {
+            throw new IllegalStateException(
+                    "취소된 예약은 결제할 수 없습니다."
+            );
+        }
+
+        // 가장 최근 결제 확인
+        Optional<Payment> latestPayment = paymentRepository
+                .findTopByReservationOrderByPayCreatedAtDesc(reservation);
+
+        if (latestPayment.isPresent()) {
+
+            Payment payment = latestPayment.get();
+
+            // 아직 결제 진행 중
+            if (payment.getPayStatus() == PaymentStatus.WAIT) {
+                throw new IllegalStateException(
+                        "이미 결제 진행 중인 주문이 있습니다."
+                );
+            }
+
+            // 이미 결제 완료
+            if (payment.getPayStatus() == PaymentStatus.PAID) {
+                throw new IllegalStateException(
+                        "이미 결제가 완료된 예약입니다."
+                );
+            }
+
+            // FAILED 또는 CANCEL이면 새로운 결제 생성 가능
         }
 
         // 현재 예약 금액 사용
@@ -56,7 +93,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         paymentRepository.save(payment);
 
-        return new PaymentDTO(payment);
+        return paymentMapper.toDTO(payment);
     }
 
     // 결제 승인 toss 연동 전
@@ -87,7 +124,7 @@ public class PaymentServiceImpl implements PaymentService{
         // 연결된 예약 확정
         Reservation reservation = payment.getReservation();
         reservation.confirm();
-        return new PaymentDTO(payment);
+        return paymentMapper.toDTO(payment);
     }
 
     // 결제 실패
@@ -101,7 +138,7 @@ public class PaymentServiceImpl implements PaymentService{
                 ));
         payment.fail();
 
-        return new PaymentDTO(payment);
+        return paymentMapper.toDTO(payment);
     }
 
     // 결제 조회
@@ -113,7 +150,7 @@ public class PaymentServiceImpl implements PaymentService{
                         "결제 정보를 찾을 수 없습니다."
                 ));
 
-        return new PaymentDTO(payment);
+        return paymentMapper.toDTO(payment);
     }
 
     // 주문번호 생성
@@ -129,5 +166,25 @@ public class PaymentServiceImpl implements PaymentService{
                 .toUpperCase();
 
         return "CLASS_" + date + "_" + uuid;
+    }
+
+    // 특정 예약의 결제 조회
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaymentDTO> getPaymentListByReservation(Long rsvNo) {
+        Reservation reservation = reservationRepository
+                .findById(rsvNo)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "예약 정보를 찾을 수 없습니다."
+                        )
+                );
+
+        return paymentRepository
+                .findAllByReservationOrderByPayCreatedAtDesc(reservation)
+                .stream()
+                .map(paymentMapper::toDTO)
+                .toList();
     }
 }

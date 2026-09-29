@@ -47,6 +47,17 @@ public class ReservationController {
         return ResponseEntity.ok(result);
     }
 
+    // 회원 예약 내역 조회
+    @GetMapping("/member/{memNo}")
+    public ResponseEntity<List<ReservationDTO>> getReservationListByMember(
+            @PathVariable Long memNo
+    ) {
+        List<ReservationDTO> response =
+                reservationService.getReservationListByMember(memNo);
+
+        return ResponseEntity.ok(response);
+    }
+
     // 예약 취소
     @PatchMapping("/{rsvNo}/cancel")
     public ResponseEntity<Void> cancelReservation(
