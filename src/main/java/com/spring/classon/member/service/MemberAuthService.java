@@ -15,4 +15,18 @@ public interface MemberAuthService {
 
     // 로그인
     LoginResponseDTO login(LoginRequestDTO requestDTO);
+
+    // 비밀번호 재설정 인증번호 발송
+    void sendPasswordResetEmail(String memEmail);
+
+    // 비밀번호 재설정 인증번호 확인
+    boolean verifyPasswordResetEmail(
+            String memEmail,
+            String authCode
+    );
+
+    // 비밀번호 재설정
+    void resetPassword(
+            PasswordResetRequestDTO requestDto
+    );
 }
