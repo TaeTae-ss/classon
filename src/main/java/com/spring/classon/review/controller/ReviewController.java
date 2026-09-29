@@ -25,9 +25,11 @@ public class ReviewController {
 
     //클래스 상세보기 후기 조회
     @GetMapping("/class/{clsNo}")
-    public List<ReviewDTO> getClassList(@PathVariable Long clsNo) {
+    public List<ReviewDTO> getClassList(
+            @PathVariable Long clsNo,
+            @RequestParam(defaultValue = "latest") String sort ) {
 
-        List<ReviewDTO> reviewDTOList = reviewService.getClassList(clsNo);
+        List<ReviewDTO> reviewDTOList = reviewService.getClassList(clsNo, sort);
 
         return reviewDTOList;
     }
@@ -39,6 +41,15 @@ public class ReviewController {
         List<ReviewDTO> reviewDTOList = reviewService.getMemberList(memNo);
 
         return reviewDTOList;
+    }
+
+    //평균 평점 조회
+    @GetMapping("/class/{clsNo}/average")
+    public Double getAverageRating(@PathVariable Long clsNo) {
+
+        Double averageRating = reviewService.getAverageRating(clsNo);
+
+        return averageRating;
     }
 
     @DeleteMapping("/{revNo}")
