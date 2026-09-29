@@ -1,7 +1,8 @@
 package com.spring.classon.member.service;
 
 import com.spring.classon.common.service.EmailService;
-import com.spring.classon.member.dto.SignupRequestDTO;
+import com.spring.classon.common.util.JWTUtil;
+import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.mapper.MemberMapper;
 import com.spring.classon.member.repository.*;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Service
@@ -95,5 +97,53 @@ public class MemberAuthServiceImpl implements MemberAuthService {
     @Transactional(readOnly = true)
     public boolean checkNickname(String memNickname) {
         return !memberRepository.existsByMemNickname(memNickname);
+    }
+
+    // 로그인
+    @Override
+    @Transactional(readOnly = true)
+    public LoginResponseDTO login(LoginRequestDTO requestDto) {
+
+        // 이메일로 회원 조회
+        MemberPrivate memberPrivate =
+                memberPrivateRepository.findByMemEmail(
+                        requestDto.getMemEmail()
+                ).orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "이메일 또는 비밀번호가 올바르지 않습니다."
+                        )
+                );
+
+        // 비밀번호 확인
+        if (!passwordEncoder.matches(
+                requestDto.getMemPassword(),
+                memberPrivate.getMemPassword()
+        )) {
+            throw new IllegalArgumentException(
+                    "이메일 또는 비밀번호가 올바르지 않습니다."
+            );
+        }
+
+        Member member = memberPrivate.getMember();
+
+        // JWT에 저장할 회원 정보
+        Map<String, Object> claims = Map.of(
+                "memNo", member.getMemNo(),
+                "memEmail", memberPrivate.getMemEmail(),
+                "memRole", member.getMemRole()
+        );
+
+        // Access Token -> 1시간
+        String accessToken =
+                JWTUtil.generateToken(claims, 60);
+
+        // Refresh Token -> 7일
+        String refreshToken =
+                JWTUtil.generateToken(claims, 60 * 24 * 7);
+
+        return LoginResponseDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

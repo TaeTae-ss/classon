@@ -1,6 +1,6 @@
 package com.spring.classon.member.controller;
 
-import com.spring.classon.member.dto.SignupRequestDTO;
+import com.spring.classon.member.dto.*;
 import com.spring.classon.member.service.MemberAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -47,5 +47,23 @@ public class MemberAuthController {
         return ResponseEntity.ok(
                 Map.of("available", available)
         );
+    }
+
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDTO> login(
+            @RequestBody LoginRequestDTO requestDto) {
+
+        LoginResponseDTO responseDTO =
+                memberAuthService.login(requestDto);
+
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+
+        return ResponseEntity.ok().build();
     }
 }
