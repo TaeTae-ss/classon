@@ -56,7 +56,7 @@ public class ReservationServiceImpl implements ReservationService{
     public ReservationDTO getReservation(Long rsvNo) {
         Reservation reservation = reservationRepository.findById(rsvNo)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "예약 정보를 찾을 수 없습니다. 예약 번호: " + rsvNo
+                        "예약 정보를 찾을 수 없습니다."
                 ));
 
         return reservationMapper.toDTO(reservation);
@@ -92,13 +92,17 @@ public class ReservationServiceImpl implements ReservationService{
 
         Reservation reservation = reservationRepository.findById(rsvNo)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "예약 정보를 찾을 수 없습니다. 예약 번호: " + rsvNo
+                        "예약 정보를 찾을 수 없습니다."
                 ));
 
         if (reservation.getRsvStatus() == ReservationStatus.CANCEL) {
             throw new IllegalStateException("이미 취소된 예약입니다.");
         }
 
+        // 결제 취소
+        paymentService.cancelPayment(rsvNo);
+
+        // 예약 취소
         reservation.cancel(cancelReason);
     }
 
