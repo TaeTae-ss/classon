@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -145,5 +146,98 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    // 비밀번호 재설정 인증번호 발송
+    @Override
+    public void sendPasswordResetEmail(String memEmail) {
+
+        // 가입된 이메일인지 확인
+        MemberPrivate memberPrivate =
+                memberPrivateRepository.findByMemEmail(memEmail)
+                        .orElseThrow(() ->
+                                new IllegalArgumentException(
+                                        "가입된 이메일이 없습니다."
+                                )
+                        );
+
+        // 인증번호 생성
+        String authCode = String.valueOf(
+                (int) (Math.random() * 900000) + 100000
+        );
+
+        emailService.sendPasswordResetEmail(
+                memEmail,
+                authCode
+        );
+    }
+
+    // 비밀번호 재설정 인증번호 확인
+    @Override
+    public boolean verifyPasswordResetEmail(
+            String memEmail,
+            String authCode
+    ) {
+
+        return emailService.verifyPasswordResetEmail(
+                memEmail,
+                authCode
+        );
+    }
+
+    // 비밀번호 재설정
+    @Override
+    public void resetPassword(
+            PasswordResetRequestDTO requestDto
+    ) {
+
+        // 이메일 인증 확인
+        if (!emailService.isPasswordResetVerified(
+                requestDto.getMemEmail()
+        )) {
+            throw new IllegalArgumentException(
+                    "이메일 인증을 완료해 주세요."
+            );
+        }
+
+        // 회원 조회
+        MemberPrivate memberPrivate =
+                memberPrivateRepository.findByMemEmail(
+                        requestDto.getMemEmail()
+                ).orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "가입된 이메일이 없습니다."
+                        )
+                );
+
+        // 비밀번호 형식 확인
+        String passwordRegex =
+                "^(?=.*[A-Za-z])(?=.*\\d).{8,20}$";
+
+        if (!Pattern.matches(
+                passwordRegex,
+                requestDto.getMemPassword()
+        )) {
+            throw new IllegalArgumentException(
+                    "비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해 주세요."
+            );
+        }
+
+        // 비밀번호 암호화
+        String encodedPassword =
+                passwordEncoder.encode(
+                        requestDto.getMemPassword()
+                );
+
+        // 비밀번호 변경
+        memberPrivate.updatePassword(
+                encodedPassword,
+                LocalDateTime.now()
+        );
+
+        // 인증 상태 삭제
+        emailService.removePasswordResetVerified(
+                requestDto.getMemEmail()
+        );
     }
 }

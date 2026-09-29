@@ -60,6 +60,41 @@ public class MemberAuthController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    // 비밀번호 재설정 인증번호 발송
+    @PostMapping("/password/send")
+    public ResponseEntity<Void> sendPasswordResetEmail(
+            @RequestParam String email) {
+
+        memberAuthService.sendPasswordResetEmail(email);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 비밀번호 재설정 인증번호 확인
+    @PostMapping("/password/verify")
+    public ResponseEntity<Boolean> verifyPasswordResetEmail(
+            @RequestParam String email,
+            @RequestParam String authCode) {
+
+        boolean result =
+                memberAuthService.verifyPasswordResetEmail(
+                        email,
+                        authCode
+                );
+
+        return ResponseEntity.ok(result);
+    }
+
+    // 비밀번호 재설정
+    @PatchMapping("/password")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody PasswordResetRequestDTO requestDto) {
+
+        memberAuthService.resetPassword(requestDto);
+
+        return ResponseEntity.ok().build();
+    }
+
     // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
