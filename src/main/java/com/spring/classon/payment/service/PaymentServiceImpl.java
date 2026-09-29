@@ -11,14 +11,17 @@ import com.spring.classon.reservation.entity.Reservation;
 import com.spring.classon.reservation.entity.ReservationStatus;
 import com.spring.classon.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,13 @@ public class PaymentServiceImpl implements PaymentService{
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
     private final PaymentMapper paymentMapper;
+
+    @Value("${toss.secret-key}")
+    private String tossSecretKey;
+
+    private final RestClient restClient = RestClient.builder()
+            .baseUrl("https://api.tosspayments.com")
+            .build();
 
     // 결제 생성
     @Override
@@ -96,7 +106,7 @@ public class PaymentServiceImpl implements PaymentService{
         return paymentMapper.toDTO(payment);
     }
 
-    // 결제 승인 toss 연동 전
+    // 결제 승인
     @Override
     @Transactional
     public PaymentDTO confirmPayment(PaymentConfirmDTO paymentConfirmDTO) {
@@ -118,12 +128,38 @@ public class PaymentServiceImpl implements PaymentService{
             );
         }
 
+        // Toss 결제 승인 요청
+        // test_sk + ":"를 Base64 인코딩
+        String auth = Base64.getEncoder()
+                .encodeToString(
+                        (tossSecretKey+":")
+                                .getBytes(StandardCharsets.UTF_8)
+                );
+
+        Map<String, Object> requestBody = Map.of(
+                "paymentKey", paymentConfirmDTO.getPayKey(),
+                "orderId", paymentConfirmDTO.getOrderNo(),
+                "amount", paymentConfirmDTO.getPayAmount()
+        );
+
+        restClient.post()
+                .uri("/v1/payments/confirm")
+                        .header(
+                                HttpHeaders.AUTHORIZATION,
+                                "Basic " + auth
+                        )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(requestBody)
+                        .retrieve()
+                        .body(Map.class);
+
         // 결제 성공
         payment.success(paymentConfirmDTO.getPayKey());
 
         // 연결된 예약 확정
         Reservation reservation = payment.getReservation();
         reservation.confirm();
+
         return paymentMapper.toDTO(payment);
     }
 
