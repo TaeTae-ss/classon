@@ -42,3 +42,42 @@
 .classon_logo {
   font-family: 'NexonMaplestory', sans-serif;
 }
+
+:root {
+    --color-bg: #FFFDF9;
+
+    --color-orange: #F97316;
+    --color-orange-light: #FFEDD5;
+
+    --color-text: #1F2937;
+    --color-text-sub: #6B7280;
+
+    --color-white: #FFFFFF;
+    --color-border: #E5E7EB;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+
+    font-family:
+        Arial,
+        "Noto Sans KR",
+        sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
