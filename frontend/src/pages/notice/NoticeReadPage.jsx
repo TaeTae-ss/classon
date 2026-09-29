@@ -1,15 +1,17 @@
+import { useNavigate, useParams } from "react-router";
 import NoticeReadComponent from "../../components/notice/NoticeReadComponent";
 
-const NoticeReadPage = ({
-    notNo,
-    onList,
-}) => {
+const NoticeReadPage = () => {
+
+    const { notNo } = useParams();
+    const navigate = useNavigate();
 
     return (
         <NoticeReadComponent
-            notNo={notNo}
-            onList={onList}
-        />
+            notNo={Number(notNo)}
+            onList={() =>
+                navigate("/notice/list")
+            }/>
     );
 };
 

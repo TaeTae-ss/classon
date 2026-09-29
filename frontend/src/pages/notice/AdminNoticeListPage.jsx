@@ -1,16 +1,9 @@
 import AdminNoticeListComponent from "../../components/notice/AdminNoticeListComponent";
 
-const AdminNoticeListPage = ({
-    onRegister,
-    onRead,
-    onModify,
-}) => {
+const AdminNoticeListPage = () => {
 
     return (
-        <AdminNoticeListComponent
-            onRegister={onRegister}
-            onRead={onRead}
-            onModify={onModify}/>
+        <AdminNoticeListComponent />
     );
 };
 

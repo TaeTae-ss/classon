@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { getNoticeList } from "../../api/noticeApi";
+import { useNavigate } from "react-router";
+import { deleteNotice, getNoticeList } from "../../api/noticeApi";
 
-const AdminNoticeListComponent = ({
-    onRegister,
-    onRead,
-    onModify,
-}) => {
+
+const AdminNoticeListComponent = () => {
+
+    const navigate = useNavigate();
 
     const [notices, setNotices] = useState([]);
 
@@ -21,7 +21,8 @@ const AdminNoticeListComponent = ({
     const [searchKeyword, setSearchKeyword] = useState("");
 
 
-    useEffect(() => {
+    // 공지사항 목록 조회
+    const loadNotices = () => {
 
         getNoticeList({
             page,
@@ -42,10 +43,17 @@ const AdminNoticeListComponent = ({
                 );
 
             });
+    };
+
+
+    useEffect(() => {
+
+        loadNotices();
 
     }, [page, searchKeyword]);
 
 
+    // 검색
     const handleSearch = (e) => {
 
         e.preventDefault();
@@ -55,6 +63,39 @@ const AdminNoticeListComponent = ({
     };
 
 
+    // 삭제
+    const handleDelete = async (notNo) => {
+
+        const confirmed = window.confirm(
+            "공지사항을 삭제하시겠습니까?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            await deleteNotice(notNo);
+
+            alert("공지사항이 삭제되었습니다.");
+
+            // 삭제 후 현재 목록 다시 조회
+            loadNotices();
+
+        } catch (error) {
+
+            console.error(
+                "공지사항 삭제 실패:",
+                error
+            );
+
+            alert("공지사항 삭제에 실패했습니다.");
+        }
+    };
+
+
+    // 날짜 형식
     const formatDate = (date) => {
 
         if (!date) {
@@ -81,16 +122,17 @@ const AdminNoticeListComponent = ({
                     공지사항 관리
                 </h1>
 
-               <button type="button"
-               className="notice-submit-button"
-               onClick={onRegister}>
-                공지 등록
-               </button>
+                <button
+                    type="button"
+                    className="notice-submit-button"
+                    onClick={() =>
+                        navigate("/notice/admin/register")}>
+                    공지 등록
+                </button>
             </div>
 
 
             {/* 검색 */}
-
             <form
                 className="notice-search"
                 onSubmit={handleSearch}>
@@ -100,8 +142,7 @@ const AdminNoticeListComponent = ({
                     className="notice-search-input"
                     value={keyword}
                     onChange={(e) =>
-                        setKeyword(e.target.value)
-                    }
+                        setKeyword(e.target.value)}
                     placeholder="제목 또는 내용을 검색하세요."/>
 
                 <button
@@ -114,11 +155,11 @@ const AdminNoticeListComponent = ({
 
 
             {/* 목록 */}
-
             <table className="notice-table">
 
                 <thead>
                     <tr>
+
                         <th className="notice-number">
                             번호
                         </th>
@@ -134,8 +175,10 @@ const AdminNoticeListComponent = ({
                         <th className="admin-notice-manage">
                             관리
                         </th>
+
                     </tr>
                 </thead>
+
 
                 <tbody>
 
@@ -159,46 +202,51 @@ const AdminNoticeListComponent = ({
                                     {notice.notNo}
                                 </td>
 
-                                <td className="notice-title-cell">
 
+                                <td className="notice-title-cell">
                                     <button
                                         type="button"
                                         className="notice-title-button"
-                                        onClick={() => onRead(notice.notNo)}>
+                                        onClick={() =>
+                                            navigate(
+                                                `/notice/admin/read/${notice.notNo}`)}>
                                         {notice.notTitle}
                                     </button>
-
                                 </td>
+
 
                                 <td>
                                     {formatDate(
-                                        notice.notCreatedAt
-                                    )}
+                                        notice.notCreatedAt)}
                                 </td>
 
+
                                 <td>
-
                                     <div className="admin-notice-actions">
-
                                         <button
                                             type="button"
-                                            onClick={() => onRead(notice.notNo)}>
+                                            onClick={() =>
+                                                navigate(
+                                                    `/notice/admin/read/${notice.notNo}`)}>
                                             상세
                                         </button>
 
+
                                         <button
                                             type="button"
-                                            onClick={() => onModify(notice.notNo)}>
+                                            onClick={() =>
+                                                navigate(
+                                                    `/notice/admin/modify/${notice.notNo}`)}>
                                             수정
                                         </button>
+
 
                                         <button
                                             type="button"
                                             className="delete"
                                             onClick={() =>
-                                                alert(
-                                                    "삭제 기능은 다음 단계에서 연결합니다."
-                                                )}>
+                                                handleDelete(
+                                                    notice.notNo)}>
                                             삭제
                                         </button>
                                     </div>
@@ -211,7 +259,6 @@ const AdminNoticeListComponent = ({
 
 
             {/* 페이지네이션 */}
-
             <div className="notice-pagination">
 
                 {pageData.prev && (
@@ -220,8 +267,7 @@ const AdminNoticeListComponent = ({
                         type="button"
                         className="notice-page-button"
                         onClick={() =>
-                            setPage(pageData.prevPage)
-                        }>‹
+                            setPage(pageData.prevPage)}>‹
                     </button>
                 )}
 
@@ -243,7 +289,6 @@ const AdminNoticeListComponent = ({
                         </button>
                     )
                 )}
-
 
                 {pageData.next && (
 

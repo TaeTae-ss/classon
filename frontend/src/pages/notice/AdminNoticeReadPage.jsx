@@ -1,18 +1,24 @@
+import { useNavigate, useParams } from "react-router";
 import AdminNoticeReadComponent from "../../components/notice/AdminNoticeReadComponent";
 
-const AdminNoticeReadPage = ({
-    notNo,
-    onList,
-    onModify,
-    onDeleted,
-}) => {
+const AdminNoticeReadPage = () => {
+
+    const { notNo } = useParams();
+    const navigate = useNavigate();
 
     return (
         <AdminNoticeReadComponent
-            notNo={notNo}
-            onList={onList}
-            onModify={onModify}
-            onDeleted={onDeleted}/>
+            notNo={Number(notNo)}
+            onList={() =>
+                navigate("/notice/admin")
+            }
+            onModify={(noticeNo) =>
+                navigate(
+                    `/notice/admin/modify/${noticeNo}`
+                )}
+            onDeleted={() =>
+                navigate("/notice/admin")
+            }/>
     );
 };
 

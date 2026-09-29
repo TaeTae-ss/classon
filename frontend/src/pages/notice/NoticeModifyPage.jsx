@@ -1,17 +1,24 @@
-import NoticeModifyComponent
-    from "../../components/notice/NoticeModifyComponent";
+import { useNavigate, useParams } from "react-router";
+import NoticeModifyComponent from "../../components/notice/NoticeModifyComponent";
 
-const NoticeModifyPage = ({
-    notNo,
-    onCancel,
-    onSuccess,
-}) => {
+const NoticeModifyPage = () => {
+
+    const { notNo } = useParams();
+    const navigate = useNavigate();
 
     return (
         <NoticeModifyComponent
-            notNo={notNo}
-            onCancel={onCancel}
-            onSuccess={onSuccess}/>
+            notNo={Number(notNo)}
+            onCancel={() =>
+                navigate(
+                    `/notice/admin/read/${notNo}`
+                )
+            }
+            onSuccess={() =>
+                navigate(
+                    `/notice/admin/read/${notNo}`
+                )
+            }/>
     );
 };
 

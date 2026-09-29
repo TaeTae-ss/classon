@@ -1,14 +1,18 @@
+import { useNavigate } from "react-router";
 import NoticeRegisterComponent from "../../components/notice/NoticeRegisterComponent";
 
-const NoticeRegisterPage = ({
-    onCancel,
-    onSuccess,
-}) => {
+const NoticeRegisterPage = () => {
+
+    const navigate = useNavigate();
 
     return (
         <NoticeRegisterComponent
-            onCancel={onCancel}
-            onSuccess={onSuccess}/>
+            onCancel={() =>
+                navigate("/notice/admin")
+            }
+            onSuccess={() =>
+                navigate("/notice/admin")
+            }/>
     );
 };
 
