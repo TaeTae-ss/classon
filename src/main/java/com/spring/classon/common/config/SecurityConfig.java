@@ -21,10 +21,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // React 주소 허용
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:5172",
-                "http://localhost:5173"
-        ));
+        configuration.setAllowedOrigins(List.of("*"));
 
         // 요청 방식 허용
         configuration.setAllowedMethods(List.of(
