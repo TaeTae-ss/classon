@@ -15,16 +15,24 @@ public class JWTUtil {
 
     // 문자열 비밀키를 SecretKey로 변환
     private static final SecretKey KEY =
-            Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+            Keys.hmacShaKeyFor(
+                    SECRET_KEY.getBytes(StandardCharsets.UTF_8)
+            );
 
     // JWT 생성
-    public static String generateToken(Map<String, Object> claims, int min) {
+    public static String generateToken(
+            Map<String, Object> claims,
+            int min
+    ) {
 
         return Jwts.builder()
                 .claims(claims)
                 .issuedAt(new Date())
                 .expiration(
-                        new Date(System.currentTimeMillis() + (1000L * 60 * min))
+                        new Date(
+                                System.currentTimeMillis()
+                                        + (1000L * 60 * min)
+                        )
                 )
                 .signWith(KEY)
                 .compact();
