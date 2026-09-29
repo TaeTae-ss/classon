@@ -1,7 +1,7 @@
 package com.spring.classon.member.service;
 
 import com.spring.classon.common.service.EmailService;
-import com.spring.classon.member.dto.SignupRequestDto;
+import com.spring.classon.member.dto.SignupRequestDTO;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.mapper.MemberMapper;
 import com.spring.classon.member.repository.*;
@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 @Service
@@ -26,7 +25,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
     // 회원가입
     @Override
-    public void signup(SignupRequestDto requestDto) {
+    public void signup(SignupRequestDTO requestDto) {
 
         // 이메일 형식 확인
         String emailRegex =

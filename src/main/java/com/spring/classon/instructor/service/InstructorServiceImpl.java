@@ -26,7 +26,7 @@ public class InstructorServiceImpl implements InstructorService {
 
     // 강사 신청
     @Override
-    public Long applyInstructor(Long memNo, InstructorRequestDto dto) {
+    public Long applyInstructor(Long memNo, InstructorRequestDTO dto) {
 
         InstructorRequest request =
                 instructorMapper.toEntity(memNo, dto, "NEW");
@@ -40,7 +40,7 @@ public class InstructorServiceImpl implements InstructorService {
     // 강사 신청 상태 조회
     @Override
     @Transactional(readOnly = true)
-    public InstructorResponseDto getInstructorRequest(Long reqNo) {
+    public InstructorResponseDTO getInstructorRequest(Long reqNo) {
 
         InstructorRequest request =
                 instructorRequestRepository.findById(reqNo)
@@ -52,7 +52,7 @@ public class InstructorServiceImpl implements InstructorService {
 
     // 강사 신청 증빙자료 등록
     @Override
-    public InstructorDocumentResponseDto addDocument(
+    public InstructorDocumentResponseDTO addDocument(
             Long reqNo,
             MultipartFile file
     ) {
@@ -98,7 +98,7 @@ public class InstructorServiceImpl implements InstructorService {
 
     // 강사 신청 승인/거절
     @Override
-    public void updateInstructorStatus(Long reqNo, InstructorApprovalDto dto) {
+    public void updateInstructorStatus(Long reqNo, InstructorApprovalDTO dto) {
 
         InstructorRequest request =
                 instructorRequestRepository.findById(reqNo)

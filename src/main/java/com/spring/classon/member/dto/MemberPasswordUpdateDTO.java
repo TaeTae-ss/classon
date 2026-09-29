@@ -4,7 +4,7 @@ import lombok.*;
 
 @Getter
 @NoArgsConstructor
-public class MemberPasswordUpdateDto {
+public class MemberPasswordUpdateDTO {
 
     private String currentPassword;
     private String newPassword;

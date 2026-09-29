@@ -52,7 +52,7 @@ public class MemberServiceTests {
         memberPrivateRepository.save(memberPrivate);
 
         // 회원정보 조회 기능 실행
-        MemberResponseDto result =
+        MemberResponseDTO result =
                 memberService.getMember(member.getMemNo());
 
         // 조회된 회원정보가 입력한 값과 같은지 확인
@@ -100,7 +100,7 @@ public class MemberServiceTests {
         memberPrivateRepository.save(memberPrivate);
 
         // 회원정보 수정에 사용할 데이터
-        MemberUpdateDto updateDto = new MemberUpdateDto(
+        MemberUpdateDTO updateDto = new MemberUpdateDTO(
                 "travelLover",
                 "010-3333-4444",
                 "서울시 서초구",

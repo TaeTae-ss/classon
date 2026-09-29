@@ -1,11 +1,11 @@
 package com.spring.classon.member.service;
 
-import com.spring.classon.member.dto.SignupRequestDto;
+import com.spring.classon.member.dto.SignupRequestDTO;
 
 public interface MemberAuthService {
 
     // 회원가입
-    void signup(SignupRequestDto requestDto);
+    void signup(SignupRequestDTO requestDto);
 
     // 이메일 중복 확인
     boolean checkEmail(String memEmail);
