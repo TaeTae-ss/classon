@@ -26,13 +26,13 @@ public class SecurityConfig {
                                 "/api/auth/check-email",
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
-                                "/api/auth/login",
-                                "/api/auth/logout"
+                                "/api/auth/login"
                         ).permitAll()
 
                         // 회원 접근 가능(강사, 관리자 포함)
                         .requestMatchers(
-                                "/api/member/**"
+                                "/api/member/**",
+                                "/api/auth/logout"
                         ).hasAnyRole(
                                 "USER",
                                 "INSTRUCTOR",
