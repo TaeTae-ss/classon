@@ -6,19 +6,26 @@ const AdminNoticeReadPage = () => {
     const { notNo } = useParams();
     const navigate = useNavigate();
 
+    const noticeNo = Number(notNo);
+
     return (
         <AdminNoticeReadComponent
-            notNo={Number(notNo)}
+            notNo={noticeNo}
+
             onList={() =>
                 navigate("/notice/admin")
             }
-            onModify={(noticeNo) =>
+
+            onModify={() =>
                 navigate(
                     `/notice/admin/modify/${noticeNo}`
-                )}
+                )
+            }
+
             onDeleted={() =>
                 navigate("/notice/admin")
-            }/>
+            }
+        />
     );
 };
 
