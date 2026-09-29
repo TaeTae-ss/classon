@@ -26,7 +26,8 @@ public class SecurityConfig {
                                 "/api/auth/check-email",
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
-                                "/api/auth/login"
+                                "/api/auth/login",
+                                "/api/auth/logout"
                         ).permitAll()
 
                         // 회원 접근 가능(강사, 관리자 포함)

@@ -1,6 +1,6 @@
 package com.spring.classon.member.service;
 
-import com.spring.classon.member.dto.SignupRequestDTO;
+import com.spring.classon.member.dto.*;
 
 public interface MemberAuthService {
 
@@ -12,4 +12,7 @@ public interface MemberAuthService {
 
     // 닉네임 중복 확인
     boolean checkNickname(String memNickname);
+
+    // 로그인
+    LoginResponseDTO login(LoginRequestDTO requestDTO);
 }

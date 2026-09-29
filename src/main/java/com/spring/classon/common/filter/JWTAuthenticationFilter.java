@@ -10,6 +10,7 @@ import org.springframework.security.core.context.*;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.*;
+import java.util.List;
 
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
@@ -45,7 +46,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(
                                 claims,
                                 null,
-                                java.util.List.of(authority)
+                                List.of(authority)
                         );
 
                 // 인증 정보 저장
