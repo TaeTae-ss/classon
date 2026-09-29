@@ -127,6 +127,18 @@ public class PaymentServiceImpl implements PaymentService{
         return paymentMapper.toDTO(payment);
     }
 
+    // 결제 조회
+    @Override
+    public PaymentDTO getPayment(Long payNo) {
+        Payment payment = paymentRepository
+                .findById(payNo)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "결제 정보를 찾을 수 없습니다."
+                ));
+
+        return paymentMapper.toDTO(payment);
+    }
+
     // 결제 실패
     @Override
     @Transactional
@@ -141,14 +153,44 @@ public class PaymentServiceImpl implements PaymentService{
         return paymentMapper.toDTO(payment);
     }
 
-    // 결제 조회
+    // 결제 취소
     @Override
-    public PaymentDTO getPayment(Long payNo) {
+    @Transactional
+    public PaymentDTO cancelPayment(Long rsvNo) {
+
+        Reservation reservation = reservationRepository
+                .findById(rsvNo)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "예약 정보를 찾을 수 없습니다."
+                        )
+                );
+
+        // 가장 최근 결제 조회
         Payment payment = paymentRepository
-                .findById(payNo)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "결제 정보를 찾을 수 없습니다."
-                ));
+                .findTopByReservationOrderByPayCreatedAtDesc(reservation)
+                .orElseThrow(() ->
+                        new IllegalStateException(
+                                "해당 예약의 결제 정보를 찾을 수 없습니다."
+                        )
+                );
+
+        // 이미 취소된 결제
+        if (payment.getPayStatus() == PaymentStatus.CANCEL) {
+            throw new IllegalStateException(
+                    "이미 취소된 결제입니다."
+            );
+        }
+
+        // 결제 완료 상태가 아닌 경우
+        if (payment.getPayStatus() != PaymentStatus.PAID) {
+            throw new IllegalStateException(
+                    "결제 완료된 결제만 취소할 수 있습니다."
+            );
+        }
+
+        // 결제 취소
+        payment.cancel();
 
         return paymentMapper.toDTO(payment);
     }

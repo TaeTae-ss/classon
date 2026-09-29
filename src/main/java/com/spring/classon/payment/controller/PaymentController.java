@@ -19,33 +19,41 @@ public class PaymentController {
     // 결제 생성
     @PostMapping
     public ResponseEntity<PaymentDTO> createPayment(@RequestBody PaymentCreateDTO request) {
-        PaymentDTO response = paymentService.createPayment(request);
+        PaymentDTO payment = paymentService.createPayment(request);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(payment);
     }
 
     // 결제 승인
     @PostMapping("/confirm")
     public ResponseEntity<PaymentDTO> confirmPayment(@RequestBody PaymentConfirmDTO request) {
-        PaymentDTO response = paymentService.confirmPayment(request);
+        PaymentDTO payment = paymentService.confirmPayment(request);
 
-        return ResponseEntity.ok(response);
-    }
-
-    // 결제 실패
-    @PatchMapping("/{payNo}/fail")
-    public ResponseEntity<PaymentDTO> failPayment(@PathVariable Long payNo) {
-        PaymentDTO response = paymentService.failPayment(payNo);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(payment);
     }
 
     // 결제 상세 조회
     @GetMapping("/{payNo}")
     public ResponseEntity<PaymentDTO> getPayment(@PathVariable Long payNo) {
-        PaymentDTO response = paymentService.getPayment(payNo);
+        PaymentDTO payment = paymentService.getPayment(payNo);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(payment);
+    }
+
+    // 결제 실패
+    @PatchMapping("/{payNo}/fail")
+    public ResponseEntity<PaymentDTO> failPayment(@PathVariable Long payNo) {
+        PaymentDTO payment = paymentService.failPayment(payNo);
+
+        return ResponseEntity.ok(payment);
+    }
+
+    // 결제 취소
+    @PatchMapping("/reservation/{rsvNo}/cancel")
+    public ResponseEntity<PaymentDTO> cancelPayment(@PathVariable Long rsvNo) {
+        PaymentDTO payment = paymentService.cancelPayment(rsvNo);
+
+        return ResponseEntity.ok(payment);
     }
 
     // 특정 예약의 결제 이력
@@ -53,9 +61,9 @@ public class PaymentController {
     public ResponseEntity<List<PaymentDTO>> getPaymentsByReservation(
             @PathVariable Long rsvNo
     ) {
-        List<PaymentDTO> response =
+        List<PaymentDTO> paymentList =
                 paymentService.getPaymentListByReservation(rsvNo);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(paymentList);
     }
 }

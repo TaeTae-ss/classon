@@ -13,11 +13,14 @@ public interface PaymentService {
     // 결제 승인
     PaymentDTO confirmPayment(PaymentConfirmDTO paymentConfirmDTO);
 
+    // 결제 조회
+    PaymentDTO getPayment(Long payNo);
+
     // 결제 실패
     PaymentDTO failPayment(Long payNo);
 
-    // 결제 조회
-    PaymentDTO getPayment(Long payNo);
+    // 결제 취소
+    PaymentDTO cancelPayment(Long rsvNo);
 
     // 주문번호 생성 ex)CLASS_20260921_X2M84L
     String createOrderNo();
