@@ -1,5 +1,6 @@
 package com.spring.classon.instructor.service;
 
+import com.spring.classon.common.exception.FileException;
 import com.spring.classon.common.exception.InstructorException;
 import com.spring.classon.instructor.dto.*;
 import com.spring.classon.instructor.entity.*;
@@ -93,7 +94,7 @@ public class InstructorServiceImpl implements InstructorService {
             return instructorDocumentMapper.toResponseDto(savedDocument);
 
         } catch (IOException e) {
-            throw new IllegalArgumentException("파일 저장에 실패했습니다.");
+            throw new FileException("파일 저장에 실패했습니다.");
         }
     }
 
