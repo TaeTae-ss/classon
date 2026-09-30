@@ -2,6 +2,7 @@ package com.spring.classon.common.config;
 
 import com.spring.classon.common.filter.JWTAuthenticationFilter;
 import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.*;
@@ -12,6 +13,7 @@ import org.springframework.web.cors.*;
 import java.util.*;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     // CORS 설정
@@ -20,8 +22,7 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // React 주소 허용(현재는 모든 주소 허용)
-        // 배포시 실제 주소로 바꿔야 함!
+        // React 주소 허용
         configuration.setAllowedOriginPatterns(List.of("*"));
 
         // 요청 방식 허용
@@ -51,7 +52,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // 권한 설정
+    // 공통 보안 설정
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http
@@ -68,42 +69,12 @@ public class SecurityConfig {
                                 "/api/auth/check-email",
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
-                                "/api/auth/check-email",
                                 "/api/auth/login",
                                 "/api/auth/password/**",
                                 "/api/auth/refresh"
                         ).permitAll()
 
-                        // 회원 접근 가능(강사, 관리자 포함)
-                        .requestMatchers(
-                                "/api/member/**",
-                                "/api/auth/logout"
-                        ).hasAnyRole(
-                                "USER",
-                                "INSTRUCTOR",
-                                "ADMIN"
-                        )
-
-                        // 강사 신청 관련(회원만 접근 가능)
-                        .requestMatchers(
-                                "/api/instructor/*",
-                                "/api/instructor/*/documents"
-                        ).hasRole("USER")
-
-                        // 강사 접근 가능(관리자 포함)
-                        .requestMatchers(
-                                "/api/instructor/class/**"
-                        ).hasAnyRole(
-                                "INSTRUCTOR",
-                                "ADMIN"
-                        )
-
-                        // 관리자만 접근 가능
-                        .requestMatchers(
-                                "/api/admin/**"
-                        ).hasRole("ADMIN")
-
-                        // 그 외 요청
+                        // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
