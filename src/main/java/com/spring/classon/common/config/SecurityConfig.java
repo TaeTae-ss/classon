@@ -9,6 +9,7 @@ import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.web.cors.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -21,7 +22,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // React 주소 허용
-        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedOrigins(Arrays.asList("*"));
 
         // 요청 방식 허용
         configuration.setAllowedMethods(List.of(
