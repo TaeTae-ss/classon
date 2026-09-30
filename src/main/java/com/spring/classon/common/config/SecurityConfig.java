@@ -9,7 +9,7 @@ import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.web.cors.*;
 
-import java.util.List;
+import java.util.*;
 
 @Configuration
 public class SecurityConfig {
@@ -20,8 +20,9 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // React 주소 허용
-        configuration.setAllowedOrigins(List.of("*"));
+        // React 주소 허용(현재는 모든 주소 허용)
+        // 배포시 실제 주소로 바꿔야 함!
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         // 요청 방식 허용
         configuration.setAllowedMethods(List.of(
@@ -67,6 +68,9 @@ public class SecurityConfig {
                                 "/api/auth/check-email",
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
+                                "/api/auth/login",
+                                "/api/auth/password/**",
+                                "/api/auth/refresh"
                                 "/api/auth/login",
                                 "/api/reservation",
                                 "/api/reservation/**",

@@ -148,6 +148,19 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 .build();
     }
 
+    // Access Token 재발급
+    @Override
+    @Transactional(readOnly = true)
+    public String refreshAccessToken(String refreshToken) {
+
+        // Refresh Token 검증
+        Map<String, Object> claims =
+                JWTUtil.validateToken(refreshToken);
+
+        // 새 Access Token 발급
+        return JWTUtil.generateToken(claims, 60);
+    }
+
     // 비밀번호 재설정 인증번호 발송
     @Override
     public void sendPasswordResetEmail(String memEmail) {
