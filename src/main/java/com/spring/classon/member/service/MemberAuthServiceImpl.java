@@ -1,5 +1,6 @@
 package com.spring.classon.member.service;
 
+import com.spring.classon.common.exception.AuthException;
 import com.spring.classon.common.exception.MemberException;
 import com.spring.classon.common.service.EmailService;
 import com.spring.classon.common.util.JWTUtil;
@@ -111,7 +112,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 memberPrivateRepository.findByMemEmail(
                         requestDto.getMemEmail()
                 ).orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new AuthException(
                                 "이메일 또는 비밀번호가 올바르지 않습니다."
                         )
                 );
@@ -121,7 +122,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 requestDto.getMemPassword(),
                 memberPrivate.getMemPassword()
         )) {
-            throw new IllegalArgumentException(
+            throw new AuthException(
                     "이메일 또는 비밀번호가 올바르지 않습니다."
             );
         }
