@@ -1,0 +1,196 @@
+:root {
+    --bg-color: #FFFDF9;
+
+    --orange-main: #F97316;
+    --orange-light: #FFEDD5;
+
+    --text-main: #1F2937;
+    --text-sub: #6B7280;
+
+    --white: #FFFFFF;
+    --border-color: #E5E7EB;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: Arial, "Noto Sans KR", sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+    font: inherit;
+}
+
+/* 전체 배경 */
+
+.app-background {
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    padding: 30px;
+}
+
+/* 스토리보드의 둥근 외곽 영역 */
+
+.app-container {
+    width: min(1100px, 100%);
+    min-height: 700px;
+
+    margin: 0 auto;
+    padding: 30px 45px 50px;
+
+    background-color: var(--white);
+
+    border: 2px solid var(--text-main);
+    border-radius: 70px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.main-header {
+    min-height: 70px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 35px;
+
+    border-bottom: 1px solid var(--orange-light);
+}
+
+/* CLASS:ON */
+
+.main-logo {
+    color: var(--orange-main);
+
+    font-size: 26px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+}
+
+/* 메뉴 */
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+
+    flex: 1;
+}
+
+.main-nav button {
+    border: 0;
+    background: transparent;
+
+    color: var(--text-main);
+
+    font-weight: 600;
+
+    padding: 10px 5px;
+
+    cursor: pointer;
+}
+
+.main-nav button:hover {
+    color: var(--orange-main);
+}
+
+/* 오른쪽 사용자 버튼 */
+
+.header-user {
+    margin-left: auto;
+}
+
+.user-button {
+    min-width: 85px;
+
+    padding: 9px 18px;
+
+    border: 1px solid var(--orange-main);
+    border-radius: 8px;
+
+    background-color: var(--orange-light);
+    color: var(--orange-main);
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.user-button:hover {
+    background-color: var(--orange-main);
+    color: var(--white);
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.main-content {
+    padding: 35px 10px;
+}
+
+/* 공통 페이지 제목 */
+
+.page-title {
+    margin: 0 0 30px;
+
+    color: var(--text-main);
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* 공통 주황색 버튼 */
+
+.orange-button {
+    padding: 10px 22px;
+
+    border: 1px solid var(--orange-main);
+    border-radius: 8px;
+
+    background-color: var(--orange-main);
+    color: var(--white);
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.orange-button:hover {
+    opacity: 0.85;
+}
+
+/* 연한 주황색 버튼 */
+
+.orange-light-button {
+    padding: 10px 22px;
+
+    border: 1px solid var(--orange-main);
+    border-radius: 8px;
+
+    background-color: var(--orange-light);
+    color: var(--orange-main);
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
