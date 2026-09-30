@@ -9,8 +9,7 @@ import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.web.cors.*;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Configuration
 public class SecurityConfig {
