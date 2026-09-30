@@ -1,6 +1,6 @@
 package com.spring.classon.member.service;
 
-import com.spring.classon.common.exception.MemberException;
+import com.spring.classon.common.exception.*;
 import com.spring.classon.common.service.EmailService;
 import com.spring.classon.common.util.JWTUtil;
 import com.spring.classon.member.dto.*;
