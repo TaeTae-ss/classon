@@ -8,8 +8,18 @@ const api = axios.create({
 // 요청 전에 Access Token 추가
 api.interceptors.request.use((config) => {
 
-    // 로그인 요청은 토큰 제외
-    if (config.url === "/api/auth/login") {
+    // 로그인 없이 접근하는 요청
+    const publicUrls = [
+        "/api/auth/login",
+        "/api/auth/signup",
+        "/api/auth/check-email",
+        "/api/auth/check-nickname",
+        "/api/auth/email/send",
+        "/api/auth/email/verify",
+        "/api/auth/refresh"
+    ];
+
+    if (publicUrls.includes(config.url)) {
         return config;
     }
 
@@ -59,10 +69,13 @@ api.interceptors.response.use(
                 const newAccessToken = response.data.accessToken;
 
                 // 새 Access Token 저장
-                setCookie("member", {
-                    ...memberCookie,
-                    accessToken: newAccessToken
-                });
+                setCookie(
+                    "member",
+                    {
+                        ...memberCookie,
+                        accessToken: newAccessToken
+                    }, 1
+                );
 
                 // 원래 요청에 새 토큰 적용
                 originalRequest.headers.Authorization =

@@ -39,6 +39,39 @@
     border-color: var(--orange-main);
 }
 
+.signup-field {
+    width: 100%;
+}
+
+.signup-error {
+    margin: 5px 0 0;
+    color: var(--orange-main);
+    font-size: 13px;
+}
+
+.signup-success {
+    margin: 5px 0 0;
+    color: var(--orange-main);
+    font-size: 13px;
+}
+
+.signup-field-button button {
+    width: 100px;
+    flex-shrink: 0;
+    border: 1px solid var(--orange-main);
+    border-radius: 7px;
+    background-color: var(--orange-light);
+    color: var(--orange-main);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.signup-field-button button:hover {
+    background-color: var(--orange-main);
+    color: var(--white);
+}
+
 .signup-field-button {
     display: flex;
     width: 100%;
@@ -51,23 +84,42 @@
     min-width: 0;
 }
 
-.signup-field-button button {
-    width: 72px;
+.email-send-button {
+    width: 100px;
     flex-shrink: 0;
-
     border: 1px solid var(--orange-main);
     border-radius: 7px;
     background-color: var(--orange-light);
     color: var(--orange-main);
-
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
 }
 
-.signup-field-button button:hover {
+.email-send-button:hover {
     background-color: var(--orange-main);
     color: var(--white);
+}
+
+.email-verify-button {
+    width: 100px;
+    flex-shrink: 0;
+    border: 1px solid var(--orange-main);
+    border-radius: 7px;
+    background-color: var(--orange-main);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.email-verify-button:hover {
+    background-color: var(--orange-light);
+    color: var(--orange-main);
+}
+
+.auth-code-input {
+    min-width: 0;
 }
 
 .signup-submit {
@@ -81,33 +133,26 @@
     font-size: 14px;
 }
 
-/* 작은 화면 */
 @media (max-width: 600px) {
-
     .signup-form {
         max-width: 100%;
     }
-
     .signup-row > label {
         width: 80px;
         margin-right: 10px;
         font-size: 13px;
     }
-
     .signup-input {
         height: 36px;
         font-size: 13px;
     }
-
     .signup-field-button {
         gap: 5px;
     }
-
     .signup-field-button button {
-        width: 65px;
-        font-size: 12px;
+        width: 85px;
+        font-size: 11px;
     }
-
     .signup-submit {
         margin-left: 90px;
     }
