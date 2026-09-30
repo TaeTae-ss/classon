@@ -1,83 +1,47 @@
 package com.spring.classon.common.exception;
 
+import com.spring.classon.common.response.ApiResponse;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import com.spring.classon.common.exception.InquiryNotFoundException;
-
-import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 문의를 찾을 수 없음
-    @ExceptionHandler(InquiryNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleInquiryNotFound(
-            InquiryNotFoundException e) {
-
-        return createErrorResponse(
-                HttpStatus.NOT_FOUND,
-                e.getMessage()
-        );
-    }
-
-    // 잘못된 요청
+    // 잘못된 요청 (존재하지 않는 리소스 참조 등)
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(
-            IllegalArgumentException e) {
-
-        return createErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                e.getMessage()
-        );
+    public ResponseEntity<ApiResponse<ApiResponse.ErrorPayload>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return build(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
-    // @Valid 유효성 검사 실패
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(
-            MethodArgumentNotValidException e) {
-
-        String message = e.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .findFirst()
-                .map(error -> error.getDefaultMessage())
-                .orElse("입력값이 올바르지 않습니다.");
-
-        return createErrorResponse(
-                HttpStatus.BAD_REQUEST,
-                message
-        );
+    // 현재 상태에서 허용되지 않는 요청 (상태 전이 위반 등)
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<ApiResponse.ErrorPayload>> handleIllegalStateException(IllegalStateException e) {
+        return build(HttpStatus.CONFLICT, e.getMessage());
     }
 
-    // 예상하지 못한 서버 오류
+    // @ResponseStatus가 붙은 커스텀 예외 (각 예외에 지정된 상태 코드 그대로 사용)
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<ApiResponse.ErrorPayload>> handleRuntimeException(RuntimeException e) {
+
+        ResponseStatus responseStatus =
+                AnnotatedElementUtils.findMergedAnnotation(e.getClass(), ResponseStatus.class);
+
+        HttpStatus status = responseStatus != null ? responseStatus.value() : HttpStatus.INTERNAL_SERVER_ERROR;
+
+        return build(status, e.getMessage());
+    }
+
+    // 그 외 예상하지 못한 예외
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleException(
-            Exception e) {
-
-        return createErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "서버 내부 오류가 발생했습니다."
-        );
+    public ResponseEntity<ApiResponse<ApiResponse.ErrorPayload>> handleException(Exception e) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류가 발생했습니다.");
     }
 
-    private ResponseEntity<Map<String, Object>> createErrorResponse(
-            HttpStatus status,
-            String message) {
-
-        Map<String, Object> body = new LinkedHashMap<>();
-
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", status.value());
-        body.put("error", status.getReasonPhrase());
-        body.put("message", message);
-
-        return ResponseEntity
-                .status(status)
-                .body(body);
+    private ResponseEntity<ApiResponse<ApiResponse.ErrorPayload>> build(HttpStatus status, String message) {
+        return ResponseEntity.status(status).body(ApiResponse.error(status.value(), message));
     }
 }
