@@ -20,7 +20,8 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // React 주소 허용(모든 주소 허용)
+        // React 주소 허용(현재는 모든 주소 허용)
+        // 배포시 실제 주소로 바꿔야 함!
         configuration.setAllowedOriginPatterns(List.of("*"));
 
         // 요청 방식 허용
