@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.spring.classon.common.exception.InquiryNotFoundException;
+import com.spring.classon.inquiry.dto.InquiryRegisterDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +24,7 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
 
     // 문의 등록
-    public Long register(InquiryDTO inquiryDTO) {
+    public Long register(InquiryRegisterDTO inquiryDTO) {
 
         Inquiry inquiry = Inquiry.builder()
                 .inqMemNo(inquiryDTO.getInqMemNo())
@@ -52,7 +54,7 @@ public class InquiryService {
 
         Inquiry inquiry = inquiryRepository.findById(inqNo)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new InquiryNotFoundException(
                                 "문의사항을 찾을 수 없습니다."
                         ));
 
@@ -97,26 +99,39 @@ public class InquiryService {
         );
     }
 
-    // 관리자 답변 및 상태 변경
-    public void process(
+    // 관리자 문의 상태 변경
+    public void modifyStatus(
             Long inqNo,
-            InquiryDTO inquiryDTO) {
+            String inqStatus) {
 
         Inquiry inquiry = inquiryRepository.findById(inqNo)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new InquiryNotFoundException(
                                 "문의사항을 찾을 수 없습니다."
                         ));
 
-        inquiry.setAdmComment(inquiryDTO.getAdmComment());
-        inquiry.setInqStatus(inquiryDTO.getInqStatus());
+        inquiry.setInqStatus(inqStatus);
 
-        // 완료 처리 시 처리 완료시간 저장
-        if ("완료".equals(inquiryDTO.getInqStatus())) {
+        if ("완료".equals(inqStatus)) {
             inquiry.setProCreatedAt(LocalDateTime.now());
         } else {
             inquiry.setProCreatedAt(null);
         }
+    }
+
+
+    // 관리자 문의 답변 등록/수정
+    public void modifyComment(
+            Long inqNo,
+            String admComment) {
+
+        Inquiry inquiry = inquiryRepository.findById(inqNo)
+                .orElseThrow(() ->
+                        new InquiryNotFoundException(
+                                "문의사항을 찾을 수 없습니다."
+                        ));
+
+        inquiry.setAdmComment(admComment);
     }
 
     // Entity -> DTO 변환

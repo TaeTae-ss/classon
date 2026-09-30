@@ -16,6 +16,9 @@ public interface MemberAuthService {
     // 로그인
     LoginResponseDTO login(LoginRequestDTO requestDTO);
 
+    // refreshToken 재발급
+    String refreshAccessToken(String refreshToken);
+
     // 비밀번호 재설정 인증번호 발송
     void sendPasswordResetEmail(String memEmail);
 

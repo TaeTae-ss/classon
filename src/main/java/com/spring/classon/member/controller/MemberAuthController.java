@@ -60,6 +60,21 @@ public class MemberAuthController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    // Access Token 재발급
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refresh(
+            @RequestBody Map<String, String> request) {
+
+        String refreshToken = request.get("refreshToken");
+
+        String accessToken =
+                memberAuthService.refreshAccessToken(refreshToken);
+
+        return ResponseEntity.ok(
+                Map.of("accessToken", accessToken)
+        );
+    }
+
     // 비밀번호 재설정 인증번호 발송
     @PostMapping("/password/send")
     public ResponseEntity<Void> sendPasswordResetEmail(
