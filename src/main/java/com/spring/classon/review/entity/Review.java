@@ -38,6 +38,6 @@ public class Review {
     private LocalDateTime revCreatedAt;
 
     @Column(name = "rev_status", nullable = false)
-    private String revStatus = "N"; //후기 노출상태
+    private String revStatus = "N"; //후기 노출 상태 (정상 = N, 블라인드 = Y)
 
 }

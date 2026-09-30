@@ -8,7 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
+import com.spring.classon.member.mapper.MemberMapper;
+
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -28,13 +32,16 @@ public class MemberAuthServiceTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private MemberMapper memberMapper;
+
     @Test
     void 회원가입_테스트() {
 
         // 회원가입 정보
         SignupRequestDTO requestDto = SignupRequestDTO.builder()
                 .memNickname("수정")
-                .memEmail("su11@naver.com")
+                .memEmail("stellagirl1155@gmail.com")
                 .memPassword("sujung1234")
                 .memPhone("010-8115-3251")
                 .memAddress("수원시")
@@ -217,4 +224,93 @@ public class MemberAuthServiceTests {
         // 예외가 발생하지 않으면 테스트 실패
         throw new AssertionError("비밀번호 형식 오류가 발생하지 않았습니다.");
     }
+
+
+
+public void signup(SignupRequestDTO requestDto) {
+
+    // 닉네임 중복 확인
+    if (memberRepository.existsByMemNickname(requestDto.getMemNickname())) {
+        throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+    }
+
+    // 비밀번호 형식 확인
+    String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d).{8,20}$";
+
+    if (!Pattern.matches(passwordRegex, requestDto.getMemPassword())) {
+        throw new IllegalArgumentException(
+                "비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해 주세요."
+        );
+    }
+
+    // 비밀번호 암호화
+    String encodedPassword =
+            passwordEncoder.encode(requestDto.getMemPassword());
+
+    // 회원 기본 정보 저장
+    Member member = memberMapper.toEntity(requestDto);
+
+    memberRepository.save(member);
+
+    // 회원 개인정보 저장
+    MemberPrivate memberPrivate =
+            memberMapper.toPrivateEntity(
+                    requestDto,
+                    member,
+                    encodedPassword
+            );
+
+    memberPrivateRepository.save(memberPrivate);
+}
+    @Test
+    @Commit
+    void test() {
+
+        // 회원가입 정보
+        SignupRequestDTO requestDto = SignupRequestDTO.builder()
+                .memNickname("수정")
+                .memEmail("stellagirl1155@gmail.com")
+                .memPassword("sujung1234")
+                .memPhone("010-8115-3251")
+                .memAddress("수원시")
+                .build();
+
+        // 회원가입
+        signup(requestDto);
+
+        // 회원 조회
+        Member member = memberRepository
+                .findAll()
+                .stream()
+                .filter(m -> m.getMemNickname().equals("수정"))
+                .findFirst()
+                .orElseThrow();
+
+        // 회원 개인정보 조회
+        MemberPrivate memberPrivate =
+                memberPrivateRepository.findById(member.getMemNo())
+                        .orElseThrow();
+
+        // 비밀번호 암호화 확인
+        boolean passwordMatches = passwordEncoder.matches(
+                "1234",
+                memberPrivate.getMemPassword()
+        );
+
+        // 결과 출력
+        System.out.println("========== 회원가입 테스트 ==========");
+        System.out.println("회원번호 : " + member.getMemNo());
+        System.out.println("닉네임 : " + member.getMemNickname());
+        System.out.println("이메일 : " + memberPrivate.getMemEmail());
+        System.out.println("전화번호 : " + memberPrivate.getMemPhone());
+        System.out.println("주소 : " + memberPrivate.getMemAddress());
+        System.out.println("권한 : " + member.getMemRole());
+        System.out.println("암호화된 비밀번호 : " + memberPrivate.getMemPassword());
+        System.out.println("비밀번호 일치 여부 : " + passwordMatches);
+        System.out.println("====================================");
+
+    }
+
+
+
 }
