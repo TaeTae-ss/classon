@@ -20,8 +20,8 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // React 주소 허용
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        // React 주소 허용(모든 주소 허용)
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         // 요청 방식 허용
         configuration.setAllowedMethods(List.of(
