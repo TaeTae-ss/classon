@@ -1,5 +1,6 @@
 package com.spring.classon.member.service;
 
+import com.spring.classon.common.exception.MemberException;
 import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.mapper.MemberMapper;
@@ -24,10 +25,10 @@ public class MemberServiceImpl implements MemberService {
     public MemberResponseDTO getMember(Long memNo) {
 
         Member member = memberRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         return memberMapper.toResponseDto(member, memberPrivate);
     }
@@ -37,10 +38,10 @@ public class MemberServiceImpl implements MemberService {
     public void updateMember(Long memNo, MemberUpdateDTO dto) {
 
         Member member = memberRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         member.updateMember(
                 dto.getMemNickname(),
@@ -57,7 +58,7 @@ public class MemberServiceImpl implements MemberService {
     public void updatePassword(Long memNo, MemberPasswordUpdateDTO dto) {
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         memberPrivate.updatePassword(
                 dto.getNewPassword(),
@@ -70,10 +71,10 @@ public class MemberServiceImpl implements MemberService {
     public void deleteMember(Long memNo) {
 
         Member member = memberRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         memberPrivateRepository.delete(memberPrivate);
         memberRepository.delete(member);
