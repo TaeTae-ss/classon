@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { loginPost } from "../../api/memberApi";
 import { setCookie } from "../../util/cookieUtil";
+import "../../css/member/LoginForm.css";
 
 const LoginForm = () => {
   // 입력값 관리
@@ -25,8 +26,8 @@ const LoginForm = () => {
         refreshToken: response.refreshToken,
       }, 1);
 
-      console.log(response);
-
+      // 메인 페이지 이동
+      window.location.href = "/";
     } catch (error) {
       // 로그인 오류 확인
       console.error(error);
@@ -34,29 +35,41 @@ const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <input
-          type="email"
-          placeholder="이메일"
-          value={memEmail}
-          onChange={(e) => setMemEmail(e.target.value)}
-        />
+    <form className="login-form" onSubmit={handleSubmit}>
+
+      <input
+        className="login-input"
+        type="email"
+        placeholder="이메일"
+        value={memEmail}
+        onChange={(e) => setMemEmail(e.target.value)}
+      />
+
+      <input
+        className="login-input"
+        type="password"
+        placeholder="비밀번호"
+        value={memPassword}
+        onChange={(e) => setMemPassword(e.target.value)}
+      />
+
+      <div className="login-buttons">
+
+        <button type="submit" className="orange-button">
+        로그인
+        </button>
+
+        <button type="button" className="orange-light-button">
+          회원가입
+        </button>
       </div>
 
-      <div>
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={memPassword}
-          onChange={(e) => setMemPassword(e.target.value)}
-        />
+      <div className="password-find">
+        <button type="button">
+          비밀번호 찾기
+        </button>
       </div>
 
-      <div>
-        <button type="submit">로그인</button>
-        <button type="button">회원가입</button>
-      </div>
     </form>
   );
 };
