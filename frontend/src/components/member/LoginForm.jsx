@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { loginPost } from "../../api/memberApi";
+import { setCookie } from "../../api/cookieUtil";
 
 const LoginForm = () => {
   // 입력값 관리
@@ -19,7 +20,13 @@ const LoginForm = () => {
       // 로그인 API 호출
       const response = await loginPost(loginData);
 
+      setCookie("member", {
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+      }, 1);
+      
       console.log(response);
+
     } catch (error) {
       // 로그인 오류 확인
       console.error(error);
