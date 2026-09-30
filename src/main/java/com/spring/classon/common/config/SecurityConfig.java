@@ -70,8 +70,7 @@ public class SecurityConfig {
                                 "/api/auth/email/**",
                                 "/api/auth/login",
                                 "/api/auth/password/**",
-                                "/api/auth/refresh"
-                                "/api/auth/login",
+                                "/api/auth/refresh",
                                 "/api/reservation",
                                 "/api/reservation/**",
                                 "/api/payment",
