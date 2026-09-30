@@ -1,6 +1,11 @@
 package com.spring.classon.reservation.service;
 
+import com.spring.classon.oneday.entity.OneDay;
+import com.spring.classon.oneday.entity.Schedule;
+import com.spring.classon.oneday.repository.OneDayRepository;
+import com.spring.classon.oneday.repository.ScheduleRepository;
 import com.spring.classon.payment.service.PaymentService;
+import com.spring.classon.reservation.dto.ReservationCountDTO;
 import com.spring.classon.reservation.dto.ReservationDTO;
 import com.spring.classon.reservation.entity.Reservation;
 import com.spring.classon.reservation.entity.ReservationStatus;
@@ -10,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,13 +22,22 @@ import java.util.List;
 @Transactional
 public class ReservationServiceImpl implements ReservationService{
     private final ReservationRepository reservationRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final OneDayRepository oneDayRepository;
     private final ReservationMapper reservationMapper;
     private final PaymentService paymentService;
+
 
     //예약 등록
     @Override
     @Transactional
     public ReservationDTO createReservation(ReservationDTO reservationDTO) {
+
+        // 정원 및 금액 계산 + Schedule Lock
+        ReservationCountDTO countDTO = countReservation(
+                reservationDTO.getSchNo(), reservationDTO.getRsvCount()
+        );
+
         // 중복 예약 검사
         List<ReservationStatus> activeStatuses = List.of(
                 ReservationStatus.WAIT,
@@ -43,6 +56,9 @@ public class ReservationServiceImpl implements ReservationService{
                     "이미 해당 일정에 예약한 회원입니다."
             );
         }
+
+        // 서버에서 계산된 예약 금액 적용
+        reservationDTO.setRsvAmount(countDTO.getRsvAmount());
 
         Reservation reservation = reservationMapper.toEntity(reservationDTO);
         Reservation savedReservation = reservationRepository.save(reservation);
@@ -106,4 +122,62 @@ public class ReservationServiceImpl implements ReservationService{
         reservation.cancel(cancelReason);
     }
 
+    // 정원 및 예약 금액 계산
+    @Override
+    @Transactional
+    public ReservationCountDTO countReservation(Long schNo, Integer rsvCount) {
+        // 예약 인원 검증
+        if (rsvCount == null || rsvCount < 1) {
+            throw new IllegalArgumentException(
+                    "예약 인원은 1명 이상이어야 합니다."
+            );
+        }
+
+        // 일정 조회 + 행 Lock
+        Schedule schedule = scheduleRepository.findByIdForUpdate(schNo)
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "해당 일정을 찾을 수 없습니다."
+                        )
+                );
+
+        // 클래스 조회
+        OneDay oneDay = oneDayRepository.findById(schedule.getClsNo())
+                .orElseThrow(() ->
+                        new IllegalArgumentException(
+                                "해당 클래스를 찾을 수 없습니다."
+                        )
+                );
+
+        // 현재 확정된 예약 인원
+        Integer reservedCount = reservationRepository.sumConfirmedCount(
+                        schNo, ReservationStatus.CONFIRMED
+                );
+
+        // 남은 정원
+        Integer remainingCount = schedule.getSchCapacity() - reservedCount;
+
+        // 정원 초과 확인
+        if (rsvCount > remainingCount) {
+            throw new IllegalStateException(
+                    "예약 가능한 인원을 초과했습니다."
+            );
+        }
+
+        // 1인 가격
+        Integer clsPrice = oneDay.getClsPrice();
+
+        // 최종 예약 금액
+        Integer rsvAmount = clsPrice * rsvCount;
+
+        return ReservationCountDTO.builder()
+                .schNo(schNo)
+                .capacity(schedule.getSchCapacity())
+                .reservedCount(reservedCount)
+                .remainingCount(remainingCount)
+                .rsvCount(rsvCount)
+                .clsPrice(clsPrice)
+                .rsvAmount(rsvAmount)
+                .build();
+    }
 }
