@@ -1,7 +1,14 @@
 import { createBrowserRouter } from "react-router";
+import authRouter from "./authRouter.jsx";
 import noticeRouter from "./noticeRouter.jsx";
 
 const root = createBrowserRouter([
+    {
+        path: "/auth",
+        HydrateFallback: () => <div>Loading...</div>,
+        children: authRouter(),
+    },
+
     {
         path: "/notice",
         HydrateFallback: () => <div>Loading...</div>,
