@@ -1,24 +1,20 @@
+import Header from "../components/common/Header.jsx";
+import Footer from "../components/common/Footer.jsx";
+
 const BasicLayout = ({
-    children,
-    onHome,
-    onNotice,
+    children
 }) => {
 
     return (
         <div className="app-background">
 
-            <div className="app-container">
-
-                <Header
-                    onHome={onHome}
-                    onNotice={onNotice}
-                />
+                <Header/>
 
                 <main className="main-content">
                     {children}
                 </main>
 
-            </div>
+                <Footer />
 
         </div>
     );

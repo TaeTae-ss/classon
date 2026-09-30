@@ -1,6 +1,6 @@
 import { Outlet } from "react-router";
 import "../../css/common.css";
-import "../../css/notice.css";
+import "../../css/notice/notice.css";
 
 const IndexPage = () => {
     return (

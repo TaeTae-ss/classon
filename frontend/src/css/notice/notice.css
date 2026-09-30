@@ -9,7 +9,7 @@
 .notice-title {
     margin: 0 0 30px;
 
-    color: var(--text-main);
+    color: var(--color-text);
 
     font-size: 28px;
     font-weight: 700;
@@ -34,17 +34,17 @@
 
     padding: 0 15px;
 
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
 
-    background-color: var(--white);
-    color: var(--text-main);
+    background-color: var(--color-white);
+    color: var(--color-text);
 
     outline: none;
 }
 
 .notice-search-input:focus {
-    border-color: var(--orange-main);
+    border-color: var(--color-orange);
 }
 
 .notice-search-button {
@@ -55,8 +55,8 @@
     border: none;
     border-radius: 8px;
 
-    background-color: var(--orange-main);
-    color: var(--white);
+    background-color: var(--color-orange);
+    color: var(--color-white);
 
     font-weight: 600;
 
@@ -76,22 +76,22 @@
 
     border-collapse: collapse;
 
-    background-color: var(--white);
+    background-color: var(--color-white);
 }
 
 .notice-table thead {
-    background-color: var(--orange-light);
+    background-color: var(--color-orange-light);
 }
 
 .notice-table th {
     padding: 15px;
 
-    color: var(--text-main);
+    color: var(--color-text);
 
     font-weight: 700;
 
-    border-top: 2px solid var(--orange-main);
-    border-bottom: 1px solid var(--orange-main);
+    border-top: 2px solid var(--color-orange);
+    border-bottom: 1px solid var(--color-orange);
 }
 
 .notice-table td {
@@ -99,9 +99,9 @@
 
     text-align: center;
 
-    color: var(--text-sub);
+    color: var(--color-text-sub);
 
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .notice-table tbody tr:hover {
@@ -127,13 +127,13 @@
 
     background: transparent;
 
-    color: var(--text-main);
+    color: var(--color-text);
 
     cursor: pointer;
 }
 
 .notice-title-button:hover {
-    color: var(--orange-main);
+    color: var(--color-orange);
     text-decoration: underline;
 }
 
@@ -148,7 +148,7 @@
 .notice-empty {
     padding: 50px !important;
 
-    color: var(--text-sub) !important;
+    color: var(--color-text-sub) !important;
 }
 
 /* =========================
@@ -171,26 +171,26 @@
 
     padding: 0 10px;
 
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-border);
     border-radius: 7px;
 
-    background-color: var(--white);
-    color: var(--text-main);
+    background-color: var(--color-white);
+    color: var(--color-text);
 
     cursor: pointer;
 }
 
 .notice-page-button:hover {
-    border-color: var(--orange-main);
+    border-color: var(--color-orange);
 
-    color: var(--orange-main);
+    color: var(--color-orange);
 }
 
 .notice-page-button.active {
-    border-color: var(--orange-main);
+    border-color: var(--color-orange);
 
-    background-color: var(--orange-main);
-    color: var(--white);
+    background-color: var(--color-orange);
+    color: var(--color-white);
 
     font-weight: 700;
 }
@@ -208,12 +208,12 @@
 .notice-read-title {
     padding: 18px 25px;
 
-    border-top: 2px solid var(--orange-main);
-    border-bottom: 1px solid var(--orange-main);
+    border-top: 2px solid var(--color-orange);
+    border-bottom: 1px solid var(--color-orange);
 
-    background-color: var(--orange-light);
+    background-color: var(--color-orange-light);
 
-    color: var(--text-main);
+    color: var(--color-text);
 
     text-align: center;
 
@@ -234,15 +234,15 @@
 
     padding: 10px 20px;
 
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--color-border);
 
-    color: var(--text-sub);
+    color: var(--color-text-sub);
 
     font-size: 14px;
 }
 
 .notice-read-date-label {
-    color: var(--text-main);
+    color: var(--color-text);
     font-weight: 600;
 }
 
@@ -255,12 +255,12 @@
 
     padding: 30px;
 
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-border);
     border-radius: 10px;
 
-    background-color: var(--white);
+    background-color: var(--color-white);
 
-    color: var(--text-main);
+    color: var(--color-text);
 
     font-size: 16px;
     line-height: 1.8;
@@ -283,7 +283,7 @@
 .notice-message {
     padding: 80px 20px;
 
-    color: var(--text-sub);
+    color: var(--color-text-sub);
 
     text-align: center;
 
@@ -299,10 +299,10 @@
 
     padding: 30px;
 
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
 
-    background-color: var(--white);
+    background-color: var(--color-white);
 }
 
 .notice-form-group {
@@ -314,7 +314,7 @@
 
     margin-bottom: 10px;
 
-    color: var(--text-main);
+    color: var(--color-text);
 
     font-size: 15px;
     font-weight: 700;
@@ -326,11 +326,11 @@
 
     padding: 13px 15px;
 
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--color-border);
     border-radius: 8px;
 
-    background-color: var(--white);
-    color: var(--text-main);
+    background-color: var(--color-white);
+    color: var(--color-text);
 
     outline: none;
 }
@@ -349,7 +349,7 @@
 
 .notice-form-group input:focus,
 .notice-form-group textarea:focus {
-    border-color: var(--orange-main);
+    border-color: var(--color-orange);
 }
 
 .notice-form-buttons {
@@ -375,17 +375,17 @@
 }
 
 .notice-cancel-button {
-    border: 1px solid var(--orange-main);
+    border: 1px solid var(--color-orange);
 
-    background-color: var(--orange-light);
-    color: var(--orange-main);
+    background-color: var(--color-orange-light);
+    color: var(--color-orange);
 }
 
 .notice-submit-button {
-    border: 1px solid var(--orange-main);
+    border: 1px solid var(--color-orange);
 
-    background-color: var(--orange-main);
-    color: var(--white);
+    background-color: var(--color-orange);
+    color: var(--color-white);
 }
 
 .notice-submit-button:disabled {
@@ -423,11 +423,11 @@
 .admin-notice-actions button {
     padding: 7px 12px;
 
-    border: 1px solid var(--orange-main);
+    border: 1px solid var(--color-orange);
     border-radius: 6px;
 
-    background-color: var(--orange-light);
-    color: var(--orange-main);
+    background-color: var(--color-orange-light);
+    color: var(--color-orange);
 
     font-size: 13px;
     font-weight: 600;
@@ -436,12 +436,12 @@
 }
 
 .admin-notice-actions button:hover {
-    background-color: var(--orange-main);
-    color: var(--white);
+    background-color: var(--color-orange);
+    color: var(--color-white);
 }
 
 .admin-notice-actions .delete {
-    background-color: var(--white);
+    background-color: var(--color-white);
 }
 
 /* =========================
@@ -473,19 +473,19 @@
 /* 목록 */
 
 .admin-list-button {
-    border: 1px solid var(--orange-main);
+    border: 1px solid var(--color-orange);
 
-    background-color: var(--white);
-    color: var(--orange-main);
+    background-color: var(--color-white);
+    color: var(--color-orange);
 }
 
 /* 수정 */
 
 .admin-modify-button {
-    border: 1px solid var(--orange-main);
+    border: 1px solid var(--color-orange);
 
-    background-color: var(--orange-light);
-    color: var(--orange-main);
+    background-color: var(--color-orange-light);
+    color: var(--color-orange);
 }
 
 /* 삭제 */
@@ -499,8 +499,8 @@
 
 .admin-list-button:hover,
 .admin-modify-button:hover {
-    background-color: var(--orange-main);
-    color: var(--white);
+    background-color: var(--color-orange);
+    color: var(--color-white);
 }
 
 .admin-delete-button:hover {

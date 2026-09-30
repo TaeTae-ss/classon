@@ -1,61 +1,11 @@
-:root {
-    --bg-color: #FFFDF9;
-
-    --orange-main: #F97316;
-    --orange-light: #FFEDD5;
-
-    --text-main: #1F2937;
-    --text-sub: #6B7280;
-
-    --white: #FFFFFF;
-    --border-color: #E5E7EB;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-html,
-body,
-#root {
-    margin: 0;
-    min-height: 100%;
-}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-main);
-    font-family: Arial, "Noto Sans KR", sans-serif;
-}
-
-button,
-input,
-textarea,
-select {
-    font: inherit;
-}
-
 /* 전체 배경 */
 
 .app-background {
     min-height: 100vh;
-    background-color: var(--bg-color);
-    padding: 30px;
-}
+    background-color: var(--color-bg);
 
-/* 스토리보드의 둥근 외곽 영역 */
-
-.app-container {
-    width: min(1100px, 100%);
-    min-height: 700px;
-
-    margin: 0 auto;
-    padding: 30px 45px 50px;
-
-    background-color: var(--white);
-
-    border: 2px solid var(--text-main);
-    border-radius: 70px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* =========================
@@ -63,25 +13,35 @@ select {
 ========================= */
 
 .main-header {
-    min-height: 70px;
+    width: 100%;
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.header-inner {
+    max-width: 1200px;
+    height: 72px;
+
+    margin: 0 auto;
+    padding: 0 24px;
 
     display: flex;
     align-items: center;
-
-    gap: 35px;
-
-    border-bottom: 1px solid var(--orange-light);
+    gap: 36px;
 }
 
-/* CLASS:ON */
+/* 로고 */
 
 .main-logo {
-    color: var(--orange-main);
+    padding: 0;
 
-    font-size: 26px;
-    font-weight: 800;
+    border: none;
+    background: transparent;
 
-    cursor: pointer;
+    color: var(--color-orange);
+
+    font-size: 25px;
+    font-weight: 700;
 
     white-space: nowrap;
 }
@@ -91,53 +51,117 @@ select {
 .main-nav {
     display: flex;
     align-items: center;
-    gap: 25px;
+    gap: 24px;
 
-    flex: 1;
+    white-space: nowrap;
 }
 
 .main-nav button {
-    border: 0;
+    padding: 8px 0;
+
+    border: none;
     background: transparent;
 
-    color: var(--text-main);
+    color: var(--color-text);
 
-    font-weight: 600;
-
-    padding: 10px 5px;
-
-    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .main-nav button:hover {
-    color: var(--orange-main);
+    color: var(--color-orange);
 }
 
-/* 오른쪽 사용자 버튼 */
+/* 검색 */
+
+.header-search {
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    flex: 1;
+    max-width: 350px;
+
+    margin-left: auto;
+
+    background-color: #F9FAFB;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.header-search input {
+    min-width: 0;
+    height: 100%;
+
+    flex: 1;
+
+    padding: 0 0 0 16px;
+
+    border: none;
+    outline: none;
+    background: transparent;
+
+    color: var(--color-text);
+    font-size: 13px;
+}
+
+.header-search input::placeholder {
+    color: var(--color-text-sub);
+}
+
+.search-button {
+    width: 42px;
+    height: 100%;
+
+    border: none;
+    background: transparent;
+
+    font-size: 14px;
+}
+
+/* 로그인 / 회원가입 */
 
 .header-user {
-    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    white-space: nowrap;
 }
 
-.user-button {
-    min-width: 85px;
+.login-button {
+    padding: 9px 12px;
 
-    padding: 9px 18px;
+    border: none;
+    background: transparent;
 
-    border: 1px solid var(--orange-main);
-    border-radius: 8px;
-
-    background-color: var(--orange-light);
-    color: var(--orange-main);
-
+    color: var(--color-text);
+    font-size: 13px;
     font-weight: 600;
-
-    cursor: pointer;
 }
 
-.user-button:hover {
-    background-color: var(--orange-main);
-    color: var(--white);
+.login-button:hover {
+    color: var(--color-orange);
+}
+
+.signup-button {
+    padding: 9px 16px;
+
+    border: none;
+    border-radius: 18px;
+
+    background-color: var(--color-orange);
+    color: var(--color-white);
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.signup-button:hover {
+    opacity: 0.9;
 }
 
 /* =========================
@@ -145,6 +169,7 @@ select {
 ========================= */
 
 .main-content {
+    flex: 1;
     padding: 35px 10px;
 }
 
@@ -153,7 +178,7 @@ select {
 .page-title {
     margin: 0 0 30px;
 
-    color: var(--text-main);
+    color: var(--color-text);
 
     font-size: 28px;
     font-weight: 700;
@@ -164,11 +189,11 @@ select {
 .orange-button {
     padding: 10px 22px;
 
-    border: 1px solid var(--orange-main);
+    border: 1px solid var(--color-orange);
     border-radius: 8px;
 
-    background-color: var(--orange-main);
-    color: var(--white);
+    background-color: var(--color-orange);
+    color: var(--color-white);
 
     font-weight: 600;
 
@@ -184,13 +209,87 @@ select {
 .orange-light-button {
     padding: 10px 22px;
 
-    border: 1px solid var(--orange-main);
+    border: 1px solid var(--color-orange);
     border-radius: 8px;
 
-    background-color: var(--orange-light);
-    color: var(--orange-main);
+    background-color: var(--color-orange-light);
+    color: var(--color-orange);
 
     font-weight: 600;
 
     cursor: pointer;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.main-footer {
+    width: 100%;
+    min-height: 180px;
+
+    background-color: var(--color-white);
+    border-top: 1px solid var(--color-border);
+}
+
+.footer-inner {
+    max-width: 1200px;
+
+    margin: 0 auto;
+    padding: 30px 24px;
+}
+
+.footer-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 40px;
+}
+
+.footer-logo {
+    color: var(--color-orange);
+
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.footer-brand p {
+    margin: 8px 0 0;
+
+    color: var(--color-text-sub);
+
+    font-size: 13px;
+}
+
+.footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.footer-nav button {
+    padding: 0;
+
+    border: none;
+    background: transparent;
+
+    color: var(--color-text-sub);
+
+    font-size: 13px;
+}
+
+.footer-nav button:hover {
+    color: var(--color-orange);
+}
+
+.footer-bottom {
+    margin-top: 28px;
+    padding-top: 18px;
+
+    border-top: 1px solid var(--color-border);
+
+    color: var(--color-text-sub);
+
+    font-size: 12px;
 }
