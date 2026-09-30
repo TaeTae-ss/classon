@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { loginPost } from "../../api/memberApi";
 import { setCookie } from "../../util/cookieUtil";
 import "../../css/member/LoginForm.css";
 
 const LoginForm = () => {
-  // 입력값 관리
+  const navigate = useNavigate();
   const [memEmail, setMemEmail] = useState("");
   const [memPassword, setMemPassword] = useState("");
 
@@ -18,7 +19,6 @@ const LoginForm = () => {
     };
 
     try {
-      // 로그인 API 호출
       const response = await loginPost(loginData);
 
       setCookie("member", {
@@ -29,7 +29,6 @@ const LoginForm = () => {
       // 메인 페이지 이동
       window.location.href = "/";
     } catch (error) {
-      // 로그인 오류 확인
       console.error(error);
     }
   };
@@ -59,8 +58,12 @@ const LoginForm = () => {
         로그인
         </button>
 
-        <button type="button" className="orange-light-button">
-          회원가입
+        <button
+          type="button"
+          className="orange-light-button"
+          onClick={() => navigate("/auth/signup")}
+          >
+            회원가입
         </button>
       </div>
 
