@@ -1,5 +1,6 @@
 package com.spring.classon.member.service;
 
+import com.spring.classon.common.exception.MemberException;
 import com.spring.classon.common.service.EmailService;
 import com.spring.classon.common.util.JWTUtil;
 import com.spring.classon.member.dto.*;
@@ -42,7 +43,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
         // 이메일 중복 확인
         if (memberPrivateRepository.existsByMemEmail(requestDto.getMemEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new MemberException("이미 사용 중인 이메일입니다.");
         }
 
         // 이메일 인증 확인
@@ -54,7 +55,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
 
         // 닉네임 중복 확인
         if (memberRepository.existsByMemNickname(requestDto.getMemNickname())) {
-            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
+            throw new MemberException("이미 사용 중인 닉네임입니다.");
         }
 
         // 비밀번호 형식 확인
@@ -110,7 +111,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 memberPrivateRepository.findByMemEmail(
                         requestDto.getMemEmail()
                 ).orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new AuthException(
                                 "이메일 또는 비밀번호가 올바르지 않습니다."
                         )
                 );
@@ -120,7 +121,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 requestDto.getMemPassword(),
                 memberPrivate.getMemPassword()
         )) {
-            throw new IllegalArgumentException(
+            throw new AuthException(
                     "이메일 또는 비밀번호가 올바르지 않습니다."
             );
         }
@@ -169,7 +170,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         MemberPrivate memberPrivate =
                 memberPrivateRepository.findByMemEmail(memEmail)
                         .orElseThrow(() ->
-                                new IllegalArgumentException(
+                                new MemberException(
                                         "가입된 이메일이 없습니다."
                                 )
                         );
@@ -218,7 +219,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 memberPrivateRepository.findByMemEmail(
                         requestDto.getMemEmail()
                 ).orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new MemberException(
                                 "가입된 이메일이 없습니다."
                         )
                 );
