@@ -17,24 +17,12 @@ const root = createBrowserRouter([
         HydrateFallback: () => <div>Loading...</div>,
         children: authRouter(),
     },
-
     {
         path: "/notice",
-        HydrateFallback: () => <div>Loading...</div>,
-        lazy: async () => {
-            const { default: Component } = await import("../pages/notice/IndexPage");
-            return { Component };
-        },
         children: noticeRouter(),
     },
-
     {
         path: "/inquiry",
-        HydrateFallback: () => <div>Loading...</div>,
-        lazy: async () => {
-            const { default: Component } = await import("../pages/inquiry/IndexPage");
-            return { Component };
-        },
         children: inquiryRouter(),
     },
 ]);
