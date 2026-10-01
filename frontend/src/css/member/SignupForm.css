@@ -163,3 +163,18 @@
         margin-left: 90px;
     }
 }
+
+.signup-page {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.signup-content {
+    width: 100%;
+    max-width: 550px;
+}
+
+.signup-content .page-title {
+    text-align: center;
+}

@@ -7,9 +7,9 @@ const SignupPage = () => {
   return (
     <BasicLayout>
 
-      <div className="classon_main">
+      <div className="classon_main signup-page">
 
-        <div className="app-container">
+        <div className="signup-content">
 
           <h1 className="page-title">
             회원가입
