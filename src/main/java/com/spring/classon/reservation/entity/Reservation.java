@@ -1,5 +1,6 @@
 package com.spring.classon.reservation.entity;
 
+import com.spring.classon.common.exception.ReservationException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -53,7 +54,7 @@ public class Reservation {
     // 예약 확정
     public void confirm() {
         if (this.rsvStatus != ReservationStatus.WAIT) {
-            throw new IllegalStateException(
+            throw new ReservationException(
                     "예약 대기 상태의 예약만 확정할 수 있습니다."
             );
         }
@@ -65,7 +66,7 @@ public class Reservation {
     // 예약 취소
     public void cancel(String cancelReason) {
         if (this.rsvStatus != ReservationStatus.CONFIRMED) {
-            throw new IllegalStateException(
+            throw new ReservationException(
                     "확정된 예약만 취소할 수 있습니다."
             );
         }
@@ -78,7 +79,7 @@ public class Reservation {
     // 수강 완료
     public void complete() {
         if (this.rsvStatus != ReservationStatus.CONFIRMED) {
-            throw new IllegalStateException(
+            throw new ReservationException(
                     "확정된 예약만 수강 완료 처리할 수 있습니다."
             );
         }

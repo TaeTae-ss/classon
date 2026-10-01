@@ -1,5 +1,6 @@
 package com.spring.classon.payment.service;
 
+import com.spring.classon.common.exception.PaymentException;
 import com.spring.classon.oneday.entity.Schedule;
 import com.spring.classon.oneday.repository.ScheduleRepository;
 import com.spring.classon.payment.dto.PaymentConfirmDTO;
@@ -52,19 +53,19 @@ public class PaymentServiceImpl implements PaymentService{
         Reservation reservation = reservationRepository
                 .findById(paymentCreateDTO.getRsvNo())
                 .orElseThrow(() ->
-                        new IllegalArgumentException("예약 정보를 찾을 수 없습니다.")
+                        new PaymentException("예약 정보를 찾을 수 없습니다.")
                 );
 
         // 이미 예약이 확정된 경우
         if (reservation.getRsvStatus() == ReservationStatus.CONFIRMED) {
-            throw new IllegalStateException(
+            throw new PaymentException(
                     "이미 확정된 예약입니다."
             );
         }
 
         // 취소된 예약은 결제할 수 없음
         if (reservation.getRsvStatus() == ReservationStatus.CANCEL) {
-            throw new IllegalStateException(
+            throw new PaymentException(
                     "취소된 예약은 결제할 수 없습니다."
             );
         }
@@ -79,14 +80,14 @@ public class PaymentServiceImpl implements PaymentService{
 
             // 아직 결제 진행 중
             if (payment.getPayStatus() == PaymentStatus.WAIT) {
-                throw new IllegalStateException(
+                throw new PaymentException(
                         "이미 결제 진행 중인 주문이 있습니다."
                 );
             }
 
             // 이미 결제 완료
             if (payment.getPayStatus() == PaymentStatus.PAID) {
-                throw new IllegalStateException(
+                throw new PaymentException(
                         "이미 결제가 완료된 예약입니다."
                 );
             }
@@ -119,18 +120,18 @@ public class PaymentServiceImpl implements PaymentService{
 
         Payment payment = paymentRepository
                 .findByOrderNo(paymentConfirmDTO.getOrderNo())
-                .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new PaymentException("결제 정보를 찾을 수 없습니다."));
 
         // 이미 결제 완료된 경우
         if (payment.getPayStatus() == PaymentStatus.PAID) {
-            throw new IllegalStateException(
+            throw new PaymentException(
                     "이미 완료된 결제입니다."
             );
         }
 
         // 금액 검증
         if (!payment.getPayAmount().equals(paymentConfirmDTO.getPayAmount())) {
-            throw new IllegalArgumentException(
+            throw new PaymentException(
                     "결제 금액이 일치하지 않습니다."
             );
         }
@@ -140,7 +141,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 결제 대기 상태의 예약만 결제 가능
         if (reservation.getRsvStatus() != ReservationStatus.WAIT) {
-            throw new IllegalStateException(
+            throw new PaymentException(
                     "결제 가능한 예약 상태가 아닙니다."
             );
         }
@@ -149,7 +150,7 @@ public class PaymentServiceImpl implements PaymentService{
         Schedule schedule = scheduleRepository
                 .findByIdForUpdate(reservation.getSchNo())
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new PaymentException(
                                 "해당 일정을 찾을 수 없습니다."
                         )
                 );
@@ -167,7 +168,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         // 현재 예약 인원이 남은 정원을 초과하는지 확인
         if (reservation.getRsvCount() > remainingCount) {
-            throw new IllegalStateException(
+            throw new PaymentException(
                     "예약 가능한 인원을 초과했습니다."
             );
         }
@@ -206,7 +207,7 @@ public class PaymentServiceImpl implements PaymentService{
 
                 payment.fail();
 
-                throw new IllegalStateException(
+                throw new PaymentException(
                         "결제 시간이 만료되었습니다. 다시 결제해주세요."
                 );
             }
@@ -228,7 +229,7 @@ public class PaymentServiceImpl implements PaymentService{
     public PaymentDTO getPayment(Long payNo) {
         Payment payment = paymentRepository
                 .findById(payNo)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new PaymentException(
                         "결제 정보를 찾을 수 없습니다."
                 ));
 
@@ -241,7 +242,7 @@ public class PaymentServiceImpl implements PaymentService{
     public PaymentDTO failPayment(Long payNo) {
         Payment payment = paymentRepository
                 .findById(payNo)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new PaymentException(
                         "결제 정보를 찾을 수 없습니다."
                 ));
         payment.fail();
@@ -257,7 +258,7 @@ public class PaymentServiceImpl implements PaymentService{
         Reservation reservation = reservationRepository
                 .findById(rsvNo)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new PaymentException(
                                 "예약 정보를 찾을 수 없습니다."
                         )
                 );
@@ -266,21 +267,21 @@ public class PaymentServiceImpl implements PaymentService{
         Payment payment = paymentRepository
                 .findTopByReservationOrderByPayCreatedAtDesc(reservation)
                 .orElseThrow(() ->
-                        new IllegalStateException(
+                        new PaymentException(
                                 "해당 예약의 결제 정보를 찾을 수 없습니다."
                         )
                 );
 
         // 이미 취소된 결제
         if (payment.getPayStatus() == PaymentStatus.CANCEL) {
-            throw new IllegalStateException(
+            throw new PaymentException(
                     "이미 취소된 결제입니다."
             );
         }
 
         // 결제 완료 상태가 아닌 경우
         if (payment.getPayStatus() != PaymentStatus.PAID) {
-            throw new IllegalStateException(
+            throw new PaymentException(
                     "결제 완료된 결제만 취소할 수 있습니다."
             );
         }
@@ -314,7 +315,7 @@ public class PaymentServiceImpl implements PaymentService{
         Reservation reservation = reservationRepository
                 .findById(rsvNo)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new PaymentException(
                                 "예약 정보를 찾을 수 없습니다."
                         )
                 );
