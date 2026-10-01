@@ -1,22 +1,27 @@
 import LoginForm from "../../components/member/LoginForm";
+import BasicLayout from "../../layout/BasicLayout.jsx";
 import "../../css/common.css";
 
 const LoginPage = () => {
 
   return (
-    <main className="classon_main app-background">
+    <BasicLayout>
 
-      <div className="app-container">
+      <div className="classon_main app-background">
 
-        <h1 className="page-title">
-          로그인
-        </h1>
+        <div className="app-container">
 
-        <LoginForm />
+          <h1 className="page-title">
+            로그인
+          </h1>
+
+          <LoginForm />
+
+        </div>
 
       </div>
 
-    </main>
+    </BasicLayout>
   );
 };
 

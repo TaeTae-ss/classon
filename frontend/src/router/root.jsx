@@ -4,6 +4,14 @@ import authRouter from "./authRouter.jsx";
 
 const root = createBrowserRouter([
     {
+        path: "/",
+        HydrateFallback: () => <div>Loading...</div>,
+        lazy: async () => {
+            const { default: Component } = await import("../pages/main/MainPage");
+            return { Component };
+        },
+    },
+    {
         path: "/auth",
         HydrateFallback: () => <div>Loading...</div>,
         children: authRouter(),
