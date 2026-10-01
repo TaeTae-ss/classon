@@ -1,5 +1,5 @@
 import LoginForm from "../../components/member/LoginForm";
-import BasicLayout from "../../layout/BasicLayout.jsx";
+import BasicLayout from "../../layouts/BasicLayout.jsx";
 import "../../css/common.css";
 
 const LoginPage = () => {
