@@ -37,6 +37,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 // 회원 권한 확인
                 String role = (String) claims.get("memRole");
 
+                System.out.println("========== JWT ==========");
+                System.out.println("memRole = " + role);
+                System.out.println("claims = " + claims);
+                System.out.println("=========================");
+
                 // 권한 생성
                 GrantedAuthority authority =
                         new SimpleGrantedAuthority("ROLE_" + role);
@@ -52,6 +57,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 // 인증 정보 저장
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
+
+                System.out.println("인증 정보 = "
+                        + SecurityContextHolder.getContext().getAuthentication());
+
+                System.out.println("권한 = "
+                        + SecurityContextHolder.getContext()
+                        .getAuthentication()
+                        .getAuthorities());
 
             } catch (Exception e) {
                 // 잘못된 JWT

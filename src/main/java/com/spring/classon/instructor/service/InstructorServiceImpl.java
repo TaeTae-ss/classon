@@ -1,5 +1,7 @@
 package com.spring.classon.instructor.service;
 
+import com.spring.classon.common.exception.FileException;
+import com.spring.classon.common.exception.InstructorException;
 import com.spring.classon.instructor.dto.*;
 import com.spring.classon.instructor.entity.*;
 import com.spring.classon.instructor.mapper.InstructorDocumentMapper;
@@ -45,7 +47,7 @@ public class InstructorServiceImpl implements InstructorService {
         InstructorRequest request =
                 instructorRequestRepository.findById(reqNo)
                         .orElseThrow(() ->
-                                new IllegalArgumentException("존재하지 않는 강사 신청입니다."));
+                                new InstructorException("존재하지 않는 강사 신청입니다."));
 
         return instructorMapper.toResponseDto(request);
     }
@@ -60,7 +62,7 @@ public class InstructorServiceImpl implements InstructorService {
         // 강사 신청 확인
         instructorRequestRepository.findById(reqNo)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("존재하지 않는 강사 신청입니다."));
+                        new InstructorException("존재하지 않는 강사 신청입니다."));
 
         try {
             // 파일 저장 폴더
@@ -92,7 +94,7 @@ public class InstructorServiceImpl implements InstructorService {
             return instructorDocumentMapper.toResponseDto(savedDocument);
 
         } catch (IOException e) {
-            throw new IllegalArgumentException("파일 저장에 실패했습니다.");
+            throw new FileException("파일 저장에 실패했습니다.");
         }
     }
 
@@ -103,7 +105,7 @@ public class InstructorServiceImpl implements InstructorService {
         InstructorRequest request =
                 instructorRequestRepository.findById(reqNo)
                         .orElseThrow(() ->
-                                new IllegalArgumentException("존재하지 않는 강사 신청입니다."));
+                                new InstructorException("존재하지 않는 강사 신청입니다."));
 
         request.updateStatus(dto.getReqStatus());
 

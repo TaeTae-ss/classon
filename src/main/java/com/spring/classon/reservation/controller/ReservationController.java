@@ -1,6 +1,7 @@
 package com.spring.classon.reservation.controller;
 
 import com.spring.classon.reservation.dto.ReservationCancelDTO;
+import com.spring.classon.reservation.dto.ReservationCountDTO;
 import com.spring.classon.reservation.dto.ReservationDTO;
 import com.spring.classon.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
@@ -68,5 +69,21 @@ public class ReservationController {
         reservationService.cancelReservation(rsvNo, reservationCancelDTO.getRsvCancelReason());
 
         return ResponseEntity.ok().build();
+    }
+
+    // 정원 및 예약 금액 계산
+    @GetMapping("/count")
+    public ResponseEntity<ReservationCountDTO> countReservation(
+            @RequestParam Long schNo,
+            @RequestParam Integer rsvCount
+    ) {
+
+        ReservationCountDTO reservationCount =
+                reservationService.countReservation(
+                        schNo,
+                        rsvCount
+                );
+
+        return ResponseEntity.ok(reservationCount);
     }
 }

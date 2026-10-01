@@ -1,0 +1,300 @@
+/* 전체 배경 */
+
+.app-background {
+    min-height: 100vh;
+    background-color: var(--color-bg);
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* == HEADER == */
+
+.main-header {
+    width: 100%;
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.header-inner {
+    max-width: 1200px;
+    height: 72px;
+
+    margin: 0 auto;
+    padding: 0 24px;
+
+    display: flex;
+    align-items: center;
+    gap: 36px;
+}
+
+/* 로고 */
+
+.main-logo {
+    padding: 0;
+
+    color: var(--color-orange);
+
+    letter-spacing: 1px; 
+    font-size: 25px;
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    text-decoration: none;
+
+}
+
+/* 메뉴 */
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    white-space: nowrap;
+}
+
+.main-nav a {
+    padding: 8px 0;
+
+    border: none;
+    background: transparent;
+
+    color: var(--color-text);
+
+    font-size: 14px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+}
+
+.main-nav a:hover {
+    color: var(--color-orange);
+}
+
+/* 검색 */
+
+.header-search {
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    flex: 1;
+    max-width: 350px;
+
+    margin-left: auto;
+
+    background-color: #F9FAFB;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.header-search input {
+    min-width: 0;
+    height: 100%;
+
+    flex: 1;
+
+    padding: 0 0 0 16px;
+
+    border: none;
+    outline: none;
+    background: transparent;
+
+    color: var(--color-text);
+    font-size: 13px;
+}
+
+.header-search input::placeholder {
+    color: var(--color-text-sub);
+}
+
+.search-button {
+    width: 42px;
+    height: 100%;
+
+    border: none;
+    background: transparent;
+
+    font-size: 14px;
+}
+
+/* 로그인 / 회원가입 */
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    white-space: nowrap;
+}
+
+.login-button {
+    padding: 9px 12px;
+
+    border: none;
+    background: transparent;
+
+    color: var(--color-text);
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+}
+
+.login-button:hover {
+    color: var(--color-orange);
+}
+
+.signup-button {
+    padding: 9px 16px;
+
+    border: none;
+    border-radius: 18px;
+
+    background-color: var(--color-orange);
+    color: var(--color-white);
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.signup-button:hover {
+    opacity: 0.9;
+}
+
+/* CONTENT */
+
+.main-content {
+    flex: 1;
+    padding: 35px 10px;
+}
+
+/* 공통 페이지 제목 */
+
+.page-title {
+    margin: 0 0 30px;
+
+    color: var(--color-text);
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* 공통 주황색 버튼 */
+
+.orange-button {
+    padding: 10px 22px;
+
+    border: 1px solid var(--color-orange);
+    border-radius: 8px;
+
+    background-color: var(--color-orange);
+    color: var(--color-white);
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.orange-button:hover {
+    opacity: 0.85;
+}
+
+/* 연한 주황색 버튼 */
+
+.orange-light-button {
+    padding: 10px 22px;
+
+    border: 1px solid var(--color-orange);
+    border-radius: 8px;
+
+    background-color: var(--color-orange-light);
+    color: var(--color-orange);
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+/* FOOTER*/
+
+.main-footer {
+    width: 100%;
+    min-height: 180px;
+
+    background-color: var(--color-white);
+    border-top: 1px solid var(--color-border);
+}
+
+.footer-inner {
+    max-width: 1200px;
+
+    margin: 0 auto;
+    padding: 30px 24px;
+}
+
+.footer-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 40px;
+}
+
+.footer-logo {
+    color: var(--color-orange);
+
+    letter-spacing: 1px; 
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.footer-brand p {
+    margin: 8px 0 0;
+
+    color: var(--color-text-sub);
+
+    font-size: 13px;
+}
+
+.footer-nav {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.footer-nav a {
+    padding: 0;
+
+    border: none;
+    background: transparent;
+
+    color: var(--color-text-sub);
+
+    font-size: 13px;
+
+    text-decoration: none;
+}
+
+.footer-nav button:hover {
+    color: var(--color-orange);
+}
+
+.footer-bottom {
+    margin-top: 28px;
+    padding-top: 18px;
+
+    border-top: 1px solid var(--color-border);
+
+    color: var(--color-text-sub);
+
+    font-size: 12px;
+}
