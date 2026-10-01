@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,10 +90,15 @@ public class ReviewServiceImpl implements ReviewService {
     //회원별 후기
     @Override
     public List<ReviewDTO> getMemberList(Long memNo){
-        List<Review> reviews = reviewRepository.findByMemNo(memNo);
-        List<ReviewDTO> reviewDTOList = reviewMapper.toDTOList(reviews);
+        List<Reservation> reservations = reservationRepository.findAllByMemNoOrderByRsvCreatedAtDesc(memNo);
 
-        return reviewDTOList;
+        return reservations.stream()
+                .map(reservation -> reviewRepository.findByRsvNo(reservation.getRsvNo()))
+                .flatMap(Optional::stream)
+                .sorted(Comparator.comparing(Review::getRevCreatedAt).reversed())
+                .map(reviewMapper::toDTO)
+                .toList();
+
     }
 
     @Override

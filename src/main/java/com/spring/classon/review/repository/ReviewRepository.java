@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review,Long> {
     // 최신순
@@ -18,14 +19,7 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     List<Review> findByClsNoOrderByRevRatingAsc(Long clsNo);
 
     //회원별 후기 조회
-    @Query("""
-        SELECT review
-        FROM Review review, Reservation reservation
-        WHERE review.rsvNo = reservation.rsvNo
-        AND reservation.memNo = :memNo
-        ORDER BY review.revCreatedAt DESC
-        """)
-    List<Review> findByMemNo(@Param("memNo") Long memNo);
+    Optional<Review> findByRsvNo(Long rsvNo);
 
     //상품별 평균 평점 일괄 조회 (블라인드 제외)
     @Query("""
@@ -41,6 +35,7 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
     SELECT AVG(review.revRating)
     FROM Review review
     WHERE review.clsNo = :clsNo
+    AND review.revStatus = 'N'
     """)
     Double findAverageRatingByClsNo(@Param("clsNo") Long clsNo);
 
