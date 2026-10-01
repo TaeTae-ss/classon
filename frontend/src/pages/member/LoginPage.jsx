@@ -4,25 +4,28 @@ import "../../css/common.css";
 
 const LoginPage = () => {
 
-  return (
-    <BasicLayout>
+    return (
+        <BasicLayout>
 
-      <div className="classon_main app-background">
+            <div className="classon_main login-page">
 
-        <div className="app-container">
+                <div
+                  className="login-content"
+                  style={{ transform: "translateY(20px)" }}
+                >
 
-          <h1 className="page-title">
-            로그인
-          </h1>
+                    <h1 className="page-title">
+                        로그인
+                    </h1>
 
-          <LoginForm />
+                    <LoginForm />
 
-        </div>
+                </div>
 
-      </div>
+            </div>
 
-    </BasicLayout>
-  );
+        </BasicLayout>
+    );
 };
 
 export default LoginPage;

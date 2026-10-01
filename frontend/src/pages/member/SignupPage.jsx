@@ -1,21 +1,27 @@
 import SignupForm from "../../components/member/SignupForm";
+import BasicLayout from "../../layouts/BasicLayout.jsx";
+import "../../css/common.css";
 
 const SignupPage = () => {
 
   return (
-    <main className="classon_main app-background">
+    <BasicLayout>
 
-      <div className="app-container">
+      <div className="classon_main">
 
-        <h1 className="page-title">
-          회원가입
-        </h1>
+        <div className="app-container">
 
-        <SignupForm />
+          <h1 className="page-title">
+            회원가입
+          </h1>
+
+          <SignupForm />
+
+        </div>
 
       </div>
 
-    </main>
+    </BasicLayout>
   );
 };
 
