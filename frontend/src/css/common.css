@@ -8,9 +8,7 @@
     flex-direction: column;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* == HEADER == */
 
 .main-header {
     width: 100%;
@@ -35,15 +33,16 @@
 .main-logo {
     padding: 0;
 
-    border: none;
-    background: transparent;
-
     color: var(--color-orange);
 
+    letter-spacing: 1px; 
     font-size: 25px;
     font-weight: 700;
 
     white-space: nowrap;
+
+    text-decoration: none;
+
 }
 
 /* 메뉴 */
@@ -56,7 +55,7 @@
     white-space: nowrap;
 }
 
-.main-nav button {
+.main-nav a {
     padding: 8px 0;
 
     border: none;
@@ -66,9 +65,12 @@
 
     font-size: 14px;
     font-weight: 700;
+
+    text-decoration: none;
+
 }
 
-.main-nav button:hover {
+.main-nav a:hover {
     color: var(--color-orange);
 }
 
@@ -141,6 +143,8 @@
     color: var(--color-text);
     font-size: 13px;
     font-weight: 600;
+
+    text-decoration: none;
 }
 
 .login-button:hover {
@@ -158,15 +162,15 @@
 
     font-size: 13px;
     font-weight: 700;
+
+    text-decoration: none;
 }
 
 .signup-button:hover {
     opacity: 0.9;
 }
 
-/* =========================
-   CONTENT
-========================= */
+/* CONTENT */
 
 .main-content {
     flex: 1;
@@ -220,9 +224,7 @@
     cursor: pointer;
 }
 
-/* =========================
-   FOOTER
-========================= */
+/* FOOTER*/
 
 .main-footer {
     width: 100%;
@@ -250,6 +252,7 @@
 .footer-logo {
     color: var(--color-orange);
 
+    letter-spacing: 1px; 
     font-size: 22px;
     font-weight: 700;
 }
@@ -268,7 +271,7 @@
     gap: 22px;
 }
 
-.footer-nav button {
+.footer-nav a {
     padding: 0;
 
     border: none;
@@ -277,6 +280,8 @@
     color: var(--color-text-sub);
 
     font-size: 13px;
+
+    text-decoration: none;
 }
 
 .footer-nav button:hover {

@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 const Header = () => {
 
     return (
@@ -5,26 +7,23 @@ const Header = () => {
 
             <div className="header-inner">
 
-                {/* 로고 */}
-                <button
-                    type="button"
+                <Link
+                    to="/"
                     className="main-logo classon_logo"
                 >
                     CLASS:ON
-                </button>
+                </Link>
 
-                {/* 메뉴 */}
                 <nav className="main-nav">
-                    <button type="button">
-                        클래스 탐색
-                    </button>
+                    <Link to="/class">
+                        클래스
+                    </Link>
 
-                    <button type="button">
+                    <Link to="/notice">
                         공지사항
-                    </button>
+                    </Link>
                 </nav>
 
-                {/* 검색 */}
                 <div className="header-search">
                     <input
                         type="text"
@@ -32,25 +31,24 @@ const Header = () => {
                     />
 
                     <button type="button" className="search-button">
-                        🔍
+                        <i class="fi fi-br-search"></i>
                     </button>
                 </div>
 
-                {/* 사용자 메뉴 */}
                 <div className="header-user">
-                    <button
-                        type="button"
+                     <Link
+                        to="/auth/login"
                         className="login-button"
                     >
                         로그인
-                    </button>
+                    </Link>
 
-                    <button
-                        type="button"
+                    <Link
+                        to="/auth/signup"
                         className="signup-button"
                     >
                         회원가입
-                    </button>
+                    </Link>
                 </div>
 
             </div>

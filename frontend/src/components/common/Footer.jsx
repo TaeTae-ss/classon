@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 
 const Footer = () => {
 
@@ -19,15 +20,21 @@ const Footer = () => {
                     </div>
 
                     <nav className="footer-nav">
-                        <button type="button">공지사항</button>
-                        <button type="button">문의하기</button>
-                    
+                        <Link to="/notice">공지사항</Link>
+                        <Link to="/inquiry">문의하기</Link>
                     </nav>
 
                 </div>
 
                 <div className="footer-bottom">
-                    © 2026 CLASS:ON. All rights reserved.
+                   <span>© 2026 CLASS:ON. All rights reserved.</span>
+
+                    <span className="icon-credit">
+                        <a href="https://www.flaticon.com/uicons">
+                            Flaticon
+                        </a>
+                        의 UIcon
+                    </span>
                 </div>
 
             </div>
