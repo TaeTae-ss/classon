@@ -134,25 +134,29 @@ const AdminInquiryListComponent = ({
 
                         <table className="inquiry-table">
 
-                            <thead>
-                                <tr>
-                                    <th className="inquiry-no">
-                                        번호
-                                    </th>
-
-                                    <th>
-                                        문의 제목
-                                    </th>
-
-                                    <th className="inquiry-status">
-                                        처리 상태
-                                    </th>
-
-                                    <th className="inquiry-date">
-                                        문의 일자
-                                    </th>
+                           <thead>
+                             <tr>
+                                <th className="inquiry-no">
+                                    번호
+                                </th>
+                                
+                                <th className="inquiry-member">
+                                    회원번호
+                                </th>
+                                
+                                <th>
+                                    제목
+                                </th>
+                                
+                                <th className="inquiry-date">
+                                    접수 일시
+                                </th>
+                                
+                                <th className="inquiry-status">
+                                    처리 상태
+                                </th>
                                 </tr>
-                            </thead>
+                                </thead>
 
                             <tbody>
 
@@ -166,13 +170,22 @@ const AdminInquiryListComponent = ({
                                         <td>
                                             {inquiry.inqNo}
                                         </td>
+                                        
+                                        <td>
+                                            {inquiry.inqMemNo}
+                                        </td>
 
                                         <td className="inquiry-table-title">
                                             {inquiry.inqTitle}
                                         </td>
 
-                                        <td>
+                                                    <td>
+                                                        {inquiry.inqCreatedAt
+                                                        ? new Date(inquiry.inqCreatedAt).toLocaleDateString("ko-KR")
+                                                        : "-"}
+                                                    </td>
 
+                                        <td>
                                             <span
                                                 className={`status-badge ${
                                                     inquiry.inqStatus === "완료"
@@ -182,17 +195,6 @@ const AdminInquiryListComponent = ({
                                                         : "received"}`}>
                                                 {inquiry.inqStatus}
                                             </span>
-
-                                        </td>
-
-                                        <td>
-                                            {inquiry.inqCreatedAt
-                                                ? new Date(
-                                                    inquiry.inqCreatedAt
-                                                ).toLocaleDateString(
-                                                    "ko-KR"
-                                                )
-                                                : "-"}
                                         </td>
                                     </tr>
                                 ))}

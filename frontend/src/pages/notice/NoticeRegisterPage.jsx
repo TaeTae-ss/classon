@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router";
 import NoticeRegisterComponent from "../../components/notice/NoticeRegisterComponent";
+import "../../css/common.css";
+import "../../css/notice/notice.css";
 
 const NoticeRegisterPage = () => {
 

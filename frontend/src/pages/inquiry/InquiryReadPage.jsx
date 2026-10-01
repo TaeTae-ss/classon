@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from "react-router";
 import InquiryReadComponent from "../../components/inquiry/InquiryReadComponent";
+import "../../css/common.css";
+import "../../css/inquiry/inquiry.css";
 
 const InquiryReadPage = () => {
 

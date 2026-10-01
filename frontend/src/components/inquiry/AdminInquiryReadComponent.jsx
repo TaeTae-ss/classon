@@ -132,8 +132,7 @@ const AdminInquiryReadComponent = ({
                 <div className="inquiry-read-buttons">
                     <button
                         type="button"
-                        onClick={onList}
-                    >
+                        onClick={onList}>
                         목록
                     </button>
                 </div>
@@ -147,7 +146,7 @@ const AdminInquiryReadComponent = ({
         <div className="inquiry-area">
 
             <h2 className="inquiry-title">
-                문의 상세
+                문의 상세/처리
             </h2>
 
             <div className="inquiry-read-box">
@@ -161,6 +160,16 @@ const AdminInquiryReadComponent = ({
                     <div className="inquiry-read-value">
                         {inquiry.inqNo}
                     </div>
+
+                    <div className="inquiry-read-row">
+                        <div className="inquiry-read-label">
+                            작성 회원 번호
+                    </div>
+                    
+                    <div className="inquiry-read-value">
+                        {inquiry.inqMemNo}
+                    </div>
+                </div>
                 </div>
 
                 <div className="inquiry-read-row">
@@ -177,7 +186,7 @@ const AdminInquiryReadComponent = ({
                 <div className="inquiry-read-row">
 
                     <div className="inquiry-read-label">
-                        문의 일자
+                        접수 일시
                     </div>
 
                     <div className="inquiry-read-value">
@@ -236,6 +245,19 @@ const AdminInquiryReadComponent = ({
                         onClick={handleStatusSave}>
                         상태 변경
                     </button>
+                </div>
+
+                <div className="admin-process-row">
+                    <label>
+                        처리 완료 일시
+                    </label>
+                    
+                <div className="admin-process-date">
+                    {inquiry.proCreatedAt
+                    ? new Date(inquiry.proCreatedAt)
+                    .toLocaleString("ko-KR")
+                    : "-"}
+                </div>
                 </div>
 
                 <div className="admin-comment-area">

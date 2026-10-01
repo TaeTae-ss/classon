@@ -1,5 +1,4 @@
 import api from "./axios";
-
 const noticePrefix = "/api/notices";
 const adminNoticePrefix = "/api/admin/notices";
 
@@ -17,7 +16,7 @@ export const getNoticeList = async ({
     },
   });
 
-  return res.data;
+  return res.data.data;
 };
 
 // 공지사항 상세
@@ -26,7 +25,7 @@ export const getNotice = async (notNo) => {
     `${noticePrefix}/${notNo}`
   );
 
-  return res.data;
+  return res.data.data;
 };
 
 // 관리자 공지사항 등록
@@ -36,7 +35,7 @@ export const postNotice = async (notice) => {
     notice
   );
 
-  return res.data;
+  return res.data.data;
 };
 
 // 관리자 공지사항 수정
@@ -46,7 +45,7 @@ export const putNotice = async (notNo, notice) => {
     notice
   );
 
-  return res.data;
+  return res.data.data;
 };
 
 // 관리자 공지사항 삭제
@@ -55,5 +54,5 @@ export const deleteNotice = async (notNo) => {
     `${adminNoticePrefix}/${notNo}`
   );
 
-  return res.data;
+  return res.data.data;
 };

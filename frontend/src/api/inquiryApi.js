@@ -1,23 +1,24 @@
-import axios from "axios";
+import api from "./axios";
+import axios from "./axios";
 
 const inquiryPrefix = "/api/inquiry";
 const adminInquiryPrefix = "/api/admin/inquiry";
 
 // 문의 등록
 export const postInquiry = async (inquiry) => {
-    const res = await axios.post(
+    const res = await api.post(
         inquiryPrefix,
         inquiry
     );
 
-    return res.data;
+    return res.data.data;
 };
 
 
 // 내 문의 목록
 // TODO: JWT 로그인 기능 완성 후 로그인 회원 기준으로 사용
 export const getMyInquiryList = async (inqMemNo) => {
-    const res = await axios.get(
+    const res = await api.get(
         `${inquiryPrefix}/my`,
         {
             params: {
@@ -26,17 +27,17 @@ export const getMyInquiryList = async (inqMemNo) => {
         }
     );
 
-    return res.data;
+    return res.data.data;
 };
 
 
 // 문의 상세 조회
 export const getInquiry = async (repNo) => {
-    const res = await axios.get(
+    const res = await api.get(
         `${inquiryPrefix}/${repNo}`
     );
 
-    return res.data;
+    return res.data.data;
 };
 
 
@@ -48,7 +49,7 @@ export const getAdminInquiryList = async ({
     status = "",
 } = {}) => {
 
-    const res = await axios.get(
+    const res = await api.get(
         adminInquiryPrefix,
         {
             params: {
@@ -60,17 +61,17 @@ export const getAdminInquiryList = async ({
         }
     );
 
-    return res.data;
+    return res.data.data;
 };
 
 
 // 관리자 문의 상세 조회
 export const getAdminInquiry = async (repNo) => {
-    const res = await axios.get(
+    const res = await api.get(
         `${adminInquiryPrefix}/${repNo}`
     );
 
-    return res.data;
+    return res.data.data;
 };
 
 
@@ -80,14 +81,14 @@ export const patchInquiryStatus = async (
     inqStatus
 ) => {
 
-    const res = await axios.patch(
+    const res = await api.patch(
         `${adminInquiryPrefix}/${repNo}/status`,
         {
             inqStatus,
         }
     );
 
-    return res.data;
+    return res.data.data;
 };
 
 
@@ -97,12 +98,12 @@ export const patchInquiryComment = async (
     admComment
 ) => {
 
-    const res = await axios.patch(
+    const res = await api.patch(
         `${adminInquiryPrefix}/${repNo}/comment`,
         {
             admComment,
         }
     );
 
-    return res.data;
+    return res.data.data;
 };

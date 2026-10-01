@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+﻿import { Link } from "react-router";
 
 const Footer = () => {
 
@@ -20,7 +20,6 @@ const Footer = () => {
                     </div>
 
                     <nav className="footer-nav">
-                        <Link to="/notice">공지사항</Link>
                         <Link to="/inquiry">문의하기</Link>
                     </nav>
 

@@ -81,3 +81,5 @@ select {
 button {
     cursor: pointer;
 }
+
+@import "tailwindcss";
