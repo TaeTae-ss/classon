@@ -1,11 +1,20 @@
-import NoticeListComponent
-    from "../../components/notice/NoticeListComponent";
+import { useNavigate } from "react-router";
+import NoticeListComponent from "../../components/notice/NoticeListComponent";
 
-const NoticeListPage = ({ onRead }) => {
+import "../../css/common.css";
+import "../../css/notice/notice.css";
+
+const NoticeListPage = () => {
+
+    const navigate = useNavigate();
+
+    const handleRead = (notNo) => {
+        navigate(`/notice/read/${notNo}`);
+    };
 
     return (
         <div>
-            <NoticeListComponent onRead={onRead} />
+            <NoticeListComponent onRead={handleRead} />
         </div>
     );
 };
