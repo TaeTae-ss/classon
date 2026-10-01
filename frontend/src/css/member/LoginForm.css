@@ -53,6 +53,22 @@
     border-color: var(--color-orange);
 }
 
+.login-input-wrap {
+    position: relative;
+}
+
+.login-error {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    color: var(--color-orange);
+    font-size: 13px;
+
+    pointer-events: none;
+}
+
 /* 비밀번호와 버튼 사이 간격 */
 .login-input:last-of-type {
     margin-bottom: 32px;
