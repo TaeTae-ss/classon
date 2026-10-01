@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from "react-router";
 import NoticeReadComponent from "../../components/notice/NoticeReadComponent";
+import "../../css/common.css";
+import "../../css/notice/notice.css";
 
 const NoticeReadPage = () => {
 

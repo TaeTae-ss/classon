@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router";
 import NoticeListComponent from "../../components/notice/NoticeListComponent";
-
 import "../../css/common.css";
 import "../../css/notice/notice.css";
 
