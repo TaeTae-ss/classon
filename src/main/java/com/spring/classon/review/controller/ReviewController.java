@@ -5,6 +5,7 @@ import com.spring.classon.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
@@ -78,7 +79,7 @@ public class ReviewController {
     }
 
     //블라인드
-    // TODO 관리자 권한 처리 방식 결정 후 블라인드 API 연결
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{revNo}/blind")
     public void blind(@PathVariable Long revNo){
         reviewService.blind(revNo);

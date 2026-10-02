@@ -4,6 +4,7 @@ import com.spring.classon.common.response.ApiResponse;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -33,6 +34,18 @@ public class GlobalExceptionHandler {
         HttpStatus status = responseStatus != null ? responseStatus.value() : HttpStatus.INTERNAL_SERVER_ERROR;
 
         return build(status, e.getMessage());
+    }
+
+    // Validation 유효성 검사 실패
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<ApiResponse.ErrorPayload>> handleValidationException(MethodArgumentNotValidException e) {
+
+        String message = e.getBindingResult()
+                .getFieldErrors()
+                .get(0)
+                .getDefaultMessage();
+
+        return build(HttpStatus.BAD_REQUEST, message);
     }
 
     // 그 외 예상하지 못한 예외
