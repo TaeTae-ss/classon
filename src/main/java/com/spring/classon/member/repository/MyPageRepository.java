@@ -1,3 +1,5 @@
+package com.spring.classon.member.repository;
+
 import com.spring.classon.inquiry.entity.Inquiry;
 import com.spring.classon.member.entity.Member;
 import com.spring.classon.oneday.entity.OneDay;
