@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+// 여기부터 추가
+import java.util.List;
+// 여기까지 추가
 
 @Service
 @RequiredArgsConstructor
@@ -78,4 +81,33 @@ public class MemberServiceImpl implements MemberService {
         memberPrivateRepository.delete(memberPrivate);
         memberRepository.delete(member);
     }
+
+    // 여기부터 추가 (oneday 등 다른 도메인이 개인정보 없이 닉네임/role만 조회할 때 사용)
+    // 회원 공개 정보 요약 조회
+    @Override
+    public MemberSummaryDTO getMemberSummary(Long memNo) {
+
+        Member member = memberRepository.findById(memNo)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        return toSummaryDto(member);
+    }
+
+    // 회원 공개 정보 요약 일괄 조회
+    @Override
+    public List<MemberSummaryDTO> getMemberSummaries(List<Long> memNos) {
+
+        return memberRepository.findAllById(memNos).stream()
+                .map(this::toSummaryDto)
+                .toList();
+    }
+
+    private MemberSummaryDTO toSummaryDto(Member member) {
+        return MemberSummaryDTO.builder()
+                .memNo(member.getMemNo())
+                .memNickname(member.getMemNickname())
+                .memRole(member.getMemRole())
+                .build();
+    }
+    // 여기까지 추가
 }
