@@ -1,5 +1,6 @@
 package com.spring.classon.oneday.mapper;
 
+import com.spring.classon.oneday.dto.ProductRequestDTO;
 import com.spring.classon.oneday.dto.ProductResponseDTO;
 import com.spring.classon.oneday.entity.OneDay;
 import org.mapstruct.Context;
@@ -25,4 +26,10 @@ public interface ProductMapper {
             @Context Map<Long, String> instructorNameMap,
             @Context Map<Long, Double> ratingMap
     );
+
+    @Mapping(target = "memNo", source = "memNo")
+    @Mapping(target = "clsImgOrigin", source = "clsImgOrigin")
+    @Mapping(target = "clsImgThumb", source = "clsImgThumb")
+    @Mapping(target = "clsStatus", expression = "java(com.spring.classon.oneday.status.OneDayStatus.READY)")
+    OneDay toEntity(ProductRequestDTO dto, Long memNo, String clsImgOrigin, String clsImgThumb);
 }

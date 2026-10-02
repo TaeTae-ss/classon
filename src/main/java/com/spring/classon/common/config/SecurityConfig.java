@@ -2,6 +2,7 @@ package com.spring.classon.common.config;
 
 import com.spring.classon.common.filter.JWTAuthenticationFilter;
 import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.*;
@@ -12,6 +13,7 @@ import org.springframework.web.cors.*;
 import java.util.*;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     // CORS 설정
@@ -69,6 +71,8 @@ public class SecurityConfig {
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
                                 "/api/auth/login",
+                                "/uploads/oneday/**",
+                                "/api/v1/oneday/*"
                                 "/api/auth/password/**",
                                 "/api/auth/refresh",
                                 "/api/reservation",
