@@ -2,6 +2,7 @@ package com.spring.classon.common.config;
 
 import com.spring.classon.common.filter.JWTAuthenticationFilter;
 import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.*;
 import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.*;
@@ -12,6 +13,7 @@ import org.springframework.web.cors.*;
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     // CORS 설정
@@ -67,7 +69,9 @@ public class SecurityConfig {
                                 "/api/auth/check-email",
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
-                                "/api/auth/login"
+                                "/api/auth/login",
+                                "/uploads/oneday/**",
+                                "/api/v1/oneday/*"
                         ).permitAll()
 
                         // 회원 접근 가능(강사, 관리자 포함)
