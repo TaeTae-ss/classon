@@ -15,7 +15,7 @@ public interface ReviewService {
     List<ReviewDTO> getMemberList(Long memNo);
 
     //후기 삭제
-    void remove(Long revNo);
+    void remove(Long revNo, Long memNo);
 
     //후기 블라인드 처리
     void blind(Long revNo);

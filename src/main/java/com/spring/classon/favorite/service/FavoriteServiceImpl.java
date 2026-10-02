@@ -51,8 +51,15 @@ public class FavoriteServiceImpl implements FavoriteService{
     }
 
     @Override
-    public void remove(Long favNo){
-        favoriteRepository.deleteById(favNo);
+    public void remove(Long favNo, Long memNo) {
+
+        Favorite favorite = favoriteRepository
+                .findByFavNoAndMemNo(favNo, memNo)
+                .orElseThrow(() ->
+                        new IllegalStateException("삭제할 수 없는 찜입니다.")
+                );
+
+        favoriteRepository.delete(favorite);
     }
 
 

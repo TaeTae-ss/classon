@@ -6,8 +6,10 @@ import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -34,11 +36,19 @@ public class ReviewController {
         return reviewDTOList;
     }
 
-    //회원별 후기 조회
-    @GetMapping("/member/{memNo}")
-    public List<ReviewDTO> getMemberList(@PathVariable Long memNo){
+    // 로그인 회원의 후기 목록 조회
+    @GetMapping("/member")
+    public List<ReviewDTO> getMemberList(Authentication authentication) {
 
-        List<ReviewDTO> reviewDTOList = reviewService.getMemberList(memNo);
+        // JWT에서 로그인 회원 정보 조회
+        Map<String, Object> claims =
+                (Map<String, Object>) authentication.getPrincipal();
+
+        // 로그인 회원 번호 추출
+        Long memNo = ((Number) claims.get("memNo")).longValue();
+
+        List<ReviewDTO> reviewDTOList =
+                reviewService.getMemberList(memNo);
 
         return reviewDTOList;
     }
@@ -53,10 +63,22 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{revNo}")
-    public void remove(@PathVariable Long revNo){
-        reviewService.remove(revNo);
+    public void remove(
+            @PathVariable Long revNo,
+            Authentication authentication
+    ){
+        // JWT에서 로그인 회원 정보 조회
+        Map<String, Object> claims =
+                (Map<String, Object>) authentication.getPrincipal();
+
+        // 로그인 회원 번호 추출
+        Long memNo = ((Number) claims.get("memNo")).longValue();
+
+        reviewService.remove(revNo, memNo);
     }
 
+    //블라인드
+    // TODO 관리자 권한 처리 방식 결정 후 블라인드 API 연결
     @PatchMapping("/{revNo}/blind")
     public void blind(@PathVariable Long revNo){
         reviewService.blind(revNo);

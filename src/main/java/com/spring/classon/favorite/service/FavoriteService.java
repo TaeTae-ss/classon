@@ -10,6 +10,6 @@ public interface FavoriteService {
 
     List<FavoriteDTO> getList(Long memNo);
 
-    void remove(Long favNo);
+    void remove(Long favNo, Long memNo);
 
 }
