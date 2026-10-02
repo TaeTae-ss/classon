@@ -1,5 +1,6 @@
 package com.spring.classon.reservation.service;
 
+import com.spring.classon.common.exception.ReservationException;
 import com.spring.classon.oneday.entity.OneDay;
 import com.spring.classon.oneday.entity.Schedule;
 import com.spring.classon.oneday.repository.OneDayRepository;
@@ -52,7 +53,7 @@ public class ReservationServiceImpl implements ReservationService{
                 );
 
         if (exists) {
-            throw new IllegalStateException(
+            throw new ReservationException(
                     "이미 해당 일정에 예약한 회원입니다."
             );
         }
@@ -71,7 +72,7 @@ public class ReservationServiceImpl implements ReservationService{
     @Transactional(readOnly = true)
     public ReservationDTO getReservation(Long rsvNo) {
         Reservation reservation = reservationRepository.findById(rsvNo)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ReservationException(
                         "예약 정보를 찾을 수 없습니다."
                 ));
 
@@ -107,12 +108,12 @@ public class ReservationServiceImpl implements ReservationService{
     public void cancelReservation(Long rsvNo, String cancelReason) {
 
         Reservation reservation = reservationRepository.findById(rsvNo)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ReservationException(
                         "예약 정보를 찾을 수 없습니다."
                 ));
 
         if (reservation.getRsvStatus() == ReservationStatus.CANCEL) {
-            throw new IllegalStateException("이미 취소된 예약입니다.");
+            throw new ReservationException("이미 취소된 예약입니다.");
         }
 
         // 결제 취소
@@ -128,7 +129,7 @@ public class ReservationServiceImpl implements ReservationService{
     public ReservationCountDTO countReservation(Long schNo, Integer rsvCount) {
         // 예약 인원 검증
         if (rsvCount == null || rsvCount < 1) {
-            throw new IllegalArgumentException(
+            throw new ReservationException(
                     "예약 인원은 1명 이상이어야 합니다."
             );
         }
@@ -136,7 +137,7 @@ public class ReservationServiceImpl implements ReservationService{
         // 일정 조회 + 행 Lock
         Schedule schedule = scheduleRepository.findByIdForUpdate(schNo)
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new ReservationException(
                                 "해당 일정을 찾을 수 없습니다."
                         )
                 );
@@ -144,7 +145,7 @@ public class ReservationServiceImpl implements ReservationService{
         // 클래스 조회
         OneDay oneDay = oneDayRepository.findById(schedule.getClsNo())
                 .orElseThrow(() ->
-                        new IllegalArgumentException(
+                        new ReservationException(
                                 "해당 클래스를 찾을 수 없습니다."
                         )
                 );
@@ -159,7 +160,7 @@ public class ReservationServiceImpl implements ReservationService{
 
         // 정원 초과 확인
         if (rsvCount > remainingCount) {
-            throw new IllegalStateException(
+            throw new ReservationException(
                     "예약 가능한 인원을 초과했습니다."
             );
         }
