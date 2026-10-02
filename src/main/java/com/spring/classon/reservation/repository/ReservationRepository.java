@@ -28,7 +28,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             "where r.schNo = :schNo and r.rsvStatus in :status")
     int sumRsvCountBySchNoAndRsvStatusIn(
             @Param("schNo") Long schNo,
-            @Param("status") List<ReservationStatus> status
+            @Param("status") List<ReservationStatus> status);
+
     // 해당 일정의 현재 예약 인원
     // CONFIRMED 상태의 예약만 정원에 포함
     @Query("""
