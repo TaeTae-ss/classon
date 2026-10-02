@@ -2,6 +2,7 @@ package com.spring.classon.review.controller;
 
 import com.spring.classon.review.dto.ReviewDTO;
 import com.spring.classon.review.service.ReviewService;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class ReviewController {
 
     //등록
     @PostMapping
-    public Long register(@RequestBody ReviewDTO reviewDTO){
+    public Long register(@Valid @RequestBody ReviewDTO reviewDTO){
         Long revNo = reviewService.register(reviewDTO);
 
         return revNo;
@@ -24,9 +25,11 @@ public class ReviewController {
 
     //클래스 상세보기 후기 조회
     @GetMapping("/class/{clsNo}")
-    public List<ReviewDTO> getClassList(@PathVariable Long clsNo) {
+    public List<ReviewDTO> getClassList(
+            @PathVariable Long clsNo,
+            @RequestParam(defaultValue = "latest") String sort ) {
 
-        List<ReviewDTO> reviewDTOList = reviewService.getClassList(clsNo);
+        List<ReviewDTO> reviewDTOList = reviewService.getClassList(clsNo, sort);
 
         return reviewDTOList;
     }
@@ -38,6 +41,15 @@ public class ReviewController {
         List<ReviewDTO> reviewDTOList = reviewService.getMemberList(memNo);
 
         return reviewDTOList;
+    }
+
+    //평균 평점 조회
+    @GetMapping("/class/{clsNo}/average")
+    public Double getAverageRating(@PathVariable Long clsNo) {
+
+        Double averageRating = reviewService.getAverageRating(clsNo);
+
+        return averageRating;
     }
 
     @DeleteMapping("/{revNo}")

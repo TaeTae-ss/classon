@@ -1,4 +1,4 @@
-/* 전체 배경 */
+﻿/* 전체 배경 */
 
 .app-background {
     min-height: 100vh;
@@ -13,19 +13,19 @@
 .main-header {
     width: 100%;
     background-color: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1.2px solid var(--color-border);
 }
 
 .header-inner {
-    max-width: 1200px;
-    height: 72px;
+    max-width: 1440px;
+    height: 86.4px;
 
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 28.8px;
 
     display: flex;
     align-items: center;
-    gap: 36px;
+    gap: 43.2px;
 }
 
 /* 로고 */
@@ -35,8 +35,8 @@
 
     color: var(--color-orange);
 
-    letter-spacing: 1px; 
-    font-size: 25px;
+    letter-spacing: 1.2px; 
+    font-size: 30px;
     font-weight: 700;
 
     white-space: nowrap;
@@ -50,20 +50,20 @@
 .main-nav {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 28.8px;
 
     white-space: nowrap;
 }
 
 .main-nav a {
-    padding: 8px 0;
+    padding: 9.6px 0;
 
     border: none;
     background: transparent;
 
     color: var(--color-text);
 
-    font-size: 14px;
+    font-size: 16.8px;
     font-weight: 700;
 
     text-decoration: none;
@@ -77,19 +77,19 @@
 /* 검색 */
 
 .header-search {
-    height: 40px;
+    height: 48px;
 
     display: flex;
     align-items: center;
 
     flex: 1;
-    max-width: 350px;
+    max-width: 420px;
 
     margin-left: auto;
 
     background-color: #F9FAFB;
-    border: 1px solid var(--color-border);
-    border-radius: 20px;
+    border: 1.2px solid var(--color-border);
+    border-radius: 24px;
 
     overflow: hidden;
 }
@@ -100,14 +100,14 @@
 
     flex: 1;
 
-    padding: 0 0 0 16px;
+    padding: 0 0 0 19.2px;
 
     border: none;
     outline: none;
     background: transparent;
 
     color: var(--color-text);
-    font-size: 13px;
+    font-size: 15.6px;
 }
 
 .header-search input::placeholder {
@@ -115,13 +115,13 @@
 }
 
 .search-button {
-    width: 42px;
+    width: 50.4px;
     height: 100%;
 
     border: none;
     background: transparent;
 
-    font-size: 14px;
+    font-size: 16.8px;
 }
 
 /* 로그인 / 회원가입 */
@@ -129,19 +129,19 @@
 .header-user {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9.6px;
 
     white-space: nowrap;
 }
 
 .login-button {
-    padding: 9px 12px;
+    padding: 10.8px 14.4px;
 
     border: none;
     background: transparent;
 
     color: var(--color-text);
-    font-size: 13px;
+    font-size: 15.6px;
     font-weight: 600;
 
     text-decoration: none;
@@ -152,15 +152,15 @@
 }
 
 .signup-button {
-    padding: 9px 16px;
+    padding: 10.8px 19.2px;
 
     border: none;
-    border-radius: 18px;
+    border-radius: 21.6px;
 
     background-color: var(--color-orange);
     color: var(--color-white);
 
-    font-size: 13px;
+    font-size: 15.6px;
     font-weight: 700;
 
     text-decoration: none;
@@ -228,17 +228,17 @@
 
 .main-footer {
     width: 100%;
-    min-height: 180px;
+    min-height: 216px;
 
     background-color: var(--color-white);
-    border-top: 1px solid var(--color-border);
+    border-top: 1.2px solid var(--color-border);
 }
 
 .footer-inner {
-    max-width: 1200px;
+    max-width: 1440px;
 
     margin: 0 auto;
-    padding: 30px 24px;
+    padding: 36px 28.8px;
 }
 
 .footer-top {
@@ -246,29 +246,29 @@
     align-items: flex-start;
     justify-content: space-between;
 
-    gap: 40px;
+    gap: 48px;
 }
 
 .footer-logo {
     color: var(--color-orange);
 
-    letter-spacing: 1px; 
-    font-size: 22px;
+    letter-spacing: 1.2px; 
+    font-size: 26.4px;
     font-weight: 700;
 }
 
 .footer-brand p {
-    margin: 8px 0 0;
+    margin: 9.6px 0 0;
 
     color: var(--color-text-sub);
 
-    font-size: 13px;
+    font-size: 15.6px;
 }
 
 .footer-nav {
     display: flex;
     align-items: center;
-    gap: 22px;
+    gap: 26.4px;
 }
 
 .footer-nav a {
@@ -279,7 +279,7 @@
 
     color: var(--color-text-sub);
 
-    font-size: 13px;
+    font-size: 15.6px;
 
     text-decoration: none;
 }
@@ -289,12 +289,26 @@
 }
 
 .footer-bottom {
-    margin-top: 28px;
-    padding-top: 18px;
+    margin-top: 33.6px;
+    padding-top: 21.6px;
 
-    border-top: 1px solid var(--color-border);
+    border-top: 1.2px solid var(--color-border);
 
     color: var(--color-text-sub);
 
-    font-size: 12px;
+    font-size: 14.4px;
+}
+/* 확대된 헤더와 푸터의 반응형 배치 */
+@media (max-width: 1024px) {
+    .header-inner { height: auto; min-height: 86.4px; padding: 19.2px 28.8px; flex-wrap: wrap; gap: 19.2px; }
+    .header-user { margin-left: auto; }
+    .header-search { order: 3; flex-basis: 100%; max-width: none; margin-left: 0; }
+}
+@media (max-width: 600px) {
+    .header-inner { padding: 19.2px 24px; gap: 14.4px; }
+    .main-nav { order: 3; width: 100%; }
+    .header-user { order: 2; }
+    .header-search { order: 4; }
+    .footer-top { flex-direction: column; gap: 26.4px; }
+    .footer-inner { padding: 36px 24px; }
 }

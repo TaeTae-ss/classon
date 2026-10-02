@@ -71,7 +71,12 @@ public class SecurityConfig {
                                 "/api/auth/email/**",
                                 "/api/auth/login",
                                 "/api/auth/password/**",
-                                "/api/auth/refresh"
+                                "/api/auth/refresh",
+                                "/api/reservation",
+                                "/api/reservation/**",
+                                "/api/payment",
+                                "/api/notices/**",
+                                "/api/payment/**"
                         ).permitAll()
 
                         // 그 외 요청은 인증 필요

@@ -1,9 +1,9 @@
 package com.spring.classon.member.service;
 
-import org.springframework.security.core.Authentication;
+import com.spring.classon.member.dto.MyPageResponseDTO;
 
 public interface MyPageService {
 
-    // 내 회원번호 조회
-    Long getMyNo(Authentication authentication);
+    // 마이페이지 조회
+    MyPageResponseDTO getMyPage(Long memNo);
 }
