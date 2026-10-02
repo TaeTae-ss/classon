@@ -10,7 +10,7 @@ import org.springframework.security.web.*;
 import org.springframework.security.web.authentication.*;
 import org.springframework.web.cors.*;
 
-import java.util.List;
+import java.util.*;
 
 @Configuration
 @EnableMethodSecurity
@@ -22,8 +22,9 @@ public class SecurityConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // React 주소 허용
-        configuration.setAllowedOrigins(List.of("*"));
+        // React 주소 허용(현재는 모든 주소 허용)
+        // 배포시 실제 주소로 바꿔야 함!
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         // 요청 방식 허용
         configuration.setAllowedMethods(List.of(
@@ -72,6 +73,12 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/uploads/oneday/**",
                                 "/api/v1/oneday/*"
+                                "/api/auth/password/**",
+                                "/api/auth/refresh",
+                                "/api/reservation",
+                                "/api/reservation/**",
+                                "/api/payment",
+                                "/api/payment/**"
                         ).permitAll()
 
                         // 회원 접근 가능(강사, 관리자 포함)
