@@ -1,5 +1,7 @@
 package com.spring.classon.member.dto;
 
+import com.spring.classon.payment.entity.PaymentStatus;
+import com.spring.classon.reservation.entity.ReservationStatus;
 import lombok.*;
 
 import java.time.*;
@@ -28,7 +30,6 @@ public class MyPageResponseDTO {
     private List<MemberInfo> reservationMembers;
     // 강의 후기
     private List<ReviewInfo> classReviews;
-
 
     @Getter
     @Setter
@@ -59,13 +60,13 @@ public class MyPageResponseDTO {
         private LocalDate schStartDate;
         private Integer rsvCount;
         private Integer rsvAmount;
-        private String rsvStatus;
+        private ReservationStatus rsvStatus;
 
         private Long payNo;
         private String orderNo;
         private String payMethod;
         private Integer payAmount;
-        private String payStatus;
+        private PaymentStatus payStatus;
         private LocalDateTime payCreatedAt;
         private LocalDateTime payPaidAt;
         private LocalDateTime payCanceledAt;
