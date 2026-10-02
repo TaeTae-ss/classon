@@ -1,4 +1,6 @@
-﻿import { useState } from "react";
+import Pagination from "./Pagination";
+import { usePagination } from "./usePagination";
+import { useState } from "react";
 import {
   Link,
   Navigate,
@@ -67,60 +69,49 @@ export function MainPage() {
 export function ClassListPage() {
   const [params] = useSearchParams();
   const [category, setCategory] = useState(params.get("category") || "전체");
-  const [keyword, setKeyword] = useState("");
-  const [search, setSearch] = useState("");
   const [list] = useStore("classes", classes);
   const filtered = list.filter(
-    (c) =>
-      (category === "전체" || c.category === category) &&
-      `${c.title} ${c.instructor} ${c.description}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
+    (c) => category === "전체" || c.category === category,
   );
+  const pagination = usePagination(filtered, 9);
   return (
     <>
       <Heading
         title="클래스 탐색"
         description="새로운 취미, 새로운 배움. 당신에게 맞는 클래스를 찾아보세요."
       />
-      <form
-        className="co-search"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSearch(keyword);
-        }}
-      >
-        <input
-          aria-label="클래스 검색"
-          placeholder="클래스명 / 강사명 / 키워드 검색"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
-        <button className="co-button">검색</button>
-      </form>
-      <div className="co-tabs">
-        {["전체", "개발", "디자인", "취미", "기타"].map((c) => (
-          <button
-            key={c}
-            className={c === category ? "is-active" : ""}
-            onClick={() => setCategory(c)}
-          >
-            {c}
-          </button>
-        ))}
+      <div className="co-class-list-toolbar">
+        <ul className="co-tabs">
+          {["전체", "개발", "디자인", "취미", "기타"].map((c) => (
+            <li role="button" tabIndex={0}
+              key={c}
+              className={c === category ? "is-active" : ""}
+              onClick={() => setCategory(c)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setCategory(c);
+                }
+              }}
+            >
+              {c}
+            </li>
+          ))}
+        </ul>
+        <p className="co-muted">총 {filtered.length}개의 클래스</p>
       </div>
-      <p className="co-muted">총 {filtered.length}개의 클래스</p>
       {filtered.length ? (
         <div className="co-grid">
-          {filtered.map((c) => (
+          {pagination.items.map((c) => (
             <Card key={c.id} item={c} />
           ))}
         </div>
       ) : (
         <Empty>
-          검색 결과가 없습니다. 다른 검색어나 카테고리를 선택해주세요.
+          해당 카테고리에 클래스가 없습니다. 다른 카테고리를 선택해주세요.
         </Empty>
       )}
+      <Pagination {...pagination} />
     </>
   );
 }
@@ -130,6 +121,7 @@ export function ClassDetailPage() {
   const item = findClass(clsNo, list);
   const [favorites, setFavorites] = useStore("favorites", [1, 2]);
   const [reviews] = useStore("reviews", initialReviews);
+  const reviewPagination = usePagination(reviews.filter((r) => r.classId === item?.id));
   if (!item)
     return (
       <Empty to="/class" label="클래스 탐색">
@@ -140,50 +132,16 @@ export function ClassDetailPage() {
   return (
     <>
       <Heading title="클래스 상세" />
-      <div className="co-split">
+      <div className="co-split co-class-detail-layout">
+        <div className="co-class-detail-content">
         <div className="co-gallery">
           <Art item={item} />
         </div>
-        <div className="co-panel">
-          <span className="co-badge">
-            {item.category} · {item.difficulty}
-          </span>
-          <h1 style={{ marginTop: 16 }}>{item.title}</h1>
-          <p>{item.instructor} 강사</p>
-          <p>
-            <span className="co-star">★ {item.rating}</span> · 후기{" "}
-            {reviews.filter((r) => r.classId === item.id).length}개
-          </p>
-          <p>
-            {item.duration}분 · 최대 정원 {item.capacity}명
-          </p>
-          <div className="co-price">
-            <span>1인 수강료</span>
-            <strong>{money(item.price)}</strong>
-          </div>
-          <div className="co-actions">
-            <button
-              className="co-button co-secondary"
-              aria-pressed={liked}
-              onClick={() =>
-                setFavorites((v) =>
-                  liked ? v.filter((id) => id !== item.id) : [...v, item.id],
-                )
-              }
-            >
-              {liked ? "♥ 찜 해제" : "♡ 찜하기"}
-            </button>
-          </div>
-          <BookingForm key={item.id} item={item} />
-        </div>
-      </div>
       <nav className="co-content-tabs">
         <a href="#introduction">클래스 소개</a>
         <a href="#instructor">강사 소개</a>
         <a href="#reviews">수강 후기</a>
       </nav>
-      <div className="co-split">
-        <div>
           <section id="introduction" className="co-panel">
             <h2>클래스 소개</h2>
             <p>{item.description}</p>
@@ -205,8 +163,7 @@ export function ClassDetailPage() {
               </div>
             </div>
           </section>
-        </div>
-        <section className="co-panel">
+        <section id="location" className="co-panel">
           <h2>클래스 장소</h2>
           <p>{item.location}</p>
           <div
@@ -224,12 +181,9 @@ export function ClassDetailPage() {
             정확한 방문 안내는 예약 정보를 확인해주세요.
           </p>
         </section>
-      </div>
       <section id="reviews" className="co-panel">
         <h2>수강 후기</h2>
-        {reviews
-          .filter((r) => r.classId === item.id)
-          .map((r) => (
+        {reviewPagination.items.map((r) => (
             <article className="co-review" key={r.id}>
               <span className="co-star">
                 {"★".repeat(r.rating)}
@@ -249,6 +203,7 @@ export function ClassDetailPage() {
               </Link>
             </article>
           ))}
+        <Pagination {...reviewPagination} />
         {!reviews.some((r) => r.classId === item.id) && (
           <p>아직 작성된 후기가 없습니다.</p>
         )}
@@ -259,6 +214,39 @@ export function ClassDetailPage() {
           클래스 신고
         </Link>
       </section>
+        </div>
+        <div className="co-panel">
+          <span className="co-badge">
+            {item.category} · {item.difficulty}
+          </span>
+          <h1 style={{ marginTop: 16 }}>{item.title}</h1>
+          <p>{item.instructor} 강사</p>
+          <p>
+            <span className="co-star">★ {item.rating}</span> · 후기{" "}
+            {reviews.filter((r) => r.classId === item.id).length}개
+          </p>
+          <p>
+            {item.duration}분 · 최대 정원 {item.capacity}명
+          </p>
+          <BookingForm
+            key={item.id}
+            item={item}
+            secondaryAction={
+              <button type="button"
+              className="co-button co-secondary"
+              aria-pressed={liked}
+              onClick={() =>
+                setFavorites((v) =>
+                  liked ? v.filter((id) => id !== item.id) : [...v, item.id],
+                )
+              }
+            >
+              {liked ? "♥ 찜 해제" : "♡ 찜하기"}
+            </button>
+            }
+          />
+        </div>
+      </div>
     </>
   );
 }
@@ -266,6 +254,7 @@ export function FavoritePage() {
   const [favorites] = useStore("favorites", [1, 2]);
   const [list] = useStore("classes", classes);
   const [selected, setSelected] = useState([]);
+  const pagination = usePagination(list.filter((c) => favorites.includes(c.id)));
   return (
     <Workspace>
       <Heading
@@ -285,9 +274,7 @@ export function FavoritePage() {
       )}
       {favorites.length ? (
         <div className="co-grid">
-          {list
-            .filter((c) => favorites.includes(c.id))
-            .map((c) => (
+          {pagination.items.map((c) => (
               <Card
                 key={c.id}
                 item={c}
@@ -309,6 +296,7 @@ export function FavoritePage() {
           찜한 클래스가 없습니다.
         </Empty>
       )}
+      <Pagination {...pagination} />
     </Workspace>
   );
 }
@@ -445,6 +433,7 @@ export function ReservationListPage({
       (!payment || r.paid) &&
       (filter === "전체" || r.status === filter),
   );
+  const pagination = usePagination(list);
   return (
     <Workspace kind={instructor ? "instructor" : "member"}>
       <Heading
@@ -457,18 +446,24 @@ export function ReservationListPage({
         }
         description="클래스 일정과 진행 상태를 확인하세요."
       />
-      <div className="co-tabs">
+      <ul className="co-tabs">
         {["전체", "결제대기", "예약완료", "수강완료", "취소"].map((v) => (
-          <button
+          <li role="button" tabIndex={0}
             className={filter === v ? "is-active" : ""}
             key={v}
             onClick={() => setFilter(v)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setFilter(v);
+              }
+            }}
           >
             {v}
-          </button>
+          </li>
         ))}
-      </div>
-      {list.map((r) => (
+      </ul>
+      {pagination.items.map((r) => (
         <article className="co-reservation" key={r.id}>
           <ClassSummary reservation={r} list={readStore("classes", classes)} />
           <div>
@@ -497,6 +492,7 @@ export function ReservationListPage({
           해당 내역이 없습니다.
         </Empty>
       )}
+      <Pagination {...pagination} />
     </Workspace>
   );
 }
@@ -912,10 +908,11 @@ export function ReviewListPage({ instructor = false }) {
   const [list] = useStore("classes", classes);
   const [selected, setSelected] = useState(null);
   const shown = instructor ? reviews : reviews.filter((r) => r.memberId === 1);
+  const pagination = usePagination(shown);
   return (
     <Workspace kind={instructor ? "instructor" : "member"}>
       <Heading title={instructor ? "클래스 후기" : "내가 작성한 후기"} />
-      {shown.map((r) => (
+      {pagination.items.map((r) => (
         <section key={r.id} className="co-panel">
           <h3>{findClass(r.classId, list)?.title}</h3>
           <span className="co-star">
@@ -961,6 +958,7 @@ export function ReviewListPage({ instructor = false }) {
         </section>
       ))}
       {!shown.length && <Empty>작성된 후기가 없습니다.</Empty>}
+      <Pagination {...pagination} />
     </Workspace>
   );
 }

@@ -1,4 +1,5 @@
-﻿.co-page {
+.co-page {
+  zoom: 0.9;
   max-width: 1392px;
   margin: 0 auto;
   padding: 14px 24px 54px;
@@ -151,6 +152,7 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .co-muted {
+  text-align: right;
   color: #85888d;
   font-size: 14px;
 }
@@ -249,30 +251,29 @@
   color: #a57950;
 }
 .co-tabs {
+  padding: 0;
+  list-style: none;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin: 24px 0;
 }
-.co-tabs button {
-  border: 1px solid #e9e4df;
-  background: #fff;
-  border-radius: 8px;
-  padding: 11px 24px;
+.co-tabs li {
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
   color: #777;
 }
-.co-tabs button.is-active {
-  background: #ff7900;
-  color: #fff;
-  border-color: #ff7900;
+.co-tabs li.is-active {
+  color: #ff7900;
+  font-weight: 600;
 }
 .co-search {
+  zoom: 0.9;
   display: flex;
+  justify-content: center;
   gap: 12px;
   margin: 0 0 24px;
-}
-.co-search input {
-  flex: 1;
 }
 .co-demo {
   display: flex;
@@ -674,6 +675,7 @@
 }
 @media (max-width: 768px) {
   .co-page {
+  zoom: 0.9;
     padding: 10px 12px 36px;
   }
   .co-page h1 {
@@ -885,7 +887,7 @@
 .co-sidebar-group h3 {
   margin: 0 0 10px;
   padding: 0 12px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 600;
   color: #aaa;
 }
@@ -915,7 +917,195 @@
   }
 }
 
-.co-sidebar h2 { color: #252b31; }
-.co-sidebar a { color: #555b63; }
-.co-sidebar-group h3 { color: #858b93; }
-.co-sidebar a.active { background: #fff0e1; color: #f4770b; }
+.co-sidebar h2 {
+  color: #252b31;
+}
+.co-sidebar a {
+  color: #555b63;
+}
+.co-sidebar-group h3 {
+  color: #858b93;
+}
+.co-sidebar a.active {
+  background: #fff0e1;
+  color: #f4770b;
+}
+
+/* 박스 하단의 작업 버튼을 우측으로 정렬한다. */
+.co-panel .co-actions {
+  justify-content: flex-end;
+}
+.co-panel .co-full {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+}
+.co-panel > button.co-button,
+.co-panel > a.co-button,
+.co-panel > form > button.co-button,
+.co-panel > section > form > button.co-button {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin-left: auto;
+}
+.co-panel .co-actions > .co-button {
+  margin-left: 0;
+}
+
+
+.co-tabs li:hover {
+  color: #ea6500;
+}
+.co-tabs li:focus-visible {
+  outline: 2px solid #ea6500;
+  outline-offset: 3px;
+}
+
+.co-table th,
+.co-table td {
+  text-align: center;
+}
+.co-table .co-table-title {
+  text-align: left;
+}
+
+.co-search select {
+  position: relative;
+  left: -3px;
+}
+
+.co-table-wrap + .co-search {
+  margin: 24px auto;
+}
+
+.co-class-detail-layout {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
+}
+@media (max-width: 768px) {
+  .co-class-detail-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.co-class-detail-layout > .co-panel {
+  position: sticky;
+  top: 124px;
+  align-self: start;
+}
+@media (max-width: 768px) {
+  .co-class-detail-layout > .co-panel {
+    position: static;
+  }
+}
+
+.co-class-detail-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.co-class-detail-content > .co-gallery,
+.co-class-detail-content > .co-panel {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .co-class-detail-layout > .co-panel {
+    top: 220px;
+  }
+}
+.co-class-detail-content > section {
+  scroll-margin-top: 120px;
+}
+
+.co-tabs:has(+ .co-muted) {
+  margin-bottom: 12px;
+}
+.co-tabs + .co-muted {
+  text-align: right;
+  margin-top: 0;
+}
+
+.co-class-list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+.co-class-list-toolbar > .co-tabs,
+.co-class-list-toolbar > .co-muted {
+  margin: 0;
+}
+.co-class-list-toolbar > .co-muted {
+  margin-left: auto;
+}
+
+.co-pagination {
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  gap: 8px;
+  margin: 28px 0 12px;
+}
+.co-pagination button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 38px;
+  font-size: 15px;
+  cursor: pointer;
+}
+.co-pagination button.is-active {
+  border-color: #ff7900;
+  font-weight: 700;
+}
+.co-pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.app-background .co-pagination {
+  gap: 4px;
+  padding: 16px 0;
+  margin: 24px 0 12px;
+}
+.app-background .co-pagination button {
+  flex: 0 0 auto;
+  min-width: 32px;
+  width: auto;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #333;
+  font-size: 13px;
+  font-weight: 400;
+}
+.app-background .co-pagination button.is-active {
+  background: #fff;
+  border: none;
+  color: var(--color-orange);
+  font-weight: 700;
+}
+.app-background .co-pagination button:not(:disabled):hover {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-orange);
+  text-decoration: underline;
+}
+.app-background .co-pagination button.is-active:not(:disabled):hover {
+  border: none;
+}
+.app-background .co-pagination .co-pagination-move {
+  margin: 0 8px;
+  padding: 0 10px;
+}
+.app-background .co-pagination button:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 2px;
+}

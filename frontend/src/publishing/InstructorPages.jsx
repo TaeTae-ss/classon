@@ -1,4 +1,6 @@
-﻿import { useState } from "react";
+import Pagination from "./Pagination";
+import { usePagination } from "./usePagination";
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import {
   classes,
@@ -77,6 +79,7 @@ export function Stats({ items }) {
 export function InstructorClassPage() {
   const [list, setList] = useStore("classes", classes);
   const [selected, setSelected] = useState(null);
+  const pagination = usePagination(list);
   return (
     <Workspace kind="instructor">
       <Heading
@@ -111,16 +114,16 @@ export function InstructorClassPage() {
         <table className="co-table">
           <thead>
             <tr>
-              <th>클래스명</th>
+              <th className="co-table-title">클래스명</th>
               <th>카테고리</th>
               <th>수강료</th>
               <th>관리</th>
             </tr>
           </thead>
           <tbody>
-            {list.map((c) => (
+            {pagination.items.map((c) => (
               <tr key={c.id}>
-                <td>
+                <td className="co-table-title">
                   <Link to={`/class/${c.id}`}>{c.title}</Link>
                 </td>
                 <td>{c.category}</td>
@@ -135,6 +138,7 @@ export function InstructorClassPage() {
         </table>
       </div>
       {!list.length && <Empty>등록된 클래스가 없습니다.</Empty>}
+      <Pagination {...pagination} />
     </Workspace>
   );
 }

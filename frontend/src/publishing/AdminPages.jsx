@@ -1,4 +1,6 @@
-﻿import { useState } from "react";
+import Pagination from "./Pagination";
+import { usePagination } from "./usePagination";
+import { useState } from "react";
 import { Link } from "react-router";
 import {
   useStore,
@@ -101,33 +103,13 @@ export function AdminManagePage({ kind = "classes" }) {
   const filtered = items.filter((x) =>
     JSON.stringify(x).toLowerCase().includes(search.toLowerCase()),
   );
+  const pagination = usePagination(filtered);
   return (
     <Workspace kind="admin">
       <Heading
         title={title}
         description="등록된 정보를 조회하고 관리할 수 있습니다."
       />
-      <form
-        className="co-search"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSearch(keyword);
-        }}
-      >
-        <input
-          aria-label={`${title} 검색`}
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder={
-            kind === "members"
-              ? "회원명 / 이메일 검색"
-              : kind === "reviews"
-                ? "후기 내용 / 작성자 검색"
-                : "클래스명 / 강사 / 카테고리 검색"
-          }
-        />
-        <button className="co-button">검색</button>
-      </form>
       <p className="co-muted">전체 {filtered.length}건</p>
       {detail && (
         <section className="co-panel">
@@ -226,7 +208,7 @@ export function AdminManagePage({ kind = "classes" }) {
                 </>
               ) : kind === "reviews" ? (
                 <>
-                  <th>클래스</th>
+                  <th className="co-table-title">클래스</th>
                   <th>작성자</th>
                   <th>평점</th>
                   <th>후기 내용</th>
@@ -234,7 +216,7 @@ export function AdminManagePage({ kind = "classes" }) {
                 </>
               ) : (
                 <>
-                  <th>클래스명</th>
+                  <th className="co-table-title">클래스명</th>
                   <th>강사</th>
                   <th>카테고리</th>
                   <th>가격</th>
@@ -244,7 +226,7 @@ export function AdminManagePage({ kind = "classes" }) {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((x) => (
+            {pagination.items.map((x) => (
               <tr key={x.id}>
                 <td>{x.id}</td>
                 {kind === "members" ? (
@@ -255,7 +237,7 @@ export function AdminManagePage({ kind = "classes" }) {
                   </>
                 ) : kind === "reviews" ? (
                   <>
-                    <td>
+                    <td className="co-table-title">
                       {classList.find((c) => c.id === x.classId)?.title ||
                         "삭제된 클래스"}
                     </td>
@@ -272,7 +254,7 @@ export function AdminManagePage({ kind = "classes" }) {
                   </>
                 ) : (
                   <>
-                    <td>
+                    <td className="co-table-title">
                       <Link to={`/class/${x.id}`}>{x.title}</Link>
                     </td>
                     <td>{x.instructor}</td>
@@ -301,7 +283,29 @@ export function AdminManagePage({ kind = "classes" }) {
           </tbody>
         </table>
       </div>
+      <form
+        className="co-search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSearch(keyword);
+        }}
+      >
+        <input
+          aria-label={`${title} 검색`}
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          placeholder={
+            kind === "members"
+              ? "회원명 / 이메일 검색"
+              : kind === "reviews"
+                ? "후기 내용 / 작성자 검색"
+                : "클래스명 / 강사 / 카테고리 검색"
+          }
+        />
+        <button className="co-button">검색</button>
+      </form>
       {!filtered.length && <Empty>조회된 정보가 없습니다.</Empty>}
+      <Pagination {...pagination} />
     </Workspace>
   );
 }
@@ -320,57 +324,46 @@ export function AdminReservationPage() {
         search,
       ),
   );
+  const pagination = usePagination(filtered);
   return (
     <Workspace kind="admin">
       <Heading
         title="예약·결제 현황"
         description="전체 예약 및 결제 내역을 조회할 수 있습니다."
       />
-      <div className="co-tabs">
-        <button
+      <ul className="co-tabs">
+        <li role="button" tabIndex={0}
           className={tab === "reservation" ? "is-active" : ""}
           onClick={() => setTab("reservation")}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setTab("reservation");
+              }
+            }}
         >
           예약 현황
-        </button>
-        <button
+        </li>
+        <li role="button" tabIndex={0}
           className={tab === "payment" ? "is-active" : ""}
           onClick={() => setTab("payment")}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setTab("payment");
+              }
+            }}
         >
           결제 현황
-        </button>
-      </div>
-      <form
-        className="co-search"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setSearch(keyword);
-        }}
-      >
-        <input
-          aria-label="예약 검색"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="회원 / 클래스 / 예약번호 검색"
-        />
-        <select
-          value={status}
-          aria-label="예약 상태"
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          {["전체", "결제대기", "예약완료", "수강완료", "취소"].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-        <button className="co-button">검색</button>
-      </form>
+        </li>
+      </ul>
       <div className="co-table-wrap">
         <table className="co-table">
           <thead>
             <tr>
               <th>예약번호</th>
               <th>회원</th>
-              <th>클래스</th>
+              <th className="co-table-title">클래스</th>
               <th>일정</th>
               <th>{tab === "payment" ? "결제 금액" : "인원"}</th>
               <th>상태</th>
@@ -378,11 +371,11 @@ export function AdminReservationPage() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r) => (
+            {pagination.items.map((r) => (
               <tr key={r.id}>
                 <td>{r.id}</td>
                 <td>김회원</td>
-                <td>{list.find((c) => c.id === r.classId)?.title}</td>
+                <td className="co-table-title">{list.find((c) => c.id === r.classId)?.title}</td>
                 <td>{schedules.find((s) => s.id === r.scheduleId)?.date}</td>
                 <td>
                   {tab === "payment"
@@ -409,12 +402,37 @@ export function AdminReservationPage() {
           </tbody>
         </table>
       </div>
+      <form
+        className="co-search"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSearch(keyword);
+        }}
+      >
+        <input
+          aria-label="예약 검색"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          placeholder="회원 / 클래스 / 예약번호 검색"
+        />
+        <select
+          value={status}
+          aria-label="예약 상태"
+          onChange={(e) => setStatus(e.target.value)}
+        >
+          {["전체", "결제대기", "예약완료", "수강완료", "취소"].map((v) => (
+            <option key={v}>{v}</option>
+          ))}
+        </select>
+        <button className="co-button">검색</button>
+      </form>
       {!filtered.length && <Empty>내역이 없습니다.</Empty>}
       <div className="co-actions">
         <ButtonLink secondary to="/admin">
           관리자 대시보드
         </ButtonLink>
       </div>
+      <Pagination {...pagination} />
     </Workspace>
   );
 }

@@ -1,4 +1,5 @@
-﻿import { useState } from "react";
+import Pagination from "./Pagination";
+import { useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import {
   useStore,
@@ -64,6 +65,43 @@ export function BoardListPage({ inquiry = false, admin = false }) {
           ) : null
         }
       />
+      <p className="co-muted">전체 {filtered.length}건</p>
+      <div className="co-table-wrap">
+        <table className="co-table">
+          <thead>
+            <tr>
+              <th>번호</th>
+              {inquiry && admin && <th>작성자</th>}
+              <th className="co-table-title">제목</th>
+              <th>{inquiry ? "접수일" : "작성일"}</th>
+              {inquiry && <th>처리 상태</th>}
+              {admin && !inquiry && <th>관리</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.slice((page - 1) * 8, page * 8).map((item) => (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                {inquiry && admin && <td>회원 {item.memberId}</td>}
+                <td className="co-table-title">
+                  <Link to={`${base}/read/${item.id}`}>{item.title}</Link>
+                </td>
+                <td>{item.date}</td>
+                {inquiry && (
+                  <td>
+                    <span className="co-badge">{statusNames[item.status]}</span>
+                  </td>
+                )}
+                {admin && !inquiry && (
+                  <td>
+                    <Link to={`${base}/modify/${item.id}`}>수정</Link>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <form
         className="co-search"
         onSubmit={(e) => {
@@ -97,57 +135,8 @@ export function BoardListPage({ inquiry = false, admin = false }) {
         />
         <button className="co-button">검색</button>
       </form>
-      <p className="co-muted">전체 {filtered.length}건</p>
-      <div className="co-table-wrap">
-        <table className="co-table">
-          <thead>
-            <tr>
-              <th>번호</th>
-              {inquiry && admin && <th>작성자</th>}
-              <th>제목</th>
-              <th>{inquiry ? "접수일" : "작성일"}</th>
-              {inquiry && <th>처리 상태</th>}
-              {admin && !inquiry && <th>관리</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.slice((page - 1) * 8, page * 8).map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                {inquiry && admin && <td>회원 {item.memberId}</td>}
-                <td>
-                  <Link to={`${base}/read/${item.id}`}>{item.title}</Link>
-                </td>
-                <td>{item.date}</td>
-                {inquiry && (
-                  <td>
-                    <span className="co-badge">{statusNames[item.status]}</span>
-                  </td>
-                )}
-                {admin && !inquiry && (
-                  <td>
-                    <Link to={`${base}/modify/${item.id}`}>수정</Link>
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
       {!filtered.length && <Empty>검색 결과가 없습니다.</Empty>}
-      {filtered.length > 8 && (
-        <div className="co-pagination">
-          {Array.from({ length: Math.ceil(filtered.length / 8) }, (_, i) => (
-            <button
-              key={i}
-              className={page === i + 1 ? "is-active" : ""}
-              onClick={() => setPage(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
-      )}
+      <Pagination page={page} pages={Math.max(1, Math.ceil(filtered.length / 8))} onChange={setPage} />
     </>
   );
   return admin ? (

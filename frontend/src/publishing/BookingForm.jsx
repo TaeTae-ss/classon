@@ -22,7 +22,7 @@ function remainingSeats(item, schedule, reservations, excludeId) {
     .reduce((total, r) => total + r.count, 0);
   return Math.max(0, Math.min(item.capacity, schedule.remaining) - occupied);
 }
-export default function BookingForm({ item, existing }) {
+export default function BookingForm({ item, existing, secondaryAction }) {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [reservations, setReservations] = useStore(
@@ -113,7 +113,6 @@ export default function BookingForm({ item, existing }) {
   };
   return (
     <form className="co-booking" onSubmit={submit}>
-      <h2>예약 정보</h2>
       <Field label="수업 일정 선택">
         <select
           required
@@ -184,12 +183,15 @@ export default function BookingForm({ item, existing }) {
         </span>
         <strong>{money(item.price * effectiveCount)}</strong>
       </div>
-      <button
-        className="co-button co-full"
+      <div className="co-actions">
+        {secondaryAction}
+        <button
+          className="co-button"
         disabled={!selected || max === 0 || duplicate || paidCountChanged}
       >
         {existing ? "변경 저장" : "예약하기"}
-      </button>
+        </button>
+      </div>
       <p className="co-tiny" style={{ marginTop: 12, marginBottom: 0 }}>
         {existing
           ? "변경할 일정과 인원을 확인해주세요."
