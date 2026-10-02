@@ -85,4 +85,23 @@ public class OneDay {
         this.clsImgThumb = clsImgThumb;
         this.clsStatus = clsStatus;
     }
+
+    // 상품 정보 수정
+    public void update(Long catNo, String clsName, String clsDesc, Integer clsPrice,
+                        String clsRoadAddr, String clsDetailAddr, String clsLevel, Integer clsDuration) {
+        this.catNo = catNo;
+        this.clsName = clsName;
+        this.clsDesc = clsDesc;
+        this.clsPrice = clsPrice;
+        this.clsRoadAddr = clsRoadAddr;
+        this.clsDetailAddr = clsDetailAddr;
+        this.clsLevel = clsLevel;
+        this.clsDuration = clsDuration;
+    }
+
+    // 상품 이미지 교체
+    public void updateImages(String clsImgOrigin, String clsImgThumb) {
+        this.clsImgOrigin = clsImgOrigin;
+        this.clsImgThumb = clsImgThumb;
+    }
 }

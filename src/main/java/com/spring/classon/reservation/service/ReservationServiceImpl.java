@@ -123,6 +123,26 @@ public class ReservationServiceImpl implements ReservationService{
         reservation.cancel(cancelReason);
     }
 
+    // 여기부터 추가 (oneday가 일정 삭제 가능 여부/예약 인원 확인 시 reservation 내부 구현을 직접 참조하지 않도록 공개)
+    private static final List<ReservationStatus> ACTIVE_RESERVATION_STATUSES = List.of(
+            ReservationStatus.WAIT,
+            ReservationStatus.CONFIRMED
+    );
+
+    // 일정에 활성(대기/확정) 예약이 있는지 확인
+    @Override
+    @Transactional(readOnly = true)
+    public boolean hasActiveReservation(Long schNo) {
+        return reservationRepository.existsBySchNoAndRsvStatusIn(schNo, ACTIVE_RESERVATION_STATUSES);
+    }
+
+    // 일정별 활성(대기/확정) 예약 인원 합계
+    @Override
+    @Transactional(readOnly = true)
+    public int countActiveReservations(Long schNo) {
+        return reservationRepository.sumRsvCountBySchNoAndRsvStatusIn(schNo, ACTIVE_RESERVATION_STATUSES);
+    }
+    // 여기까지 추가
     // 정원 및 예약 금액 계산
     @Override
     @Transactional

@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+// 여기부터 추가
+import java.util.Map;
+import java.util.stream.Collectors;
+// 여기까지 추가
 
 @Service
 @Transactional
@@ -145,4 +149,20 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.findAverageRatingByClsNo(clsNo);
     }
 
+    // 여기부터 추가
+    //상품별 평균 평점 일괄 조회
+    @Override
+    public Map<Long, Double> getAverageRatings(List<Long> clsNos) {
+
+        if (clsNos.isEmpty()) {
+            return Map.of();
+        }
+
+        return reviewRepository.findAvgRatingByClsNos(clsNos).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> ((Number) row[1]).doubleValue()
+                ));
+    }
+    // 여기까지 추가
 }

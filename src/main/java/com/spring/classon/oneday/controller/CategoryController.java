@@ -15,12 +15,11 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    // 카테고리 전체 목록 조회
     @GetMapping("/api/v1/categories")
-    public ResponseEntity<List<CategoryResponseDTO>> findCategories() {
+    public ResponseEntity<List<CategoryResponseDTO>> getCategories() {
 
         return ResponseEntity.ok(
-                categoryService.findCategories()
+                categoryService.getCategories()
         );
     }
 }

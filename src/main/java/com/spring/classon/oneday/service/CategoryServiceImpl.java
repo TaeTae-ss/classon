@@ -21,7 +21,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     // 카테고리 전체 목록 조회
     @Override
-    public List<CategoryResponseDTO> findCategories() {
+    public List<CategoryResponseDTO> getCategories() {
 
         List<Category> categories = categoryRepository.findAll(Sort.by("catName"));
 
