@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review,Long> {
     // 최신순
@@ -17,9 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
 
     // 평점 낮은순
     List<Review> findByClsNoOrderByRevRatingAsc(Long clsNo);
-
-    //회원별 후기 조회
-    Optional<Review> findByRsvNo(Long rsvNo);
 
     //상품별 평균 평점 일괄 조회 (블라인드 제외)
     @Query("""

@@ -37,23 +37,6 @@ public class ReviewController {
         return reviewDTOList;
     }
 
-    // 로그인 회원의 후기 목록 조회
-    @GetMapping("/member")
-    public List<ReviewDTO> getMemberList(Authentication authentication) {
-
-        // JWT에서 로그인 회원 정보 조회
-        Map<String, Object> claims =
-                (Map<String, Object>) authentication.getPrincipal();
-
-        // 로그인 회원 번호 추출
-        Long memNo = ((Number) claims.get("memNo")).longValue();
-
-        List<ReviewDTO> reviewDTOList =
-                reviewService.getMemberList(memNo);
-
-        return reviewDTOList;
-    }
-
     //평균 평점 조회
     @GetMapping("/class/{clsNo}/average")
     public Double getAverageRating(@PathVariable Long clsNo) {
