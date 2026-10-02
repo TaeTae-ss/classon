@@ -3,6 +3,9 @@ package com.spring.classon.review.service;
 import com.spring.classon.review.dto.ReviewDTO;
 
 import java.util.List;
+// 여기부터 추가
+import java.util.Map;
+// 여기까지 추가
 
 public interface ReviewService {
     //후기 등록
@@ -23,5 +26,8 @@ public interface ReviewService {
     //평균 평점
     Double getAverageRating(Long clsNo);
 
-
+    // 여기부터 추가
+    //상품별 평균 평점 일괄 조회
+    Map<Long, Double> getAverageRatings(List<Long> clsNos);
+    // 여기까지 추가
 }

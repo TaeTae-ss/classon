@@ -70,6 +70,8 @@ public class SecurityConfig {
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
                                 "/api/auth/login",
+                                "/uploads/oneday/**",
+                                "/api/v1/oneday/*"
                                 "/api/auth/password/**",
                                 "/api/auth/refresh",
                                 "/api/reservation",
