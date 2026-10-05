@@ -2,7 +2,8 @@ package com.spring.classon.member.dto;
 
 // password 제외 회원 정보 조회용 dto
 import lombok.*;
-import java.time.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -14,7 +15,6 @@ public class MemberResponseDTO {
     private String memNickname;
     private String memPhone;
     private String memAddress;
-    private LocalDate memBirth;
     private String memImg;
     private String memRole;
     private LocalDateTime memCreatedAt;

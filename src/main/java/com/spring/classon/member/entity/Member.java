@@ -2,7 +2,8 @@ package com.spring.classon.member.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "MEMBER")
@@ -22,9 +23,6 @@ public class Member {
 
     @Column(name = "mem_created_at", nullable = false)
     private LocalDateTime memCreatedAt;
-
-    @Column(name = "mem_birth")
-    private LocalDate memBirth;
 
     @Column(name = "mem_img", length = 255)
     private String memImg;

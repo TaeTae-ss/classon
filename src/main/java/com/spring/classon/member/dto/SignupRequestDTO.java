@@ -1,7 +1,6 @@
 package com.spring.classon.member.dto;
 
 import lombok.*;
-import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
@@ -14,5 +13,4 @@ public class SignupRequestDTO {
     private String memPassword;
     private String memPhone;
     private String memAddress;
-    private LocalDate memBirth;
 }
