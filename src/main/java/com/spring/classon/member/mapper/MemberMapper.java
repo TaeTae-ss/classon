@@ -3,7 +3,6 @@ package com.spring.classon.member.mapper;
 import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 
 @Component
@@ -20,6 +19,7 @@ public class MemberMapper {
                 .memNickname(member.getMemNickname())
                 .memPhone(memberPrivate.getMemPhone())
                 .memAddress(memberPrivate.getMemAddress())
+                .memBirth(member.getMemBirth())
                 .memImg(member.getMemImg())
                 .memRole(member.getMemRole())
                 .memCreatedAt(member.getMemCreatedAt())
@@ -31,6 +31,7 @@ public class MemberMapper {
 
         return Member.builder()
                 .memNickname(dto.getMemNickname())
+                .memBirth(dto.getMemBirth())
                 .memCreatedAt(LocalDateTime.now())
                 .memRole("USER")
                 .build();
