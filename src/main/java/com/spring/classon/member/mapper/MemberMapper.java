@@ -20,6 +20,7 @@ public class MemberMapper {
                 .memNickname(member.getMemNickname())
                 .memPhone(memberPrivate.getMemPhone())
                 .memAddress(memberPrivate.getMemAddress())
+                .memAddressDetail(memberPrivate.getMemAddressDetail())
                 .memImg(member.getMemImg())
                 .memRole(member.getMemRole())
                 .memCreatedAt(member.getMemCreatedAt())
@@ -49,6 +50,7 @@ public class MemberMapper {
                 .memPassword(encodedPassword)
                 .memPhone(dto.getMemPhone())
                 .memAddress(dto.getMemAddress())
+                .memAddressDetail(dto.getMemAddressDetail())
                 .memPwUpdate(LocalDateTime.now())
                 .build();
     }

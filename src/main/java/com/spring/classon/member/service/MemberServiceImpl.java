@@ -1,5 +1,6 @@
 package com.spring.classon.member.service;
 
+import com.spring.classon.common.exception.MemberException;
 import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.mapper.MemberMapper;
@@ -9,9 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-// 여기부터 추가
-import java.util.List;
-// 여기까지 추가
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +25,10 @@ public class MemberServiceImpl implements MemberService {
     public MemberResponseDTO getMember(Long memNo) {
 
         Member member = memberRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         return memberMapper.toResponseDto(member, memberPrivate);
     }
@@ -40,10 +38,10 @@ public class MemberServiceImpl implements MemberService {
     public void updateMember(Long memNo, MemberUpdateDTO dto) {
 
         Member member = memberRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         member.updateMember(
                 dto.getMemNickname(),
@@ -52,7 +50,8 @@ public class MemberServiceImpl implements MemberService {
 
         memberPrivate.updateMemberPrivate(
                 dto.getMemPhone(),
-                dto.getMemAddress()
+                dto.getMemAddress(),
+                dto.getMemAddressDetail()
         );
     }
 
@@ -60,7 +59,7 @@ public class MemberServiceImpl implements MemberService {
     public void updatePassword(Long memNo, MemberPasswordUpdateDTO dto) {
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         memberPrivate.updatePassword(
                 dto.getNewPassword(),
@@ -73,41 +72,12 @@ public class MemberServiceImpl implements MemberService {
     public void deleteMember(Long memNo) {
 
         Member member = memberRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
 
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("회원 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
 
         memberPrivateRepository.delete(memberPrivate);
         memberRepository.delete(member);
     }
-
-    // 여기부터 추가 (oneday 등 다른 도메인이 개인정보 없이 닉네임/role만 조회할 때 사용)
-    // 회원 공개 정보 요약 조회
-    @Override
-    public MemberSummaryDTO getMemberSummary(Long memNo) {
-
-        Member member = memberRepository.findById(memNo)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
-        return toSummaryDto(member);
-    }
-
-    // 회원 공개 정보 요약 일괄 조회
-    @Override
-    public List<MemberSummaryDTO> getMemberSummaries(List<Long> memNos) {
-
-        return memberRepository.findAllById(memNos).stream()
-                .map(this::toSummaryDto)
-                .toList();
-    }
-
-    private MemberSummaryDTO toSummaryDto(Member member) {
-        return MemberSummaryDTO.builder()
-                .memNo(member.getMemNo())
-                .memNickname(member.getMemNickname())
-                .memRole(member.getMemRole())
-                .build();
-    }
-    // 여기까지 추가
 }

@@ -6,10 +6,20 @@ import org.springframework.web.multipart.MultipartFile;
 public interface InstructorService {
 
     // 강사 신청
-    Long applyInstructor(Long memNo, InstructorRequestDTO dto);
+    Long applyInstructor(
+            Long memNo,
+            InstructorRequestDTO dto
+    );
 
     // 강사 신청 상태 조회
-    InstructorResponseDTO getInstructorRequest(Long reqNo);
+    InstructorResponseDTO getInstructorRequest(
+            Long reqNo
+    );
+
+    // 회원 번호로 강사 신청 조회
+    InstructorResponseDTO getInstructorRequestByMemNo(
+            Long memNo
+    );
 
     // 강사 신청 증빙자료 등록
     InstructorDocumentResponseDTO addDocument(
@@ -18,5 +28,8 @@ public interface InstructorService {
     );
 
     // 강사 신청 승인/거절
-    void updateInstructorStatus(Long reqNo, InstructorApprovalDTO dto);
+    void updateInstructorStatus(
+            Long reqNo,
+            InstructorApprovalDTO dto
+    );
 }

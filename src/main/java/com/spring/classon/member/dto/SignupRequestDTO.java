@@ -13,4 +13,5 @@ public class SignupRequestDTO {
     private String memPassword;
     private String memPhone;
     private String memAddress;
+    private String memAddressDetail;
 }

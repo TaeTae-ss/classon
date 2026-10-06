@@ -2,7 +2,6 @@ package com.spring.classon.member.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,17 +33,28 @@ public class MemberPrivate {
     @Column(name = "mem_address", nullable = false, length = 100)
     private String memAddress;
 
+    @Column(name = "mem_address_detail", length = 200)
+    private String memAddressDetail;
+
     @Column(name = "mem_pw_update")
     private LocalDateTime memPwUpdate;
 
     // 회원 private 정보 수정(비밀번호 제외)
-    public void updateMemberPrivate(String memPhone, String memAddress) {
+    public void updateMemberPrivate(
+            String memPhone,
+            String memAddress,
+            String memAddressDetail
+    ) {
         this.memPhone = memPhone;
         this.memAddress = memAddress;
+        this.memAddressDetail = memAddressDetail;
     }
 
     // 비밀번호 변경
-    public void updatePassword(String memPassword, LocalDateTime memPwUpdate) {
+    public void updatePassword(
+            String memPassword,
+            LocalDateTime memPwUpdate
+    ) {
         this.memPassword = memPassword;
         this.memPwUpdate = memPwUpdate;
     }

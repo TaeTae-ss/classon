@@ -11,5 +11,6 @@ public class MemberUpdateDTO {
     private String memNickname;
     private String memPhone;
     private String memAddress;
+    private String memAddressDetail;
     private String memImg;
 }
