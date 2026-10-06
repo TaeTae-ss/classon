@@ -6,11 +6,11 @@ const BasicLayout = ({
 }) => {
 
     return (
-        <div className="app-background">
+        <div className="app-background min-h-screen bg-white flex flex-col">
 
                 <Header/>
 
-                <main className="main-content">
+                <main className="flex-1 px-[10px] py-[35px]">
                     {children}
                 </main>
 
