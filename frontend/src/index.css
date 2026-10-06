@@ -44,7 +44,7 @@
 }
 
 :root {
-    --color-bg: #FFFDF9;
+    --color-bg: #FFFFFF;
 
     --color-orange: #F97316;
     --color-orange-light: #FFEDD5;
@@ -83,3 +83,96 @@ button {
 }
 
 @import "tailwindcss";
+
+@theme {
+    --color-brand: #F97316;
+    --color-brand-light: #FFEDD5;
+    --color-ink: #1F2937;
+    --color-ink-sub: #6B7280;
+    --color-line: #E5E7EB;
+    --color-accent: #ff7900;
+    --color-accent-dark: #e96900;
+}
+
+/*
+ * publishing.css의 ".co-page" 하위 공통 리셋(제목/본문/링크/폼 요소 기본값)과
+ * buttons.css의 전역 버튼 호버 트랜지션을 Tailwind 유틸리티(@apply)로 재현한다.
+ * 각 페이지 컴포넌트 안의 개별 co-* 클래스는 해당 JSX에서 직접 Tailwind 클래스로 변환했다.
+ */
+@layer base {
+    .co-page {
+        @apply max-w-[1392px] mx-auto px-6 pt-[14px] pb-[54px] text-[#252b31] text-[17px] leading-[1.65] [zoom:0.9];
+    }
+    .co-page a {
+        @apply no-underline text-inherit;
+    }
+    .co-page h1,
+    .co-page h2,
+    .co-page h3,
+    .co-page p {
+        @apply mt-0;
+    }
+    .co-page h1 {
+        @apply text-[32px] tracking-[-1px] leading-[1.35] mb-3 font-bold;
+    }
+    .co-page h2 {
+        @apply text-2xl mb-6 font-bold;
+    }
+    .co-page h3 {
+        @apply text-[19px] leading-[1.5] font-bold;
+    }
+    .co-page p {
+        @apply text-[#72777e];
+    }
+    .co-page h1,
+    .co-page h2,
+    .co-page h3,
+    .co-page p,
+    .co-details dd {
+        @apply [overflow-wrap:anywhere];
+    }
+    .co-page input,
+    .co-page select,
+    .co-page textarea {
+        @apply min-w-0 max-w-full px-4 py-[13px] border border-[#dedede] bg-white rounded-[7px] text-[#30343a];
+    }
+    .co-page textarea {
+        @apply resize-y min-h-[180px];
+    }
+    .co-page input[type="checkbox"],
+    .co-page input[type="radio"] {
+        @apply w-5 h-5 accent-[#ff7900];
+    }
+    .co-page input:focus-visible,
+    .co-page select:focus-visible,
+    .co-page textarea:focus-visible,
+    .co-page button:focus-visible,
+    .co-page a:focus-visible {
+        @apply outline outline-[3px] outline-[#ffb576] outline-offset-[3px];
+    }
+    .co-page button:disabled {
+        @apply opacity-[.45] cursor-not-allowed;
+    }
+    @media (max-width: 768px) {
+        .co-page {
+            @apply px-3 pt-[10px] pb-9;
+        }
+        .co-page h1 {
+            @apply text-[28px];
+        }
+    }
+
+    /* a.co-button, a.login-button, a.signup-button 등 앵커형 버튼의 동일한 호버는
+       각 컴포넌트(ButtonLink, Header)에서 직접 hover: 유틸리티로 적용했다. */
+    .app-background button {
+        @apply transition-[background-color,color,border-color,opacity] duration-[160ms] [transition-timing-function:ease];
+    }
+    .app-background button:not(:disabled):not([aria-disabled="true"]):hover {
+        @apply bg-[#ea6500] text-white border-[#ea6500] opacity-100;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .app-background button {
+            @apply transition-none;
+        }
+    }
+}
