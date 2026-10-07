@@ -43,6 +43,16 @@ export default function SignupPage() {
     type: "",
   });
 
+  const [passwordMessage, setPasswordMessage] = useState({
+    text: "",
+    type: "",
+  });
+
+  const [confirmMessage, setConfirmMessage] = useState({
+    text: "",
+    type: "",
+  });
+
   const [formMessage, setFormMessage] = useState({
     text: "",
     type: "",
@@ -52,6 +62,9 @@ export default function SignupPage() {
   const buttonStyle =
     "flex w-fit max-w-full justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer hover:bg-[#fff0e3] hover:border-[#e56b00] transition-colors duration-200 disabled:opacity-45 disabled:cursor-not-allowed";
 
+  // 비밀번호 형식
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,20}$/;
+
   const field = (key, label, type = "text", extra = {}) => (
     <Field
       label={label}
@@ -59,7 +72,12 @@ export default function SignupPage() {
       required
       value={form[key]}
       onChange={(e) => {
-        setForm({ ...form, [key]: e.target.value });
+        const value = e.target.value;
+
+        setForm({
+          ...form,
+          [key]: value,
+        });
 
         // 이메일 수정 시 인증 상태 초기화
         if (key === "email") {
@@ -96,6 +114,61 @@ export default function SignupPage() {
             text: "",
             type: "",
           });
+        }
+
+        // 비밀번호 형식 확인
+        if (key === "password") {
+          if (!value) {
+            setPasswordMessage({
+              text: "",
+              type: "",
+            });
+          } else if (!passwordRegex.test(value)) {
+            setPasswordMessage({
+              text: "비밀번호는 영문과 숫자를 포함한 8~20자로 입력해주세요.",
+              type: "error",
+            });
+          } else {
+            setPasswordMessage({
+              text: "",
+              type: "",
+            });
+          }
+
+          // 비밀번호가 변경되면 비밀번호 확인도 다시 검사
+          if (form.confirm) {
+            if (value !== form.confirm) {
+              setConfirmMessage({
+                text: "비밀번호가 일치하지 않습니다.",
+                type: "error",
+              });
+            } else {
+              setConfirmMessage({
+                text: "",
+                type: "",
+              });
+            }
+          }
+        }
+
+        // 비밀번호 확인
+        if (key === "confirm") {
+          if (!value) {
+            setConfirmMessage({
+              text: "",
+              type: "",
+            });
+          } else if (value !== form.password) {
+            setConfirmMessage({
+              text: "비밀번호가 일치하지 않습니다.",
+              type: "error",
+            });
+          } else {
+            setConfirmMessage({
+              text: "",
+              type: "",
+            });
+          }
         }
       }}
       {...extra}
@@ -137,9 +210,18 @@ export default function SignupPage() {
       return;
     }
 
+    // 비밀번호 형식
+    if (!passwordRegex.test(form.password)) {
+      setPasswordMessage({
+        text: "비밀번호는 영문과 숫자를 포함한 8~20자로 입력해주세요.",
+        type: "error",
+      });
+      return;
+    }
+
     // 비밀번호 확인
     if (form.password !== form.confirm) {
-      setFormMessage({
+      setConfirmMessage({
         text: "비밀번호가 일치하지 않습니다.",
         type: "error",
       });
@@ -384,13 +466,43 @@ export default function SignupPage() {
           {field("password", "비밀번호", "password", {
             minLength: 8,
             autoComplete: "new-password",
+            className:
+              form.password &&
+              !passwordRegex.test(form.password)
+                ? "!border-2 !border-[#e05252]"
+                : "",
           })}
+
+          {/* 비밀번호 오류 메시지 */}
+          {passwordMessage.text && (
+            <p
+              className="px-[17px] py-[13px] mt-[-10px] mb-[12px] rounded-[7px] text-[16px] bg-[#fff1f1] text-[#c94a4a]"
+              role="status"
+            >
+              {passwordMessage.text}
+            </p>
+          )}
 
           {/* 비밀번호 확인 */}
           {field("confirm", "비밀번호 확인", "password", {
             minLength: 8,
             autoComplete: "new-password",
+            className:
+              form.confirm &&
+              form.confirm !== form.password
+                ? "!border-2 !border-[#e05252]"
+                : "",
           })}
+
+          {/* 비밀번호 확인 오류 메시지 */}
+          {confirmMessage.text && (
+            <p
+              className="px-[17px] py-[13px] mt-[-10px] mb-[12px] rounded-[7px] text-[16px] bg-[#fff1f1] text-[#c94a4a]"
+              role="status"
+            >
+              {confirmMessage.text}
+            </p>
+          )}
 
           {/* 닉네임 */}
           <div className="flex items-end gap-[10px]">
