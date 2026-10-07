@@ -1,18 +1,13 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router";
-
+import api from "../../api/axios";
 import { initialProfile, useStore } from "../../mocks/data";
-
 import { Heading } from "../../components/common/Heading";
-
 import { Field } from "../../components/common/Field";
 
 export default function SignupPage() {
   const navigate = useNavigate();
-
   const [, setProfile] = useStore("profile", initialProfile);
-
   const [form, setForm] = useState({
     email: "",
     nickname: "",
@@ -228,27 +223,53 @@ export default function SignupPage() {
             이메일 중복확인
           </button>
 
-          {/* 인증번호 받기 */}
+          {/* 인증번호 받기 / 재발송 */}
           <button
             type="button"
             className={buttonStyle}
             disabled={!emailChecked}
-            onClick={() => {
-              setSent(true);
-              setVerified(false);
+            onClick={async () => {
+              try {
+                await api.post(
+                  `/api/auth/email/send?email=${encodeURIComponent(
+                    form.email,
+                  )}`,
+                );
 
-              setEmailMessage({
-                text: "인증번호가 발송되었습니다.",
-                type: "success",
-              });
+                setSent(true);
+                setVerified(false);
 
-              setCodeMessage({
-                text: "",
-                type: "",
-              });
+                // 기존 인증번호 초기화
+                setForm((prev) => ({
+                  ...prev,
+                  code: "",
+                }));
+
+                setEmailMessage({
+                  text: sent
+                    ? "인증번호가 재발송되었습니다."
+                    : "인증번호가 발송되었습니다.",
+                  type: "success",
+                });
+
+                setCodeMessage({
+                  text: "",
+                  type: "",
+                });
+              } catch (error) {
+                console.error("이메일 인증번호 발송 실패:", error);
+
+                setSent(false);
+                setVerified(false);
+
+                setEmailMessage({
+                  text: "인증번호 발송에 실패했습니다. 다시 시도해주세요.",
+                  type: "error",
+                });
+              }
             }}
           >
-            인증번호 받기
+            {sent ? "인증번호 재발송" : "인증번호 받기"}
           </button>
         </div>
 
@@ -278,19 +299,42 @@ export default function SignupPage() {
               <button
                 type="button"
                 className={buttonStyle}
-                onClick={() => {
-                  const valid = form.code === "123456";
+                onClick={async () => {
+                  try {
+                    const response = await api.post(
+                      `/api/auth/email/verify?email=${encodeURIComponent(
+                        form.email,
+                      )}&authCode=${encodeURIComponent(form.code)}`,
+                    );
 
-                  setVerified(valid);
+                    console.log("이메일 인증 응답:", response.data);
 
-                  if (valid) {
+                    const valid =
+                      response.data === true ||
+                      response.data === "true" ||
+                      response.data?.data === true ||
+                      response.data?.data === "true";
+
+                    setVerified(valid);
+
+                    if (valid) {
+                      setCodeMessage({
+                        text: "이메일 인증을 완료했습니다.",
+                        type: "success",
+                      });
+                    } else {
+                      setCodeMessage({
+                        text: "인증번호를 확인해주세요.",
+                        type: "error",
+                      });
+                    }
+                  } catch (error) {
+                    console.error("이메일 인증 확인 실패:", error);
+
+                    setVerified(false);
+
                     setCodeMessage({
-                      text: "이메일 인증을 완료했습니다.",
-                      type: "success",
-                    });
-                  } else {
-                    setCodeMessage({
-                      text: "인증번호를 확인해주세요.",
+                      text: "인증 확인에 실패했습니다. 다시 시도해주세요.",
                       type: "error",
                     });
                   }
