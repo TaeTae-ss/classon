@@ -80,8 +80,13 @@ const classRouter = (
             />
 
             <Route
-                path="payment/:payNo/success"
+                path="payment/success"
                 element={<PaymentDetailPage complete />}
+            />
+
+            <Route
+                path="payment/fail"
+                element={<PaymentDetailPage />}
             />
 
             <Route
