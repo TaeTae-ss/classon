@@ -11,3 +11,49 @@ export const logoutPost = async () => {
   const response = await axios.post("/api/auth/logout");
   return response.data.data;
 };
+
+// 비밀번호 재설정 인증번호 발송
+export const passwordSendPost = async (email) => {
+  const response = await axios.post("/api/auth/password/send", null, {
+    params: { email },
+  });
+
+  return response.data;
+};
+
+// 비밀번호 재설정 인증번호 확인
+export const passwordVerifyPost = async (email, authCode) => {
+  const response = await axios.post("/api/auth/password/verify", null, {
+    params: {
+      email,
+      authCode,
+    },
+  });
+
+  return response.data;
+};
+
+// 비밀번호 재설정
+export const passwordPatch = async (data) => {
+  const response = await axios.patch("/api/auth/password", data);
+  return response.data;
+};
+
+// 회원가입 파트
+// 이메일 중복 확인
+export const checkEmail = async (email) => {
+  const response = await axios.get("/api/auth/check-email", {
+    params: { email },
+  });
+
+  return response.data.data;
+};
+
+// 닉네임 중복 확인
+export const checkNickname = async (nickname) => {
+  const response = await axios.get("/api/auth/check-nickname", {
+    params: { nickname },
+  });
+
+  return response.data.data;
+};

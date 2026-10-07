@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import api from "../../api/axios";
+import { checkEmail, checkNickname } from "../../api/memberApi";
 import { initialProfile, useStore } from "../../mocks/data";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
@@ -8,6 +9,7 @@ import { Field } from "../../components/common/Field";
 export default function SignupPage() {
   const navigate = useNavigate();
   const [, setProfile] = useStore("profile", initialProfile);
+
   const [form, setForm] = useState({
     email: "",
     nickname: "",
@@ -203,21 +205,52 @@ export default function SignupPage() {
           <button
             type="button"
             className={buttonStyle}
-            disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)}
-            onClick={() => {
-              setEmailChecked(true);
-              setSent(false);
-              setVerified(false);
+            disabled={
+              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
+            }
+            onClick={async () => {
+              try {
+                const response = await checkEmail(form.email);
 
-              setEmailMessage({
-                text: "사용할 수 있는 이메일입니다.",
-                type: "success",
-              });
+                if (response.available) {
+                  setEmailChecked(true);
+                  setSent(false);
+                  setVerified(false);
 
-              setCodeMessage({
-                text: "",
-                type: "",
-              });
+                  setEmailMessage({
+                    text: "사용할 수 있는 이메일입니다.",
+                    type: "success",
+                  });
+
+                  setCodeMessage({
+                    text: "",
+                    type: "",
+                  });
+                } else {
+                  setEmailChecked(false);
+                  setSent(false);
+                  setVerified(false);
+
+                  setEmailMessage({
+                    text: "이미 사용 중인 이메일입니다.",
+                    type: "error",
+                  });
+
+                  setCodeMessage({
+                    text: "",
+                    type: "",
+                  });
+                }
+              } catch (error) {
+                console.error("이메일 중복 확인 실패:", error);
+
+                setEmailChecked(false);
+
+                setEmailMessage({
+                  text: "이메일 중복 확인에 실패했습니다. 다시 시도해주세요.",
+                  type: "error",
+                });
+              }
             }}
           >
             이메일 중복확인
@@ -371,23 +404,51 @@ export default function SignupPage() {
             <button
               type="button"
               className={`${buttonStyle} mb-[22px]`}
-              onClick={() => {
-                const valid =
-                  form.nickname.trim().length >= 2 &&
-                  !["관리자", "admin"].includes(
-                    form.nickname.trim().toLowerCase(),
-                  );
+              disabled={form.nickname.trim().length < 2}
+              onClick={async () => {
+                const nickname = form.nickname.trim();
 
-                setChecked(valid);
+                if (
+                  nickname.length < 2 ||
+                  ["관리자", "admin"].includes(
+                    nickname.toLowerCase(),
+                  )
+                ) {
+                  setChecked(false);
 
-                if (valid) {
-                  setNicknameMessage({
-                    text: "사용할 수 있는 닉네임입니다.",
-                    type: "success",
-                  });
-                } else {
                   setNicknameMessage({
                     text: "닉네임은 2자 이상이며 관리자 이름은 사용할 수 없습니다.",
+                    type: "error",
+                  });
+
+                  return;
+                }
+
+                try {
+                  const response = await checkNickname(nickname);
+
+                  if (response.available) {
+                    setChecked(true);
+
+                    setNicknameMessage({
+                      text: "사용할 수 있는 닉네임입니다.",
+                      type: "success",
+                    });
+                  } else {
+                    setChecked(false);
+
+                    setNicknameMessage({
+                      text: "이미 사용 중인 닉네임입니다.",
+                      type: "error",
+                    });
+                  }
+                } catch (error) {
+                  console.error("닉네임 중복 확인 실패:", error);
+
+                  setChecked(false);
+
+                  setNicknameMessage({
+                    text: "닉네임 중복 확인에 실패했습니다. 다시 시도해주세요.",
                     type: "error",
                   });
                 }
