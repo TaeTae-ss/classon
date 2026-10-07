@@ -32,7 +32,7 @@ const Header = () => {
                     />
 
                     <button type="button" className="w-[50.4px] h-full border-0 bg-transparent text-[16.8px]">
-                        <i class="fi fi-br-search"></i>
+                        <i className="fi fi-br-search"></i>
                     </button>
                 </div>
 
