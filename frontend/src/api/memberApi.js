@@ -38,3 +38,28 @@ export const passwordPatch = async (data) => {
   const response = await axios.patch("/api/auth/password", data);
   return response.data;
 };
+
+// 회원가입 파트
+// 이메일 중복 확인
+export const checkEmail = async (email) => {
+  const response = await axios.get("/api/auth/check-email", {
+    params: { email },
+  });
+
+  return response.data.data;
+};
+
+// 닉네임 중복 확인
+export const checkNickname = async (nickname) => {
+  const response = await axios.get("/api/auth/check-nickname", {
+    params: { nickname },
+  });
+
+  return response.data.data;
+};
+
+// 회원가입
+export const signupPost = async (signupData) => {
+  const response = await axios.post("/api/auth/signup", signupData);
+  return response.data;
+};
