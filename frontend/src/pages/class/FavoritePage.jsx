@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { classes, useStore } from "../../mocks/data";
 import { usePagination } from "../../hooks/usePagination";
 import { Workspace } from "../../components/common/Workspace";
@@ -8,11 +8,20 @@ import { Card } from "../../components/common/Card";
 import { Empty } from "../../components/common/Empty";
 import Pagination from "../../components/common/Pagination";
 
+
 export default function FavoritePage() {
   const [favorites] = useStore("favorites", [1, 2]);
   const [list] = useStore("classes", classes);
   const [selected, setSelected] = useState([]);
   const pagination = usePagination(list.filter((c) => favorites.includes(c.id)));
+
+  {/* 찜 삭제 selected 동기화 */}
+  useEffect(() => {
+  setSelected((prev) =>
+    prev.filter((id) => favorites.includes(id))
+  );
+  }, [favorites]);
+
   return (
     <Workspace>
       <Heading
@@ -27,9 +36,6 @@ export default function FavoritePage() {
           </ButtonLink>
         }
       />
-      {selected.length !== 2 && (
-        <p className="text-right text-[14px] text-[#85888d]">비교할 클래스를 2개 선택해주세요.</p>
-      )}
       {favorites.length ? (
         <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-2 max-md:gap-3 max-[420px]:grid-cols-1">
           {pagination.items.map((c) => (
