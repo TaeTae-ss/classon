@@ -25,7 +25,19 @@ export default function SignupPage() {
   const [sent, setSent] = useState(false);
   const [verified, setVerified] = useState(false);
   const [checked, setChecked] = useState(false);
-  const [agree, setAgree] = useState(false);
+
+  // 약관 동의
+  const [serviceAgree, setServiceAgree] = useState(false);
+  const [privacyAgree, setPrivacyAgree] = useState(false);
+
+  // 약관 모달
+  const [termsModal, setTermsModal] = useState(null);
+
+  // 약관 모달 확인 여부
+  const [termsViewed, setTermsViewed] = useState({
+    service: false,
+    privacy: false,
+  });
 
   // 메시지 분리
   const [emailMessage, setEmailMessage] = useState({
@@ -229,9 +241,9 @@ export default function SignupPage() {
     }
 
     // 약관 동의
-    if (!agree) {
+    if (!serviceAgree || !privacyAgree) {
       setFormMessage({
-        text: "서비스 이용약관과 개인정보 처리에 동의해주세요.",
+        text: "서비스 이용약관과 개인정보 처리방침에 모두 동의해주세요.",
         type: "error",
       });
       return;
@@ -251,6 +263,25 @@ export default function SignupPage() {
     setProfile({ id: 1, ...profile });
 
     navigate("/auth/login");
+  };
+
+  // 약관 모달 확인
+  const handleTermsConfirm = () => {
+    if (termsModal === "service") {
+      setTermsViewed((prev) => ({
+        ...prev,
+        service: true,
+      }));
+    }
+
+    if (termsModal === "privacy") {
+      setTermsViewed((prev) => ({
+        ...prev,
+        privacy: true,
+      }));
+    }
+
+    setTermsModal(null);
   };
 
   return (
@@ -287,9 +318,7 @@ export default function SignupPage() {
           <button
             type="button"
             className={buttonStyle}
-            disabled={
-              !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
-            }
+            disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)}
             onClick={async () => {
               try {
                 const response = await checkEmail(form.email);
@@ -467,8 +496,7 @@ export default function SignupPage() {
             minLength: 8,
             autoComplete: "new-password",
             className:
-              form.password &&
-              !passwordRegex.test(form.password)
+              form.password && !passwordRegex.test(form.password)
                 ? "!border-2 !border-[#e05252]"
                 : "",
           })}
@@ -488,8 +516,7 @@ export default function SignupPage() {
             minLength: 8,
             autoComplete: "new-password",
             className:
-              form.confirm &&
-              form.confirm !== form.password
+              form.confirm && form.confirm !== form.password
                 ? "!border-2 !border-[#e05252]"
                 : "",
           })}
@@ -522,9 +549,7 @@ export default function SignupPage() {
 
                 if (
                   nickname.length < 2 ||
-                  ["관리자", "admin"].includes(
-                    nickname.toLowerCase(),
-                  )
+                  ["관리자", "admin"].includes(nickname.toLowerCase())
                 ) {
                   setChecked(false);
 
@@ -599,17 +624,65 @@ export default function SignupPage() {
           </div>
 
           {/* 약관 동의 */}
-          <label className="flex items-center gap-[10px] mt-[14px]">
-            <input
-              required
-              type="checkbox"
-              checked={agree}
-              onChange={(e) => setAgree(e.target.checked)}
-            />
-            서비스 이용약관과 개인정보 처리에 동의합니다.
-          </label>
+          <div className="mt-[14px] space-y-[10px]">
+            {/* 서비스 이용약관 */}
+            <div className="flex items-center gap-[10px]">
+              <input
+                type="checkbox"
+                checked={serviceAgree}
+                onChange={(e) => {
+                  setServiceAgree(e.target.checked);
+                  setFormMessage({
+                    text: "",
+                    type: "",
+                  });
+                }}
+                className="cursor-pointer accent-[#f97316]"
+              />
 
-          {/* 비밀번호 / 약관 오류 메시지 */}
+              <span className="text-[16px]">
+                [필수] 서비스 이용약관에 동의합니다.
+              </span>
+
+              <button
+                type="button"
+                className="ml-auto bg-transparent border-0 p-0 text-[14px] text-[#6b7280] hover:text-[#f97316] transition-colors duration-200 cursor-pointer"
+                onClick={() => setTermsModal("service")}
+              >
+                내용보기 &gt;
+              </button>
+            </div>
+
+            {/* 개인정보 처리방침 */}
+            <div className="flex items-center gap-[10px]">
+              <input
+                type="checkbox"
+                checked={privacyAgree}
+                onChange={(e) => {
+                  setPrivacyAgree(e.target.checked);
+                  setFormMessage({
+                    text: "",
+                    type: "",
+                  });
+                }}
+                className="cursor-pointer accent-[#f97316]"
+              />
+
+              <span className="text-[16px]">
+                [필수] 개인정보 처리방침에 동의합니다.
+              </span>
+
+              <button
+                type="button"
+                className="ml-auto bg-transparent border-0 p-0 text-[14px] text-[#6b7280] hover:text-[#f97316] transition-colors duration-200 cursor-pointer"
+                onClick={() => setTermsModal("privacy")}
+              >
+                내용보기 &gt;
+              </button>
+            </div>
+          </div>
+
+          {/* 약관 오류 메시지 */}
           {formMessage.text && (
             <p
               className={`px-[17px] py-[13px] my-[18px] rounded-[7px] text-[16px] ${
@@ -633,6 +706,136 @@ export default function SignupPage() {
           </button>
         </div>
       </form>
+
+      {/* 약관 모달 */}
+      {termsModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          onClick={() => setTermsModal(null)}
+        >
+          <div
+            className="w-full max-w-[560px] max-h-[80vh] overflow-hidden bg-white rounded-xl shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 모달 제목 */}
+            <div className="px-[24px] py-[20px] border-b border-[#ebe6e0]">
+              <h2 className="text-[20px] font-bold text-[#1f2937]">
+                {termsModal === "service"
+                  ? "서비스 이용약관"
+                  : "개인정보 처리방침"}
+              </h2>
+            </div>
+
+            {/* 모달 내용 */}
+            <div className="max-h-[55vh] overflow-y-auto px-[24px] py-[22px] text-[15px] leading-[1.8] text-[#4b5563]">
+              {termsModal === "service" ? (
+                <>
+                  <h3 className="font-bold text-[#1f2937] mb-[8px]">
+                    제1조 (목적)
+                  </h3>
+
+                  <p className="mb-[18px]">
+                    본 약관은 CLASS:ON에서 제공하는 원데이 클래스 서비스의
+                    이용과 관련하여 필요한 사항을 규정하는 것을 목적으로
+                    합니다.
+                  </p>
+
+                  <h3 className="font-bold text-[#1f2937] mb-[8px]">
+                    제2조 (서비스 이용)
+                  </h3>
+
+                  <p className="mb-[18px]">
+                    회원은 본 약관에 동의함으로써 CLASS:ON에서 제공하는
+                    클래스 조회, 예약 및 기타 서비스를 이용할 수 있습니다.
+                  </p>
+
+                  <h3 className="font-bold text-[#1f2937] mb-[8px]">
+                    제3조 (회원의 의무)
+                  </h3>
+
+                  <p className="mb-[18px]">
+                    회원은 서비스 이용 과정에서 관련 법령과 본 약관을
+                    준수해야 하며, 타인의 정보를 부정하게 사용해서는 안
+                    됩니다.
+                  </p>
+
+                  <h3 className="font-bold text-[#1f2937] mb-[8px]">
+                    제4조 (회원 탈퇴의 제한)
+                  </h3>
+
+                  <p className="mb-[12px]">
+                    회원은 자유롭게 회원 탈퇴를 요청할 수 있습니다. 다만,
+                    원활한 클래스 운영 및 예약·결제 처리를 위해 다음의
+                    경우에는 회원 탈퇴가 제한될 수 있습니다.
+                  </p>
+
+                  <p className="mb-[8px]">
+                    1. 일반 회원의 경우 현재 수강 중이거나 수강 예정인
+                    클래스가 있거나 환불 절차가 진행 중인 경우 회원 탈퇴가
+                    제한됩니다.
+                  </p>
+
+                  <p className="mb-[8px]">
+                    2. 강사 회원의 경우 현재 진행 중이거나 진행 예정인
+                    클래스가 있거나 담당 클래스에 환불 처리가 진행 중인
+                    예약 건이 있는 경우 회원 탈퇴가 제한됩니다.
+                  </p>
+
+                  <p>
+                    3. 탈퇴 제한 사유가 없는 경우 회원은 자유롭게 회원 탈퇴를
+                    요청할 수 있습니다.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-bold text-[#1f2937] mb-[8px]">
+                    제1조 (개인정보의 수집 및 이용 목적)
+                  </h3>
+
+                  <p className="mb-[18px]">
+                    CLASS:ON은 회원가입 및 서비스 제공을 위해 필요한
+                    개인정보를 수집하고 이용합니다.
+                  </p>
+
+                  <h3 className="font-bold text-[#1f2937] mb-[8px]">
+                    제2조 (개인정보 수집내역)
+                  </h3>
+
+                  <p className="mb-[18px]">
+                    회원가입 과정에서 이메일, 비밀번호, 닉네임, 전화번호,
+                    주소 등의 정보를 수집할 수 있습니다.
+                  </p>
+
+                  <h3 className="font-bold text-[#1f2937] mb-[8px]">
+                    제3조 (개인정보의 보유 및 이용기간)
+                  </h3>
+
+                  <p className="mb-[18px]">
+                    회원의 개인정보는 회원가입 및 서비스 이용 기간 동안
+                    서비스 제공을 위해 필요한 범위 내에서 보유·이용됩니다.
+                  </p>
+
+                  <p>
+                    회원이 탈퇴하는 경우 회원이 작성한 게시물을 제외한
+                    회원의 모든 개인정보와 결제내역은 즉시 폐기됩니다.
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* 모달 확인 */}
+            <div className="flex justify-end px-[24px] py-[18px] border-t border-[#ebe6e0]">
+              <button
+                type="button"
+                className="flex w-fit justify-center items-center min-h-[50px] px-[26px] py-3 rounded-lg bg-[#e56b00] text-white font-bold text-[17px] hover:opacity-90 transition-opacity"
+                onClick={handleTermsConfirm}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
