@@ -67,10 +67,14 @@ export default function ReservationListPage({
               to={
                 payment
                   ? `/payment/reservation/${r.id}`
-                  : `/reservation/${r.id}`
+                  : !instructor && r.status === "수강완료"
+                    ? `/reservation/${r.id}/review`
+                    : `/reservation/${r.id}`
               }
             >
-              상세 보기
+              {!instructor && !payment && r.status === "수강완료"
+                ? "후기 작성"
+                : "상세 보기"}
             </ButtonLink>
             {instructor && (
               <p className="text-[13px] leading-[1.8] text-[#999]">김회원 · member@classon.com</p>

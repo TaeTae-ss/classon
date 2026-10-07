@@ -6,6 +6,7 @@ import { Empty } from "../../components/common/Empty";
 import { ClassSummary } from "../../components/common/ClassSummary";
 import { Field } from "../../components/common/Field";
 import { ButtonLink } from "../../components/common/ButtonLink";
+import { postReview } from "../../api/reviewApi";
 
 export default function ReviewAddPage() {
   const { rsvNo } = useParams();
@@ -32,23 +33,22 @@ export default function ReviewAddPage() {
       <Heading title="후기 작성" />
       <form
         className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
+
           if (!content.trim()) return;
-          setReviews((v) => [
-            ...v,
-            {
-              id: Date.now(),
-              classId: r.classId,
-              reservationId: r.id,
-              memberId: 1,
-              author: readStore("profile", initialProfile).nickname,
-              rating,
-              content: content.trim(),
-              date: "2026-10-01",
-            },
-          ]);
-          navigate(`/class/${r.classId}#reviews`);
+
+          try {
+            await postReview({
+              rsvNo: Number(rsvNo),
+              revRating: rating,
+              revContent: content.trim(),
+            });
+
+            navigate(`/class/${r.classId}#reviews`);
+          } catch (error) {
+            console.error("후기 등록 실패:", error);
+          }
         }}
       >
         <ClassSummary reservation={r} list={readStore("classes", classes)} />
