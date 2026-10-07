@@ -24,8 +24,8 @@ export const getPayment = async (payNo) => {
 };
 
 // 결제 실패
-export const failPayment = async (payNo) => {
-  const response = await axios.patch(`/api/payment/${payNo}/fail`);
+export const failPayment = async (orderNo) => {
+  const response = await axios.patch(`/api/payment/order/${orderNo}/fail`);
 
   return response.data.data;
 };
