@@ -101,6 +101,32 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewDTOList;
     }
 
+    //로그인 회원이 작성한 후기 조회
+    @Override
+    public List<ReviewDTO> getMemberReviews(Long memNo) {
+
+        // 로그인 회원의 예약 조회
+        List<Reservation> reservations =
+                reservationRepository.findAllByMemNoOrderByRsvCreatedAtDesc(memNo);
+
+        // 예약번호 조회
+        List<Long> rsvNos = reservations.stream()
+                .map(Reservation::getRsvNo)
+                .toList();
+
+        // 예약이 하나도 없으면 빈 목록 반환
+        if (rsvNos.isEmpty()) {
+            return List.of();
+        }
+
+        // 해당 예약번호에 작성된 후기 조회
+        List<Review> reviews =
+                reviewRepository.findByRsvNoInOrderByRevCreatedAtDesc(rsvNos);
+
+        // Entity → DTO
+        return reviewMapper.toDTOList(reviews);
+    }
+
     @Override
     public void remove(Long revNo, Long memNo) {
 
