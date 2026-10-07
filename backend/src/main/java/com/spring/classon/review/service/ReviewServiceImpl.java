@@ -127,6 +127,18 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewMapper.toDTOList(reviews);
     }
 
+    // 관리자 전체 후기 조회
+    @Override
+    public List<ReviewDTO> getAdminReviews() {
+
+        // 전체 후기 최신순 조회
+        List<Review> reviews =
+                reviewRepository.findAllByOrderByRevCreatedAtDesc();
+
+        // Entity → DTO
+        return reviewMapper.toDTOList(reviews);
+    }
+
     @Override
     public void remove(Long revNo, Long memNo) {
 

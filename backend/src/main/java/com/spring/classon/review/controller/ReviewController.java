@@ -51,6 +51,14 @@ public class ReviewController {
         return reviewService.getMemberReviews(memNo);
     }
 
+    // 관리자 전체 후기 조회
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
+    public List<ReviewDTO> getAdminReviews() {
+
+        return reviewService.getAdminReviews();
+    }
+
     //평균 평점 조회
     @GetMapping("/class/{clsNo}/average")
     public Double getAverageRating(@PathVariable Long clsNo) {

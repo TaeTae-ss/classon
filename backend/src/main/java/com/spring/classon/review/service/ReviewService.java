@@ -17,6 +17,9 @@ public interface ReviewService {
     // 로그인 회원이 작성한 후기 조회
     List<ReviewDTO> getMemberReviews(Long memNo);
 
+    // 관리자 전체 후기 조회
+    List<ReviewDTO> getAdminReviews();
+
     //후기 삭제
     void remove(Long revNo, Long memNo);
 
