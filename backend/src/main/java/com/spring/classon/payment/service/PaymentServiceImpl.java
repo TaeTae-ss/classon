@@ -80,9 +80,8 @@ public class PaymentServiceImpl implements PaymentService{
 
             // 아직 결제 진행 중
             if (payment.getPayStatus() == PaymentStatus.WAIT) {
-                throw new PaymentException(
-                        "이미 결제 진행 중인 주문이 있습니다."
-                );
+                // 이전 결제 시도가 완료되지 않은 경우
+                payment.fail();
             }
 
             // 이미 결제 완료
@@ -239,9 +238,9 @@ public class PaymentServiceImpl implements PaymentService{
     // 결제 실패
     @Override
     @Transactional
-    public PaymentDTO failPayment(Long payNo) {
+    public PaymentDTO failPayment(String orderNo) {
         Payment payment = paymentRepository
-                .findById(payNo)
+                .findByOrderNo(orderNo)
                 .orElseThrow(() -> new PaymentException(
                         "결제 정보를 찾을 수 없습니다."
                 ));

@@ -41,9 +41,9 @@ public class PaymentController {
     }
 
     // 결제 실패
-    @PatchMapping("/{payNo}/fail")
-    public ResponseEntity<PaymentDTO> failPayment(@PathVariable Long payNo) {
-        PaymentDTO payment = paymentService.failPayment(payNo);
+    @PatchMapping("/order/{orderNo}/fail")
+    public ResponseEntity<PaymentDTO> failPayment(@PathVariable String orderNo) {
+        PaymentDTO payment = paymentService.failPayment(orderNo);
 
         return ResponseEntity.ok(payment);
     }

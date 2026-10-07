@@ -8,6 +8,8 @@ import com.spring.classon.review.dto.ReviewDTO;
 import com.spring.classon.review.entity.Review;
 import com.spring.classon.review.mapper.ReviewMapper;
 import com.spring.classon.review.repository.ReviewRepository;
+import com.spring.classon.oneday.entity.Schedule;
+import com.spring.classon.oneday.repository.ScheduleRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewMapper reviewMapper;
 
     private final ReservationRepository reservationRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @Override
     public Long register(ReviewDTO reviewDTO) {
@@ -37,6 +40,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .findById(reviewDTO.getRsvNo())
                 .orElseThrow(() ->
                         new ReviewException("예약 정보를 찾을 수 없습니다."));
+
+        // 예약에 연결된 일정 조회
+        Schedule schedule = scheduleRepository
+                .findById(reservation.getSchNo())
+                .orElseThrow(() ->
+                        new ReviewException("일정 정보를 찾을 수 없습니다."));
 
         //COMPLETED 확인
         if (reservation.getRsvStatus() != ReservationStatus.COMPLETED) {
@@ -60,6 +69,7 @@ public class ReviewServiceImpl implements ReviewService {
             throw new ReviewException("이미 등록된 후기입니다.");
         }
 
+        reviewDTO.setClsNo(schedule.getClsNo());
         Review review = reviewMapper.toEntity(reviewDTO);
         Review savedReview = reviewRepository.save(review);
 

@@ -11,6 +11,7 @@ import { Heading } from "../components/common/Heading";
 import MainPage from "../pages/main/MainPage";
 import LoginPage from "../pages/member/LoginPage";
 import SignupPage from "../pages/member/SignupPage";
+import PasswordPage from "../pages/member/PasswordPage";
 
 import memberRouter from "./memberRouter";
 import classRouter from "./classRouter";
@@ -36,6 +37,7 @@ const root = createBrowserRouter(
             <Route index element={<MainPage />} />
             <Route path="auth/login" element={<LoginPage />} />
             <Route path="auth/signup" element={<SignupPage />} />
+            <Route path="auth/password" element={<PasswordPage />} />
 
             {/* 회원 */}
             {memberRouter}
