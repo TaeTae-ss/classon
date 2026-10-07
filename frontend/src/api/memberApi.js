@@ -57,3 +57,9 @@ export const checkNickname = async (nickname) => {
 
   return response.data.data;
 };
+
+// 회원가입
+export const signupPost = async (signupData) => {
+  const response = await axios.post("/api/auth/signup", signupData);
+  return response.data;
+};

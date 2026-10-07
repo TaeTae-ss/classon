@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import api from "../../api/axios";
-import { checkEmail, checkNickname } from "../../api/memberApi";
-import { initialProfile, useStore } from "../../mocks/data";
+import { checkEmail, checkNickname, signupPost, } from "../../api/memberApi";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
 
 export default function SignupPage() {
   const navigate = useNavigate();
-  const [, setProfile] = useStore("profile", initialProfile);
-
   const [form, setForm] = useState({
     email: "",
     nickname: "",
@@ -61,6 +58,21 @@ export default function SignupPage() {
   });
 
   const [confirmMessage, setConfirmMessage] = useState({
+    text: "",
+    type: "",
+  });
+
+  const [phoneMessage, setPhoneMessage] = useState({
+    text: "",
+    type: "",
+  });
+
+  const [addressMessage, setAddressMessage] = useState({
+    text: "",
+    type: "",
+  });
+
+  const [detailMessage, setDetailMessage] = useState({
     text: "",
     type: "",
   });
@@ -128,6 +140,30 @@ export default function SignupPage() {
           });
         }
 
+        // 전화번호 수정 시 오류 메시지 초기화
+        if (key === "phone") {
+          setPhoneMessage({
+            text: "",
+            type: "",
+          });
+        }
+
+        // 도로명 주소 수정 시 오류 메시지 초기화
+        if (key === "address") {
+          setAddressMessage({
+            text: "",
+            type: "",
+          });
+        }
+
+        // 상세 주소 수정 시 오류 메시지 초기화
+        if (key === "detail") {
+          setDetailMessage({
+            text: "",
+            type: "",
+          });
+        }
+
         // 비밀번호 형식 확인
         if (key === "password") {
           if (!value) {
@@ -187,7 +223,7 @@ export default function SignupPage() {
     />
   );
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
 
     setFormMessage({
@@ -195,22 +231,26 @@ export default function SignupPage() {
       type: "",
     });
 
+    let hasError = false;
+
     // 이메일 중복확인
     if (!emailChecked) {
       setEmailMessage({
         text: "이메일 중복확인을 완료해주세요.",
         type: "error",
       });
-      return;
+
+      hasError = true;
     }
 
     // 이메일 인증
     if (!verified) {
       setCodeMessage({
-        text: "이메일 인증을 완료해주세요.",
+        text: "인증번호 확인을 완료해주세요.",
         type: "error",
       });
-      return;
+
+      hasError = true;
     }
 
     // 닉네임 중복확인
@@ -219,7 +259,8 @@ export default function SignupPage() {
         text: "닉네임 중복확인을 완료해주세요.",
         type: "error",
       });
-      return;
+
+      hasError = true;
     }
 
     // 비밀번호 형식
@@ -228,7 +269,8 @@ export default function SignupPage() {
         text: "비밀번호는 영문과 숫자를 포함한 8~20자로 입력해주세요.",
         type: "error",
       });
-      return;
+
+      hasError = true;
     }
 
     // 비밀번호 확인
@@ -237,7 +279,38 @@ export default function SignupPage() {
         text: "비밀번호가 일치하지 않습니다.",
         type: "error",
       });
-      return;
+
+      hasError = true;
+    }
+
+    // 전화번호
+    if (!form.phone.trim()) {
+      setPhoneMessage({
+        text: "전화번호를 입력해주세요.",
+        type: "error",
+      });
+
+      hasError = true;
+    }
+
+    // 도로명 주소
+    if (!form.address.trim()) {
+      setAddressMessage({
+        text: "도로명 주소를 입력해주세요.",
+        type: "error",
+      });
+
+      hasError = true;
+    }
+
+    // 상세 주소
+    if (!form.detail.trim()) {
+      setDetailMessage({
+        text: "상세 주소를 입력해주세요.",
+        type: "error",
+      });
+
+      hasError = true;
     }
 
     // 약관 동의
@@ -246,23 +319,45 @@ export default function SignupPage() {
         text: "서비스 이용약관과 개인정보 처리방침에 모두 동의해주세요.",
         type: "error",
       });
+
+      hasError = true;
+    }
+
+    // 하나라도 검증 실패 시 회원가입 중단
+    if (hasError) {
       return;
     }
 
-    const {
-      password: ignored,
-      confirm: ignoredConfirm,
-      code: ignoredCode,
-      ...profile
-    } = form;
+    // 회원가입 요청 데이터
+    const signupData = {
+      memEmail: form.email,
+      memPassword: form.password,
+      memNickname: form.nickname,
+      memPhone: form.phone,
+      memAddress: `${form.address} ${form.detail}`.trim(),
+    };
 
-    void ignored;
-    void ignoredConfirm;
-    void ignoredCode;
+    try {
+      // 회원가입 API 호출
+      await signupPost(signupData);
 
-    setProfile({ id: 1, ...profile });
+      alert("회원가입이 완료되었습니다.");
+      navigate("/auth/login");
+    } catch (error) {
+      console.error("회원가입 실패:", error);
 
-    navigate("/auth/login");
+      if (error.response?.status === 409) {
+        setFormMessage({
+          text: "이미 사용 중인 이메일 또는 닉네임입니다.",
+          type: "error",
+        });
+      } else {
+        setFormMessage({
+          text: "회원가입에 실패했습니다. 다시 시도해주세요.",
+          type: "error",
+        });
+      }
+    }
   };
 
   // 약관 모달 확인
@@ -292,6 +387,7 @@ export default function SignupPage() {
       />
 
       <form
+        noValidate
         className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]"
         onSubmit={submit}
       >
@@ -609,18 +705,48 @@ export default function SignupPage() {
             </p>
           )}
 
-          {/* 전화번호 / 주소 */}
-          <div style={{ marginTop: 20 }}>
-            {/* 전화번호 */}
-            {field("phone", "전화번호", "tel", {
-              pattern: "[0-9-]{9,13}",
-            })}
+          {/* 전화번호 */}
+          {field("phone", "전화번호", "tel", {
+            pattern: "[0-9-]{9,13}",
+          })}
 
+          {/* 전화번호 오류 메시지 */}
+          {phoneMessage.text && (
+            <p
+              className="px-[17px] py-[13px] mt-[-10px] mb-[12px] rounded-[7px] text-[16px] bg-[#fff1f1] text-[#c94a4a]"
+              role="status"
+            >
+              {phoneMessage.text}
+            </p>
+          )}
+
+          {/* 주소 */}
+          <div style={{ marginTop: 20 }}>
             {/* 도로명 주소 */}
             {field("address", "도로명 주소")}
 
+            {/* 도로명 주소 오류 메시지 */}
+            {addressMessage.text && (
+              <p
+                className="px-[17px] py-[13px] mt-[-10px] mb-[12px] rounded-[7px] text-[16px] bg-[#fff1f1] text-[#c94a4a]"
+                role="status"
+              >
+                {addressMessage.text}
+              </p>
+            )}
+
             {/* 상세 주소 */}
             {field("detail", "상세 주소")}
+
+            {/* 상세 주소 오류 메시지 */}
+            {detailMessage.text && (
+              <p
+                className="px-[17px] py-[13px] mt-[-10px] mb-[12px] rounded-[7px] text-[16px] bg-[#fff1f1] text-[#c94a4a]"
+                role="status"
+              >
+                {detailMessage.text}
+              </p>
+            )}
           </div>
 
           {/* 약관 동의 */}
@@ -632,6 +758,7 @@ export default function SignupPage() {
                 checked={serviceAgree}
                 onChange={(e) => {
                   setServiceAgree(e.target.checked);
+
                   setFormMessage({
                     text: "",
                     type: "",
@@ -660,6 +787,7 @@ export default function SignupPage() {
                 checked={privacyAgree}
                 onChange={(e) => {
                   setPrivacyAgree(e.target.checked);
+
                   setFormMessage({
                     text: "",
                     type: "",
@@ -699,7 +827,7 @@ export default function SignupPage() {
           {/* 회원가입 */}
           <button
             type="submit"
-            className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer hover:opacity-90 transition-opacity duration-200"
+            className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer hover:opacity-90 transition-opacity"
             style={{ marginTop: 20 }}
           >
             회원가입
