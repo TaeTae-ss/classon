@@ -37,6 +37,10 @@ public interface ReviewRepository extends JpaRepository<Review,Long> {
 
     boolean existsByRsvNo(Long rsvNo);
 
+    // 로그인 회윈 후기 조회 (최신순)
+    List<Review> findByRsvNoInOrderByRevCreatedAtDesc(List<Long> rsvNos);
 
+    // 관리자 전체 후기 조회 (최신순)
+    List<Review> findAllByOrderByRevCreatedAtDesc();
 
 }

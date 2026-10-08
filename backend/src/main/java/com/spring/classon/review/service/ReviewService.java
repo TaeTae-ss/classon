@@ -14,6 +14,12 @@ public interface ReviewService {
     //클래스별 후기
     List<ReviewDTO> getClassList(Long clsNo, String sort);
 
+    // 로그인 회원이 작성한 후기 조회
+    List<ReviewDTO> getMemberReviews(Long memNo);
+
+    // 관리자 전체 후기 조회
+    List<ReviewDTO> getAdminReviews();
+
     //후기 삭제
     void remove(Long revNo, Long memNo);
 
