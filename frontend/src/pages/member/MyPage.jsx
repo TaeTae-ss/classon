@@ -1,14 +1,23 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useEffect, useRef, useState } from "react";
 
-import { initialProfile, useStore } from "../../mocks/data";
-import { getMember, updateMember } from "../../api/memberApi";
+import { useLocation, useNavigate } from "react-router";
+
+import { useStore } from "../../mocks/data";
+
+import {
+  getMember,
+  updateMember,
+  updateProfileImage,
+} from "../../api/memberApi";
+
 import { getCookie } from "../../util/cookieUtil";
 
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
 import { Workspace } from "../../components/common/Workspace";
+
+const SERVER_URL = "http://localhost:8080";
 
 const formatPhone = (phone) => {
   if (!phone) return "";
@@ -28,27 +37,58 @@ const formatPhone = (phone) => {
 
 export default function MyPage({ instructor = false, edit = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [role] = useStore("role", "PUBLIC");
-  const isInstructor = instructor || role === "INS";
 
-  const [profile, setProfile] = useState(initialProfile);
-  const [form, setForm] = useState(initialProfile);
-  const [loading, setLoading] = useState(!isInstructor);
+  // 강사 권한 확인
+  const isInstructor = instructor || role === "INSTRUCTOR";
+
+  const [profile, setProfile] = useState({
+    email: "",
+    nickname: "",
+    phone: "",
+    address: "",
+    detail: "",
+    img: "",
+  });
+
+  const [form, setForm] = useState({
+    email: "",
+    nickname: "",
+    phone: "",
+    address: "",
+    detail: "",
+    img: "",
+  });
+
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const [message, setMessage] = useState("");
-  const [request, setRequest] = useStore("instructorRequest", null);
+
+  const [request, setRequest] = useStore(
+    "instructorRequest",
+    null
+  );
+
   const [applying, setApplying] = useState(false);
   const [bio, setBio] = useState("");
   const [files, setFiles] = useState([]);
 
-  const base = isInstructor ? "/instructor/mypage" : "/member/mypage";
+  const fileInputRef = useRef(null);
+
+  const base = isInstructor
+    ? "/instructor/mypage"
+    : "/member/mypage";
+
+  // 페이지 이동 시 기존 메시지 제거
+  useEffect(() => {
+    setMessage("");
+  }, [location.pathname]);
 
   // 회원 정보 조회
   useEffect(() => {
-    if (isInstructor) return;
-
     const fetchMember = async () => {
       try {
         const member = getCookie("member");
@@ -82,9 +122,103 @@ export default function MyPage({ instructor = false, edit = false }) {
     fetchMember();
   }, [isInstructor]);
 
+  // 프로필 이미지 주소
+  const getProfileImageUrl = (imagePath) => {
+    if (!imagePath) return "";
+
+    if (imagePath.startsWith("http")) {
+      return imagePath;
+    }
+
+    return `${SERVER_URL}${imagePath}`;
+  };
+
+  // 프로필 이미지 선택창
+  const handleProfileImageClick = () => {
+    if (!edit) return;
+
+    fileInputRef.current?.click();
+  };
+
+  // 프로필 이미지 업로드
+  const handleProfileImageChange = async (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      setMessage(
+        "JPG, PNG, WEBP 형식의 이미지만 업로드할 수 있습니다."
+      );
+
+      e.target.value = "";
+      return;
+    }
+
+    try {
+      const member = getCookie("member");
+
+      if (!member?.memNo) {
+        setMessage("회원 번호가 없습니다.");
+        return;
+      }
+
+      await updateProfileImage(member.memNo, file);
+
+      const response = await getMember(member.memNo);
+      const data = response.data;
+
+      const memberProfile = {
+        email: data.memEmail || "",
+        nickname: data.memNickname || "",
+        phone: data.memPhone || "",
+        address: data.memAddress || "",
+        detail: data.memAddressDetail || "",
+        img: data.memImg || "",
+      };
+
+      setProfile(memberProfile);
+      setForm(memberProfile);
+
+      // 이미지 업로드 성공 시 기존 메시지 제거
+      setMessage("");
+    } catch (error) {
+      console.error("프로필 이미지 업로드 실패:", error);
+      setMessage("프로필 이미지 업로드에 실패했습니다.");
+    } finally {
+      e.target.value = "";
+    }
+  };
+
   // 회원 정보 수정
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const phone = form.phone.replace(/\D/g, "");
+    const address = form.address.trim();
+
+    // 주소 또는 핸드폰이 비어 있는지 확인
+    if (!phone || !address) {
+      setMessage("주소와 핸드폰 번호를 입력해 주세요.");
+      return;
+    }
+
+    // 전화번호 확인
+    if (phone.length !== 11 || !phone.startsWith("010")) {
+      setMessage(
+        "전화번호는 010으로 시작하는 11자리 숫자를 입력해주세요."
+      );
+      return;
+    }
+
+    // 정상적인 입력이면 기존 에러 메시지 제거
+    setMessage("");
 
     try {
       setSaving(true);
@@ -98,13 +232,19 @@ export default function MyPage({ instructor = false, edit = false }) {
 
       await updateMember(member.memNo, {
         memNickname: form.nickname,
-        memPhone: form.phone,
-        memAddress: form.address,
+        memPhone: phone,
+        memAddress: address,
         memAddressDetail: form.detail,
         memImg: form.img || null,
       });
 
-      setProfile(form);
+      setProfile({
+        ...form,
+        phone,
+        address,
+      });
+
+      // 저장 후 마이페이지로 이동
       navigate(base);
     } catch (error) {
       console.error("회원 정보 수정 실패:", error);
@@ -116,7 +256,9 @@ export default function MyPage({ instructor = false, edit = false }) {
 
   if (loading) {
     return (
-      <Workspace kind="member">
+      <Workspace
+        kind={isInstructor ? "instructor" : "member"}
+      >
         <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
           회원 정보를 불러오는 중입니다.
         </section>
@@ -125,7 +267,9 @@ export default function MyPage({ instructor = false, edit = false }) {
   }
 
   return (
-    <Workspace kind={isInstructor ? "instructor" : "member"}>
+    <Workspace
+      kind={isInstructor ? "instructor" : "member"}
+    >
       <Heading
         title={
           edit
@@ -141,12 +285,15 @@ export default function MyPage({ instructor = false, edit = false }) {
         <div className="flex items-center gap-[22px] mb-[29px]">
           {/* 프로필 사진 */}
           <div
-            className="group relative w-[84px] h-[84px] rounded-full bg-[#ffead5] text-[#ee7c1e] grid place-items-center text-[31px] cursor-pointer overflow-hidden"
-            title="프로필 사진 변경"
+            className={`group relative w-[84px] h-[84px] rounded-full bg-[#ffead5] text-[#ee7c1e] grid place-items-center text-[31px] overflow-hidden ${
+              edit ? "cursor-pointer" : "cursor-default"
+            }`}
+            title={edit ? "프로필 사진 변경" : "프로필 사진"}
+            onClick={handleProfileImageClick}
           >
             {profile.img ? (
               <img
-                src={profile.img}
+                src={getProfileImageUrl(profile.img)}
                 alt="프로필 사진"
                 className="w-full h-full object-cover"
               />
@@ -154,15 +301,26 @@ export default function MyPage({ instructor = false, edit = false }) {
               <span>{profile.nickname?.[0] || ""}</span>
             )}
 
-            <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-white text-[12px] font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              사진 변경
-            </div>
+            {edit && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-white text-[12px] font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                사진 변경
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handleProfileImageChange}
+            />
           </div>
 
           <div>
             <h3>{profile.nickname}</h3>
             <p>
-              {isInstructor ? "강사" : "회원"} · {profile.email}
+              {isInstructor ? "강사" : "회원"} ·{" "}
+              {profile.email}
             </p>
           </div>
         </div>
@@ -199,7 +357,9 @@ export default function MyPage({ instructor = false, edit = false }) {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    phone: e.target.value.replace(/\D/g, "").slice(0, 11),
+                    phone: e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 11),
                   })
                 }
               />
@@ -222,7 +382,6 @@ export default function MyPage({ instructor = false, edit = false }) {
               <Field
                 label="상세 주소"
                 type="text"
-                required
                 value={form.detail}
                 onChange={(e) =>
                   setForm({
@@ -246,7 +405,15 @@ export default function MyPage({ instructor = false, edit = false }) {
               </ButtonLink>
 
               {/* 취소 */}
-              <ButtonLink secondary to={base}>
+              <ButtonLink
+                secondary
+                to={base}
+                onClick={() => {
+                  // 수정 전 상태로 복구
+                  setForm(profile);
+                  setMessage("");
+                }}
+              >
                 취소
               </ButtonLink>
             </div>
@@ -260,12 +427,19 @@ export default function MyPage({ instructor = false, edit = false }) {
                 ["핸드폰", formatPhone(profile.phone)],
                 [
                   "주소",
-                  `${profile.address || ""} ${profile.detail || ""}`.trim(),
+                  `${profile.address || ""} ${
+                    profile.detail || ""
+                  }`.trim(),
                 ],
               ].map(([k, v]) => (
-                <div key={k} style={{ display: "contents" }}>
+                <div
+                  key={k}
+                  style={{ display: "contents" }}
+                >
                   <dt className="text-[#888]">{k}</dt>
-                  <dd className="m-0 font-semibold">{v}</dd>
+                  <dd className="m-0 font-semibold">
+                    {v}
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -376,8 +550,8 @@ export default function MyPage({ instructor = false, edit = false }) {
 
       {message && (
         <p
-          className="px-[17px] py-[13px] my-[18px] rounded-[7px] bg-[#f3f7f2] text-[#477754] text-[16px]"
-          role="status"
+          className="px-[17px] py-[13px] my-[18px] rounded-[7px] bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[16px]"
+          role="alert"
         >
           {message}
         </p>

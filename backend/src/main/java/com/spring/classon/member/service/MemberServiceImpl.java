@@ -105,9 +105,10 @@ public class MemberServiceImpl implements MemberService {
 
             file.transferTo(filePath.toFile());
 
-            member.updateProfileImage(
-                    filePath.toString()
-            );
+            // DB에 웹에서 접근할 수 있는 경로로 저장(프로필 이미지)
+            String imagePath = "/uploads/member/" + fileName;
+
+            member.updateProfileImage(imagePath);
 
         } catch (IOException e) {
             throw new FileException("프로필 이미지 저장에 실패했습니다.");
@@ -141,7 +142,6 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.delete(member);
     }
 
-    // 여기부터 추가 (oneday 등 다른 도메인이 개인정보 없이 닉네임/role만 조회할 때 사용)
     // 회원 공개 정보 요약 조회
     @Override
     public MemberSummaryDTO getMemberSummary(Long memNo) {
@@ -162,11 +162,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private MemberSummaryDTO toSummaryDto(Member member) {
+
         return MemberSummaryDTO.builder()
                 .memNo(member.getMemNo())
                 .memNickname(member.getMemNickname())
                 .memRole(member.getMemRole())
                 .build();
     }
-    // 여기까지 추가
 }
