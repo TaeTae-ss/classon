@@ -76,3 +76,16 @@ export const updateMember = async (memNo, memberData) => {
   const response = await axios.patch(`/api/member/${memNo}`, memberData);
   return response.data;
 };
+
+// 프로필 이미지 수정
+export const updateProfileImage = async (memNo, file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await axios.patch(
+    `/api/member/${memNo}/image`,
+    formData
+  );
+
+  return response.data;
+};
