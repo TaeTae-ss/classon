@@ -1,5 +1,9 @@
 import api from "./axios";
 
+export const getClassList = async ({ categoryId, page = 1, size = 9 } = {}) => {
+  const response = await api.get("/api/v1/oneday", {
+    params: { categoryId, page, size },
+  });
 export const getMyClasses = async () => {
   const response = await api.get("/api/v1/oneday/mine");
   return response.data.data;

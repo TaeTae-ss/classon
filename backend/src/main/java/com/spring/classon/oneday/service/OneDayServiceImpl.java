@@ -66,8 +66,14 @@ public class OneDayServiceImpl implements OneDayService {
 
         List<OneDay> oneDays = result.getContent();
 
+        List<Long> catNos = oneDays.stream().map(OneDay::getCatNo).distinct().toList();
         List<Long> memNos = oneDays.stream().map(OneDay::getMemNo).distinct().toList();
         List<Long> clsNos = oneDays.stream().map(OneDay::getClsNo).toList();
+
+        Map<Long, String> catNameMap = catNos.isEmpty()
+                ? Map.of()
+                : categoryRepository.findAllById(catNos).stream()
+                        .collect(Collectors.toMap(Category::getCatNo, Category::getCatName));
 
         Map<Long, String> instructorNameMap = memNos.isEmpty()
                 ? Map.of()
@@ -77,7 +83,11 @@ public class OneDayServiceImpl implements OneDayService {
         Map<Long, Double> ratingMap = reviewService.getAverageRatings(clsNos);
 
         List<ProductResponseDTO> dtoList =
-                productMapper.toDTOList(oneDays, instructorNameMap, ratingMap);
+                productMapper.toDTOList(
+                        oneDays,
+                        new ProductMapper.NameLookup(catNameMap, instructorNameMap),
+                        ratingMap
+                );
 
         return new PageResponseDTO<>(dtoList, pageRequestDTO, result.getTotalElements());
     }

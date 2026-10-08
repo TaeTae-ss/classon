@@ -13,17 +13,21 @@ import java.util.Map;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-    @Mapping(target = "instructorName", expression = "java(instructorNameMap.get(oneDay.getMemNo()))")
+    record NameLookup(Map<Long, String> catNameMap, Map<Long, String> instructorNameMap) {
+    }
+
+    @Mapping(target = "catName", expression = "java(names.catNameMap().get(oneDay.getCatNo()))")
+    @Mapping(target = "instructorName", expression = "java(names.instructorNameMap().get(oneDay.getMemNo()))")
     @Mapping(target = "rating", expression = "java(ratingMap.get(oneDay.getClsNo()))")
     ProductResponseDTO toDTO(
             OneDay oneDay,
-            @Context Map<Long, String> instructorNameMap,
+            @Context NameLookup names,
             @Context Map<Long, Double> ratingMap
     );
 
     List<ProductResponseDTO> toDTOList(
             List<OneDay> oneDays,
-            @Context Map<Long, String> instructorNameMap,
+            @Context NameLookup names,
             @Context Map<Long, Double> ratingMap
     );
 
