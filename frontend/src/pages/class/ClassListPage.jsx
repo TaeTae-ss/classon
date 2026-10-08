@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router";
 import { getClassList } from "../../api/classApi";
 import { getCategories } from "../../api/categoryApi";
 import { money } from "../../mocks/data";
@@ -10,9 +10,13 @@ import Pagination from "../../components/common/Pagination";
 const IMAGE_BASE = "http://localhost:8080";
 
 export default function ClassListPage() {
+  const [params, setSearchParams] = useSearchParams();
+  const keyword = params.get("keyword") || "";
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState(null);
+  const [keywordInput, setKeywordInput] = useState(keyword);
   const [page, setPage] = useState(1);
+  const prevQueryRef = useRef(`${categoryId}|${keyword}`);
   const [list, setList] = useState([]);
   const [totalPage, setTotalPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -31,9 +35,18 @@ export default function ClassListPage() {
         setLoading(true);
         setError("");
 
+        // 카테고리/검색어가 바뀌면 1페이지부터 다시 조회
+        const queryKey = `${categoryId}|${keyword}`;
+        const targetPage = prevQueryRef.current === queryKey ? page : 1;
+        if (prevQueryRef.current !== queryKey) {
+          prevQueryRef.current = queryKey;
+          setPage(1);
+        }
+
         const data = await getClassList({
           categoryId: categoryId ?? undefined,
-          page,
+          keyword: keyword || undefined,
+          page: targetPage,
           size: 9,
         });
 
@@ -50,11 +63,23 @@ export default function ClassListPage() {
     };
 
     load();
-  }, [categoryId, page]);
+  }, [categoryId, keyword, page]);
 
   const selectCategory = (catNo) => {
     setCategoryId(catNo);
     setPage(1);
+  };
+
+  const submitKeyword = (e) => {
+    e.preventDefault();
+
+    const trimmed = keywordInput.trim();
+    const next = new URLSearchParams(params);
+
+    if (trimmed) next.set("keyword", trimmed);
+    else next.delete("keyword");
+
+    setSearchParams(next);
   };
 
   return (
@@ -63,6 +88,21 @@ export default function ClassListPage() {
         title="클래스 탐색"
         description="새로운 취미, 새로운 배움. 당신에게 맞는 클래스를 찾아보세요."
       />
+      <form onSubmit={submitKeyword} className="flex gap-2 mb-4">
+        <input
+          type="text"
+          value={keywordInput}
+          onChange={(e) => setKeywordInput(e.target.value)}
+          placeholder="클래스명으로 검색"
+          className="flex-1 h-11 px-4 rounded-[22px] border border-[#ebe6e0] text-[15px] outline-none focus-visible:border-[#ea6500]"
+        />
+        <button
+          type="submit"
+          className="h-11 px-5 rounded-[22px] bg-accent text-white text-[14px] font-bold cursor-pointer"
+        >
+          검색
+        </button>
+      </form>
       <div className="flex items-center justify-between flex-wrap gap-3 my-6">
         <ul className="list-none flex gap-[10px] flex-wrap p-0 m-0">
           <li
@@ -135,7 +175,12 @@ export default function ClassListPage() {
           ))}
         </div>
       ) : (
-        <Empty>{error || "해당 카테고리에 클래스가 없습니다. 다른 카테고리를 선택해주세요."}</Empty>
+        <Empty>
+          {error ||
+            (keyword
+              ? `"${keyword}"에 대한 검색 결과가 없습니다.`
+              : "해당 카테고리에 클래스가 없습니다. 다른 카테고리를 선택해주세요.")}
+        </Empty>
       )}
       <Pagination page={page} pages={totalPage || 1} onChange={setPage} />
     </>

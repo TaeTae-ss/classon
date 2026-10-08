@@ -30,10 +30,11 @@ public class OneDayController {
 
     private final OneDayService oneDayService;
 
-    // 상품 목록 조회 (categoryId 생략 시 전체 조회)
+    // 상품 목록 조회
     @GetMapping("/api/v1/oneday")
     public ResponseEntity<PageResponseDTO<ProductResponseDTO>> findProducts(
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false, defaultValue = "") String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "9") int size
     ) {
@@ -41,6 +42,7 @@ public class OneDayController {
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
 
         PageRequestDTO pageRequestDTO = new PageRequestDTO(safePage, safeSize);
+        pageRequestDTO.setKeyword(keyword);
 
         return ResponseEntity.ok(
                 oneDayService.findProducts(categoryId, pageRequestDTO)
