@@ -146,6 +146,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         return LoginResponseDTO.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .memRole(member.getMemRole())
                 .build();
     }
 
