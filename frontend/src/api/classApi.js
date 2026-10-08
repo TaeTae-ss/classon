@@ -1,5 +1,10 @@
 import api from "./axios";
 
+export const getMyClasses = async () => {
+  const response = await api.get("/api/v1/oneday/mine");
+  return response.data.data;
+};
+
 export const registerClass = async (dto, image) => {
   const formData = new FormData();
   formData.append("dto", new Blob([JSON.stringify(dto)], { type: "application/json" }));
