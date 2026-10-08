@@ -63,3 +63,16 @@ export const signupPost = async (signupData) => {
   const response = await axios.post("/api/auth/signup", signupData);
   return response.data;
 };
+
+// 마이페이지 파트
+// 회원 정보 조회
+export const getMember = async (memNo) => {
+  const response = await axios.get(`/api/member/${memNo}`);
+  return response.data;
+};
+
+// 회원 정보 수정
+export const updateMember = async (memNo, memberData) => {
+  const response = await axios.patch(`/api/member/${memNo}`, memberData);
+  return response.data;
+};
