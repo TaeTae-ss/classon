@@ -2,6 +2,9 @@ import api from "./axios";
 
 export const getMyClasses = async () => {
   const response = await api.get("/api/v1/oneday/mine");
+  return response.data.data;
+}
+
 export const getClassDetail = async (clsNo) => {
   const response = await api.get(`/api/v1/oneday/${clsNo}`);
   return response.data.data;
