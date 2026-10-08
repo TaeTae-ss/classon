@@ -103,7 +103,7 @@ public class PaymentServiceImpl implements PaymentService{
         Payment payment = new Payment(
                 reservation,
                 orderNo,
-                "CARD",
+                "EASY_PAY",
                 payAmount
         );
 
