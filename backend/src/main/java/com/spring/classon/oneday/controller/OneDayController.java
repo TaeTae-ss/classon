@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class OneDayController {
@@ -44,6 +46,18 @@ public class OneDayController {
 
         return ResponseEntity.ok(
                 oneDayService.findProducts(categoryId, pageRequestDTO)
+        );
+    }
+
+    // 강사 본인 클래스 목록 조회 (일정 등록 시 클래스 선택용)
+    @PreAuthorize("hasAnyRole('INSTRUCTOR', 'ADMIN')")
+    @GetMapping("/api/v1/oneday/mine")
+    public ResponseEntity<List<ProductResponseDTO>> findMyProducts() {
+
+        Long memNo = CurrentMemberResolver.getCurrentMemNo();
+
+        return ResponseEntity.ok(
+                oneDayService.findMyProducts(memNo)
         );
     }
 

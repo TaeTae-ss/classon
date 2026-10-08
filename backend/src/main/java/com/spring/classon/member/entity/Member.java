@@ -35,4 +35,9 @@ public class Member {
         this.memNickname = memNickname;
         this.memImg = memImg;
     }
+
+    // 프로필 이미지 수정
+    public void updateProfileImage(String memImg) {
+        this.memImg = memImg;
+    }
 }

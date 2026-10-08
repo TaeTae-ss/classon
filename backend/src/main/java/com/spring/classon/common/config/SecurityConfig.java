@@ -70,6 +70,7 @@ public class SecurityConfig {
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
                                 "/api/auth/login",
+                                "/api/auth/logout",
                                 "/uploads/oneday/**",
                                 "/api/v1/oneday/**",
                                 "/api/auth/password/**",
@@ -80,6 +81,9 @@ public class SecurityConfig {
                                 "/api/notices/**",
                                 "/api/payment/**"
                         ).permitAll()
+
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
 
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
