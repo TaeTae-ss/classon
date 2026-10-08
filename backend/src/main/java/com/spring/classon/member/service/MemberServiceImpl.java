@@ -1,6 +1,6 @@
 package com.spring.classon.member.service;
 
-import com.spring.classon.common.exception.MemberException;
+import com.spring.classon.common.exception.*;
 import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.mapper.MemberMapper;
@@ -8,9 +8,11 @@ import com.spring.classon.member.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.*;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +58,63 @@ public class MemberServiceImpl implements MemberService {
         );
     }
 
+    // 프로필 이미지 수정
+    @Override
+    public void updateProfileImage(Long memNo, MultipartFile file) {
+
+        Member member = memberRepository.findById(memNo)
+                .orElseThrow(() -> new MemberException("존재하지 않는 회원입니다."));
+
+        if (file == null || file.isEmpty()) {
+            throw new FileException("프로필 이미지를 선택해주세요.");
+        }
+
+        String originalFileName = file.getOriginalFilename();
+
+        if (originalFileName == null || originalFileName.isBlank()) {
+            throw new FileException("파일명이 존재하지 않습니다.");
+        }
+
+        String extension = "";
+
+        int extensionIndex = originalFileName.lastIndexOf(".");
+
+        if (extensionIndex > 0) {
+            extension = originalFileName.substring(extensionIndex).toLowerCase();
+        }
+
+        if (!extension.matches("\\.(jpg|jpeg|png|webp)$")) {
+            throw new FileException(
+                    "jpg, jpeg, png, webp 파일만 업로드할 수 있습니다."
+            );
+        }
+
+        try {
+            Path uploadPath = Paths.get(
+                    System.getProperty("user.dir"),
+                    "uploads",
+                    "member"
+            );
+
+            Files.createDirectories(uploadPath);
+
+            String fileName =
+                    memNo + "_" + UUID.randomUUID() + extension;
+
+            Path filePath = uploadPath.resolve(fileName);
+
+            file.transferTo(filePath.toFile());
+
+            member.updateProfileImage(
+                    filePath.toString()
+            );
+
+        } catch (IOException e) {
+            throw new FileException("프로필 이미지 저장에 실패했습니다.");
+        }
+    }
+
+    // 비밀번호 변경
     @Override
     public void updatePassword(Long memNo, MemberPasswordUpdateDTO dto) {
 
