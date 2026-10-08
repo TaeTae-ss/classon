@@ -36,3 +36,9 @@ export const getInstructorClasses = async () => {
   return response.data;
 };
 
+// 클래스 평균 평점 조회
+export const getAverageRating = async (clsNo) => {
+  const response = await api.get(`/api/reviews/class/${clsNo}/average`);
+  return response.data.data;
+};
+

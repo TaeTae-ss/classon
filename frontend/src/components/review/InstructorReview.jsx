@@ -2,22 +2,28 @@ import { useEffect, useState } from "react";
 import { getClassReviews } from "../../api/reviewApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../common/Pagination";
+import { getMyClasses } from "../../api/classApi";
 
 export default function InstructorReview() {
   const [openClsNo, setOpenClsNo] = useState(null);
 
+  const [myClasses, setMyClasses] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  // API 연결 전 임시 데이터
-  const myClasses = [
-    { clsNo: 1, clsName: "도자기 클래스" },
-    { clsNo: 2, clsName: "베이킹 클래스" },
-  ];
 
   const handleToggle = (clsNo) => {
     setOpenClsNo((prev) => (prev === clsNo ? null : clsNo));
   };
+
+  useEffect(() => {
+  getMyClasses()
+    .then((data) => {
+      setMyClasses(data);
+    })
+    .catch((error) => {
+      console.error("강사 클래스 목록 조회 실패:", error);
+    });
+}, []);
 
   useEffect(() => {
   if (openClsNo === null) {
@@ -40,6 +46,8 @@ export default function InstructorReview() {
       setLoading(false);
     });
 }, [openClsNo]);
+
+
 
 const pagination = usePagination(
     reviews.map((review) => ({
