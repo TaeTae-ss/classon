@@ -72,6 +72,7 @@ public class SecurityConfig {
                                 "/api/auth/login",
                                 "/api/auth/logout",
                                 "/uploads/oneday/**",
+                                "/uploads/member/**",
                                 "/api/v1/oneday/**",
                                 "/api/auth/password/**",
                                 "/api/auth/refresh",
