@@ -1,6 +1,7 @@
 package com.spring.classon.member.service;
 
 import com.spring.classon.member.dto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -11,6 +12,9 @@ public interface MemberService {
 
     // 회원 정보 수정
     void updateMember(Long memNo, MemberUpdateDTO dto);
+
+    // 프로필 이미지 수정
+    void updateProfileImage(Long memNo, MultipartFile file);
 
     // 비밀번호 변경
     void updatePassword(Long memNo, MemberPasswordUpdateDTO dto);
