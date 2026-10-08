@@ -66,8 +66,14 @@ public class OneDayServiceImpl implements OneDayService {
 
         List<OneDay> oneDays = result.getContent();
 
+        List<Long> catNos = oneDays.stream().map(OneDay::getCatNo).distinct().toList();
         List<Long> memNos = oneDays.stream().map(OneDay::getMemNo).distinct().toList();
         List<Long> clsNos = oneDays.stream().map(OneDay::getClsNo).toList();
+
+        Map<Long, String> catNameMap = catNos.isEmpty()
+                ? Map.of()
+                : categoryRepository.findAllById(catNos).stream()
+                        .collect(Collectors.toMap(Category::getCatNo, Category::getCatName));
 
         Map<Long, String> instructorNameMap = memNos.isEmpty()
                 ? Map.of()
@@ -77,9 +83,28 @@ public class OneDayServiceImpl implements OneDayService {
         Map<Long, Double> ratingMap = reviewService.getAverageRatings(clsNos);
 
         List<ProductResponseDTO> dtoList =
-                productMapper.toDTOList(oneDays, instructorNameMap, ratingMap);
+                productMapper.toDTOList(
+                        oneDays,
+                        new ProductMapper.NameLookup(catNameMap, instructorNameMap),
+                        ratingMap
+                );
 
         return new PageResponseDTO<>(dtoList, pageRequestDTO, result.getTotalElements());
+    }
+
+    // 강사 본인 클래스 목록 조회 (상태 무관, 일정 등록 시 클래스 선택용)
+    @Override
+    public List<ProductResponseDTO> findMyProducts(Long memNo) {
+
+        List<OneDay> oneDays = oneDayRepository.findByMemNo(memNo);
+
+        List<Long> clsNos = oneDays.stream().map(OneDay::getClsNo).toList();
+
+        Map<Long, String> instructorNameMap = Map.of(memNo, memberService.getMemberSummary(memNo).getMemNickname());
+
+        Map<Long, Double> ratingMap = reviewService.getAverageRatings(clsNos);
+
+        return productMapper.toDTOList(oneDays, instructorNameMap, ratingMap);
     }
 
     // 상품 상세 조회

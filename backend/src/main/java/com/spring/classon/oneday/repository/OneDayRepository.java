@@ -11,6 +11,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
+import java.util.List;
+
 public interface OneDayRepository extends JpaRepository<OneDay, Long> {
 
     // 카테고리별 상품 목록 조회 (모집중인 클래스)
@@ -34,4 +36,6 @@ public interface OneDayRepository extends JpaRepository<OneDay, Long> {
     Optional<ClassSummaryDTO> findClassSummaryByClsNo(
             @Param("clsNo") Long clsNo
     );
+    // 강사 본인 클래스 목록 조회
+    List<OneDay> findByMemNo(Long memNo);
 }
