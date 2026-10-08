@@ -104,4 +104,11 @@ public class OneDay {
         this.clsImgOrigin = clsImgOrigin;
         this.clsImgThumb = clsImgThumb;
     }
+
+    // 첫 일정 등록 시 모집 상태로 전환
+    public void startRecruiting() {
+        if (this.clsStatus == OneDayStatus.READY) {
+            this.clsStatus = OneDayStatus.RECRUITING;
+        }
+    }
 }

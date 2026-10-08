@@ -55,6 +55,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         Schedule savedSchedule = scheduleRepository.save(schedule);
 
+        oneDay.startRecruiting();
+
         return scheduleMapper.toResponseDto(savedSchedule, 0, savedSchedule.getSchCapacity());
     }
 
