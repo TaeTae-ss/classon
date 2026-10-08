@@ -102,7 +102,7 @@ export default function AdminReservationPage() {
         </table>
       </div>
       <form
-        className="flex justify-center gap-3 mb-6 [zoom:0.9]"
+        className="flex justify-center gap-3 mt-6 mb-6 [zoom:0.9]"
         onSubmit={(e) => {
           e.preventDefault();
           setSearch(keyword);

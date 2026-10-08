@@ -81,6 +81,9 @@ public class SecurityConfig {
                                 "/api/payment/**"
                         ).permitAll()
 
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
+
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
