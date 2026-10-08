@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+
 import { initialProfile, useStore } from "../../mocks/data";
+import { getMember, updateMember } from "../../api/memberApi";
+import { getCookie } from "../../util/cookieUtil";
+
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
@@ -24,10 +28,15 @@ const formatPhone = (phone) => {
 
 export default function MyPage({ instructor = false, edit = false }) {
   const navigate = useNavigate();
+
   const [role] = useStore("role", "PUBLIC");
   const isInstructor = instructor || role === "INS";
-  const [profile, setProfile] = useStore("profile", initialProfile);
-  const [form, setForm] = useState(profile);
+
+  const [profile, setProfile] = useState(initialProfile);
+  const [form, setForm] = useState(initialProfile);
+  const [loading, setLoading] = useState(!isInstructor);
+  const [saving, setSaving] = useState(false);
+
   const [message, setMessage] = useState("");
   const [request, setRequest] = useStore("instructorRequest", null);
   const [applying, setApplying] = useState(false);
@@ -35,6 +44,85 @@ export default function MyPage({ instructor = false, edit = false }) {
   const [files, setFiles] = useState([]);
 
   const base = isInstructor ? "/instructor/mypage" : "/member/mypage";
+
+  // 회원 정보 조회
+  useEffect(() => {
+    if (isInstructor) return;
+
+    const fetchMember = async () => {
+      try {
+        const member = getCookie("member");
+
+        if (!member?.memNo) {
+          console.error("회원 번호가 없습니다.");
+          return;
+        }
+
+        const response = await getMember(member.memNo);
+        const data = response.data;
+
+        const memberProfile = {
+          email: data.memEmail || "",
+          nickname: data.memNickname || "",
+          phone: data.memPhone || "",
+          address: data.memAddress || "",
+          detail: data.memAddressDetail || "",
+          img: data.memImg || "",
+        };
+
+        setProfile(memberProfile);
+        setForm(memberProfile);
+      } catch (error) {
+        console.error("회원 정보 조회 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMember();
+  }, [isInstructor]);
+
+  // 회원 정보 수정
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      setSaving(true);
+
+      const member = getCookie("member");
+
+      if (!member?.memNo) {
+        console.error("회원 번호가 없습니다.");
+        return;
+      }
+
+      await updateMember(member.memNo, {
+        memNickname: form.nickname,
+        memPhone: form.phone,
+        memAddress: form.address,
+        memAddressDetail: form.detail,
+        memImg: form.img || null,
+      });
+
+      setProfile(form);
+      navigate(base);
+    } catch (error) {
+      console.error("회원 정보 수정 실패:", error);
+      setMessage("회원 정보 수정에 실패했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Workspace kind="member">
+        <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
+          회원 정보를 불러오는 중입니다.
+        </section>
+      </Workspace>
+    );
+  }
 
   return (
     <Workspace kind={isInstructor ? "instructor" : "member"}>
@@ -63,7 +151,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <span>{profile.nickname[0]}</span>
+              <span>{profile.nickname?.[0] || ""}</span>
             )}
 
             <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-white text-[12px] font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -80,13 +168,7 @@ export default function MyPage({ instructor = false, edit = false }) {
         </div>
 
         {edit ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setProfile(form);
-              navigate(base);
-            }}
-          >
+          <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-0">
               {/* 이메일 */}
               <Field
@@ -115,7 +197,10 @@ export default function MyPage({ instructor = false, edit = false }) {
                 required
                 value={form.phone}
                 onChange={(e) =>
-                  setForm({ ...form, phone: e.target.value })
+                  setForm({
+                    ...form,
+                    phone: e.target.value.replace(/\D/g, "").slice(0, 11),
+                  })
                 }
               />
 
@@ -126,7 +211,10 @@ export default function MyPage({ instructor = false, edit = false }) {
                 required
                 value={form.address}
                 onChange={(e) =>
-                  setForm({ ...form, address: e.target.value })
+                  setForm({
+                    ...form,
+                    address: e.target.value,
+                  })
                 }
               />
 
@@ -137,15 +225,24 @@ export default function MyPage({ instructor = false, edit = false }) {
                 required
                 value={form.detail}
                 onChange={(e) =>
-                  setForm({ ...form, detail: e.target.value })
+                  setForm({
+                    ...form,
+                    detail: e.target.value,
+                  })
                 }
               />
             </div>
 
             <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
               {/* 저장 */}
-              <ButtonLink button type="submit" secondary>
-                저장
+              <ButtonLink
+                button
+                type="submit"
+                secondary
+                disabled={saving}
+                onClick={handleSubmit}
+              >
+                {saving ? "저장 중..." : "저장"}
               </ButtonLink>
 
               {/* 취소 */}
@@ -161,7 +258,10 @@ export default function MyPage({ instructor = false, edit = false }) {
                 ["이메일", profile.email],
                 ["닉네임", profile.nickname],
                 ["핸드폰", formatPhone(profile.phone)],
-                ["주소", `${profile.address} ${profile.detail}`],
+                [
+                  "주소",
+                  `${profile.address || ""} ${profile.detail || ""}`.trim(),
+                ],
               ].map(([k, v]) => (
                 <div key={k} style={{ display: "contents" }}>
                   <dt className="text-[#888]">{k}</dt>
