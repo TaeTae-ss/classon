@@ -62,7 +62,7 @@ export default function ReservationListPage({
             <p style={{ margin: "8px 0" }}>
               {schedules.find((s) => s.id === r.scheduleId)?.date} · {r.count}명
             </p>
-            <ButtonLink
+           <ButtonLink
               secondary
               to={
                 payment
