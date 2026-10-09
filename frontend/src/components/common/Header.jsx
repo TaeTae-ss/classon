@@ -13,6 +13,16 @@ const Header = () => {
         return !!member?.accessToken;
     });
 
+    const [keyword, setKeyword] = useState("");
+
+    const submitSearch = (e) => {
+        e.preventDefault();
+
+        const trimmed = keyword.trim();
+
+        navigate(trimmed ? `/class?keyword=${encodeURIComponent(trimmed)}` : "/class");
+    };
+
     // 페이지 이동 시 로그인 상태 확인
     useEffect(() => {
         const member = getCookie("member");
@@ -70,22 +80,26 @@ const Header = () => {
                 </nav>
 
                 {/* 검색창 */}
-                <div className="h-12 flex items-center flex-1 max-w-[420px] ml-auto bg-[#F9FAFB] border-[1.2px] border-line rounded-[24px] overflow-hidden max-lg:order-3 max-lg:flex-[0_0_100%] max-lg:max-w-none max-lg:ml-0 max-[600px]:order-4">
-
+                <form
+                    onSubmit={submitSearch}
+                    className="h-12 flex items-center flex-1 max-w-[420px] ml-auto bg-[#F9FAFB] border-[1.2px] border-line rounded-[24px] overflow-hidden max-lg:order-3 max-lg:flex-[0_0_100%] max-lg:max-w-none max-lg:ml-0 max-[600px]:order-4"
+                >
                     <input
                         type="text"
                         placeholder="어떤 클래스를 찾고 계신가요?"
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
                         className="min-w-0 h-full flex-1 pl-[19.2px] border-0 outline-none bg-transparent text-ink text-[15.6px] placeholder:text-ink-sub"
                     />
 
                     <button
-                        type="button"
+                        type="submit"
                         className="w-[50.4px] h-full border-0 bg-transparent text-[16.8px]"
                     >
                         <i className="fi fi-br-search"></i>
                     </button>
 
-                </div>
+                </form>
 
                 {/* 로그인 영역 */}
                 <div className="flex items-center gap-[28.8px] whitespace-nowrap max-lg:ml-auto max-[600px]:order-2">

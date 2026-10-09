@@ -16,6 +16,12 @@ public interface OneDayRepository extends JpaRepository<OneDay, Long> {
     // 전체 상품 목록 조회 (모집중인 클래스, 카테고리 필터 없음)
     Page<OneDay> findByClsStatus(OneDayStatus clsStatus, Pageable pageable);
 
+    // 모집중인 클래스 중 카테고리 + 클래스명으로 검색
+    Page<OneDay> findByCatNoAndClsStatusAndClsNameContaining(Long catNo, OneDayStatus clsStatus, String clsName, Pageable pageable);
+
+    // 모집중인 클래스 전체에서 클래스명으로 검색
+    Page<OneDay> findByClsStatusAndClsNameContaining(OneDayStatus clsStatus, String clsName, Pageable pageable);
+  
     // 강사 본인 클래스 목록 조회
     List<OneDay> findByMemNo(Long memNo);
 }

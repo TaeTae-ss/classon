@@ -52,16 +52,23 @@ public class OneDayServiceImpl implements OneDayService {
 
         Pageable pageable = pageRequestDTO.getPageable("clsCreatedAt");
 
+        String keyword = pageRequestDTO.getKeyword();
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+
         Page<OneDay> result;
 
         if (categoryId != null) {
             categoryRepository.findById(categoryId)
                     .orElseThrow(CategoryNotFoundException::new);
 
-            result = oneDayRepository.findByCatNoAndClsStatus(categoryId, OneDayStatus.RECRUITING, pageable);
+            result = hasKeyword
+                    ? oneDayRepository.findByCatNoAndClsStatusAndClsNameContaining(categoryId, OneDayStatus.RECRUITING, keyword, pageable)
+                    : oneDayRepository.findByCatNoAndClsStatus(categoryId, OneDayStatus.RECRUITING, pageable);
 
         } else {
-            result = oneDayRepository.findByClsStatus(OneDayStatus.RECRUITING, pageable);
+            result = hasKeyword
+                    ? oneDayRepository.findByClsStatusAndClsNameContaining(OneDayStatus.RECRUITING, keyword, pageable)
+                    : oneDayRepository.findByClsStatus(OneDayStatus.RECRUITING, pageable);
         }
 
         List<OneDay> oneDays = result.getContent();
