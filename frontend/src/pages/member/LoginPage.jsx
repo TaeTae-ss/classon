@@ -6,6 +6,25 @@ import { useStore } from "../../mocks/data";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
 
+const getMemberNoFromToken = (accessToken) => {
+  try {
+    const payload = accessToken.split(".")[1];
+
+    const base64 = payload
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+
+    const decoded = JSON.parse(
+      atob(base64)
+    );
+
+    return decoded.memNo;
+  } catch (error) {
+    console.error("JWT 회원 번호 확인 실패:", error);
+    return null;
+  }
+};
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,9 +68,18 @@ export default function LoginPage() {
         memEmail: email,
         memPassword: password,
       });
-
-      setCookie("member", { ...result }, 1);
-
+      const memNo = getMemberNoFromToken(result.accessToken);
+      if (memNo == null) {
+        throw new Error("로그인 토큰에서 회원 번호를 확인할 수 없습니다.");
+      }
+      setCookie(
+        "member",
+        {
+          ...result,
+          memNo,
+        },
+        1
+      );
       go(
         result.memRole === "ADMIN"
           ? "ADMIN"
@@ -67,7 +95,6 @@ export default function LoginPage() {
       setBusy(false);
     }
   };
-
   return (
     <div className="w-full max-w-[560px] mx-auto my-[60px] px-[20px] max-md:my-[40px]">
       <section className="bg-white border border-[#ebe6e0] rounded-xl px-[48px] py-[40px] shadow-sm max-md:px-[26px] max-md:py-[32px]">

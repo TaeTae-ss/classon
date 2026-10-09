@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class LoginResponseDTO {
-
+    private Long memNo;
     private String accessToken;
     private String refreshToken;
     private String memRole;

@@ -99,6 +99,21 @@ public class OneDayServiceImpl implements OneDayService {
         return new PageResponseDTO<>(dtoList, pageRequestDTO, result.getTotalElements());
     }
 
+    // 강사 본인 클래스 목록 조회 (상태 무관, 일정 등록 시 클래스 선택용)
+    @Override
+    public List<ProductResponseDTO> findMyProducts(Long memNo) {
+
+        List<OneDay> oneDays = oneDayRepository.findByMemNo(memNo);
+
+        List<Long> clsNos = oneDays.stream().map(OneDay::getClsNo).toList();
+
+        Map<Long, String> instructorNameMap = Map.of(memNo, memberService.getMemberSummary(memNo).getMemNickname());
+
+        Map<Long, Double> ratingMap = reviewService.getAverageRatings(clsNos);
+
+        return productMapper.toDTOList(oneDays, instructorNameMap, ratingMap);
+    }
+
     // 상품 상세 조회
     @Override
     public ProductDetailResponseDTO getProductDetail(Long clsNo) {

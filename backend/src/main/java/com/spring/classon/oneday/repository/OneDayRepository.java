@@ -6,6 +6,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface OneDayRepository extends JpaRepository<OneDay, Long> {
 
     // 카테고리별 상품 목록 조회 (모집중인 클래스)
@@ -19,4 +21,7 @@ public interface OneDayRepository extends JpaRepository<OneDay, Long> {
 
     // 모집중인 클래스 전체에서 클래스명으로 검색
     Page<OneDay> findByClsStatusAndClsNameContaining(OneDayStatus clsStatus, String clsName, Pageable pageable);
+  
+    // 강사 본인 클래스 목록 조회
+    List<OneDay> findByMemNo(Long memNo);
 }
