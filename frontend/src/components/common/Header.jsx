@@ -10,6 +10,23 @@ const Header = () => {
     // 로그인 상태 확인
     const [isLogin, setIsLogin] = useState(() => {
         const member = getCookie("member");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         return !!member?.accessToken;
     });
 
