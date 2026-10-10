@@ -7,12 +7,14 @@ import com.spring.classon.member.mapper.MemberMapper;
 import com.spring.classon.member.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final MemberPrivateRepository memberPrivateRepository;
     private final MemberMapper memberMapper;
+    private final PasswordEncoder passwordEncoder;
 
     // 회원 정보 조회
     @Override
@@ -118,12 +121,34 @@ public class MemberServiceImpl implements MemberService {
     // 비밀번호 변경
     @Override
     public void updatePassword(Long memNo, MemberPasswordUpdateDTO dto) {
-
         MemberPrivate memberPrivate = memberPrivateRepository.findById(memNo)
-                .orElseThrow(() -> new MemberException("회원의 개인정보가 존재하지 않습니다."));
+                .orElseThrow(() ->
+                        new MemberException("회원의 개인정보가 존재하지 않습니다.")
+                );
 
+        // 현재 비밀번호 확인
+        if (!passwordEncoder.matches(
+                dto.getCurrentPassword(),
+                memberPrivate.getMemPassword()
+        )) {
+            throw new AuthException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새 비밀번호 형식 확인
+        String passwordRegex = "^(?=.*[A-Za-z])(?=.*\\d).{8,20}$";
+
+        if (!Pattern.matches(passwordRegex, dto.getNewPassword())) {
+            throw new IllegalArgumentException(
+                    "비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해 주세요."
+            );
+        }
+
+        // 새 비밀번호 암호화
+        String encodedPassword = passwordEncoder.encode(dto.getNewPassword());
+
+        // 비밀번호 및 변경일 갱신
         memberPrivate.updatePassword(
-                dto.getNewPassword(),
+                encodedPassword,
                 LocalDateTime.now()
         );
     }

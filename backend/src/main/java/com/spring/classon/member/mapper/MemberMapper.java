@@ -24,6 +24,7 @@ public class MemberMapper {
                 .memImg(member.getMemImg())
                 .memRole(member.getMemRole())
                 .memCreatedAt(member.getMemCreatedAt())
+                .memPwUpdate(memberPrivate.getMemPwUpdate())
                 .build();
     }
 
