@@ -10,17 +10,40 @@ const Header = () => {
     // 로그인 상태 확인
     const [isLogin, setIsLogin] = useState(() => {
         const member = getCookie("member");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
         return !!member?.accessToken;
     });
 
+    // 검색어 상태 관리
     const [keyword, setKeyword] = useState("");
 
+    // 검색 실행
     const submitSearch = (e) => {
         e.preventDefault();
 
         const trimmed = keyword.trim();
 
-        navigate(trimmed ? `/class?keyword=${encodeURIComponent(trimmed)}` : "/class");
+        navigate(
+            trimmed
+                ? `/class?keyword=${encodeURIComponent(trimmed)}`
+                : "/class"
+        );
     };
 
     // 페이지 이동 시 로그인 상태 확인
@@ -29,6 +52,13 @@ const Header = () => {
 
         setIsLogin(!!member?.accessToken);
     }, [location.pathname]);
+
+    // 현재 로그인 회원의 마이페이지 경로
+    const member = getCookie("member");
+
+    const myPagePath = ["INS", "INSTRUCTOR"].includes(member?.memRole)
+        ? "/instructor/mypage"
+        : "/member/mypage";
 
     // 로그아웃
     const handleLogout = async () => {
@@ -40,8 +70,10 @@ const Header = () => {
         } finally {
             // 로그인 정보 삭제
             removeCookie("member");
+
             // 로그인 상태 변경
             setIsLogin(false);
+
             // 메인 페이지 이동
             navigate("/");
         }
@@ -49,7 +81,6 @@ const Header = () => {
 
     return (
         <header className="sticky top-0 z-[100] w-full bg-white border-b-[1.2px] border-line">
-
             <div className="max-w-[1440px] h-[86.4px] mx-auto px-[28.8px] flex items-center gap-[43.2px] max-lg:h-auto max-lg:min-h-[86.4px] max-lg:py-[19.2px] max-lg:flex-wrap max-lg:gap-[19.2px] max-[600px]:px-[24px] max-[600px]:gap-[14.4px] max-[600px]:order-3 max-[600px]:w-full">
 
                 {/* 로고 */}
@@ -62,7 +93,6 @@ const Header = () => {
 
                 {/* 메뉴 */}
                 <nav className="flex items-center gap-[28.8px] whitespace-nowrap max-[600px]:order-3 max-[600px]:w-full">
-
                     <Link
                         to="/class"
                         className="py-[9.6px] border-0 bg-transparent text-ink text-[16.8px] font-bold no-underline hover:text-brand"
@@ -76,7 +106,6 @@ const Header = () => {
                     >
                         공지사항
                     </Link>
-
                 </nav>
 
                 {/* 검색창 */}
@@ -98,7 +127,6 @@ const Header = () => {
                     >
                         <i className="fi fi-br-search"></i>
                     </button>
-
                 </form>
 
                 {/* 로그인 영역 */}
@@ -107,7 +135,7 @@ const Header = () => {
                     {/* 로그인 상태일 때 마이페이지 */}
                     {isLogin && (
                         <Link
-                            to="/member/mypage"
+                            to={myPagePath}
                             className="py-[9.6px] border-0 bg-transparent text-ink text-[15.6px] font-bold no-underline hover:text-brand"
                             style={{
                                 fontFamily: "'NanumBarunGothic', sans-serif",
@@ -153,11 +181,8 @@ const Header = () => {
                             회원가입
                         </Link>
                     )}
-
                 </div>
-
             </div>
-
         </header>
     );
 };
