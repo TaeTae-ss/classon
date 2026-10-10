@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-
 import { useLocation, useNavigate } from "react-router";
 
 import { useStore } from "../../mocks/data";
@@ -7,6 +6,7 @@ import { useStore } from "../../mocks/data";
 import {
   getMember,
   updateMember,
+  updatePassword,
   updateProfileImage,
 } from "../../api/memberApi";
 
@@ -18,6 +18,8 @@ import { Field } from "../../components/common/Field";
 import { Workspace } from "../../components/common/Workspace";
 
 const SERVER_URL = "http://localhost:8080";
+const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,20}$/;
+const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
 
 const formatPhone = (phone) => {
   if (!phone) return "";
@@ -33,6 +35,31 @@ const formatPhone = (phone) => {
   }
 
   return phone;
+};
+
+// 회원 정보 응답을 화면에서 사용하는 형태로 변환
+const toMemberProfile = (data) => ({
+  email: data.memEmail || "",
+  nickname: data.memNickname || "",
+  phone: data.memPhone || "",
+  address: data.memAddress || "",
+  detail: data.memAddressDetail || "",
+  img: data.memImg || "",
+  memPwUpdate: data.memPwUpdate || null,
+  memCreatedAt: data.memCreatedAt || null,
+});
+
+// 비밀번호 변경일 기준 90일 경과 여부 확인
+const isPasswordExpired = (profile) => {
+  const passwordDate = profile.memPwUpdate || profile.memCreatedAt;
+
+  if (!passwordDate) return false;
+
+  const updatedAt = new Date(passwordDate);
+
+  if (Number.isNaN(updatedAt.getTime())) return false;
+
+  return Date.now() - updatedAt.getTime() >= NINETY_DAYS;
 };
 
 export default function MyPage({ instructor = false, edit = false }) {
@@ -51,6 +78,8 @@ export default function MyPage({ instructor = false, edit = false }) {
     address: "",
     detail: "",
     img: "",
+    memPwUpdate: null,
+    memCreatedAt: null,
   });
 
   const [form, setForm] = useState({
@@ -62,15 +91,16 @@ export default function MyPage({ instructor = false, edit = false }) {
     img: "",
   });
 
+  // 비밀번호 입력 상태
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   const [message, setMessage] = useState("");
 
-  const [request, setRequest] = useStore(
-    "instructorRequest",
-    null
-  );
+  const [request, setRequest] = useStore("instructorRequest", null);
 
   const [applying, setApplying] = useState(false);
   const [bio, setBio] = useState("");
@@ -82,44 +112,59 @@ export default function MyPage({ instructor = false, edit = false }) {
     ? "/instructor/mypage"
     : "/member/mypage";
 
+  // 비밀번호 입력 초기화
+  const resetPasswordFields = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  // 회원 정보 조회
+  const fetchMember = async (memNo) => {
+    const response = await getMember(memNo);
+    const memberProfile = toMemberProfile(response.data);
+
+    setProfile(memberProfile);
+
+    setForm({
+      email: memberProfile.email,
+      nickname: memberProfile.nickname,
+      phone: memberProfile.phone,
+      address: memberProfile.address,
+      detail: memberProfile.detail,
+      img: memberProfile.img,
+    });
+
+    return memberProfile;
+  };
+
   // 페이지 이동 시 기존 메시지 제거
   useEffect(() => {
     setMessage("");
   }, [location.pathname]);
 
-  // 회원 정보 조회
+  // 회원 정보 최초 조회
   useEffect(() => {
-    const fetchMember = async () => {
+    const loadMember = async () => {
       try {
         const member = getCookie("member");
 
         if (!member?.memNo) {
           console.error("회원 번호가 없습니다.");
+          setMessage("회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.");
           return;
         }
 
-        const response = await getMember(member.memNo);
-        const data = response.data;
-
-        const memberProfile = {
-          email: data.memEmail || "",
-          nickname: data.memNickname || "",
-          phone: data.memPhone || "",
-          address: data.memAddress || "",
-          detail: data.memAddressDetail || "",
-          img: data.memImg || "",
-        };
-
-        setProfile(memberProfile);
-        setForm(memberProfile);
+        await fetchMember(member.memNo);
       } catch (error) {
         console.error("회원 정보 조회 실패:", error);
+        setMessage("회원 정보를 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMember();
+    loadMember();
   }, [isInstructor]);
 
   // 프로필 이미지 주소
@@ -135,7 +180,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
   // 프로필 이미지 선택창
   const handleProfileImageClick = () => {
-    if (!edit) return;
+    if (!edit || saving) return;
 
     fileInputRef.current?.click();
   };
@@ -171,20 +216,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
       await updateProfileImage(member.memNo, file);
 
-      const response = await getMember(member.memNo);
-      const data = response.data;
-
-      const memberProfile = {
-        email: data.memEmail || "",
-        nickname: data.memNickname || "",
-        phone: data.memPhone || "",
-        address: data.memAddress || "",
-        detail: data.memAddressDetail || "",
-        img: data.memImg || "",
-      };
-
-      setProfile(memberProfile);
-      setForm(memberProfile);
+      await fetchMember(member.memNo);
 
       // 이미지 업로드 성공 시 기존 메시지 제거
       setMessage("");
@@ -196,9 +228,11 @@ export default function MyPage({ instructor = false, edit = false }) {
     }
   };
 
-  // 회원 정보 수정
+  // 회원 정보 및 비밀번호 수정
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (saving) return;
 
     const phone = form.phone.replace(/\D/g, "");
     const address = form.address.trim();
@@ -217,7 +251,52 @@ export default function MyPage({ instructor = false, edit = false }) {
       return;
     }
 
-    // 정상적인 입력이면 기존 에러 메시지 제거
+    // 비밀번호 변경 입력 여부 확인
+    const hasCurrentPassword = currentPassword.length > 0;
+    const hasNewPassword = newPassword.length > 0;
+    const hasConfirmPassword = confirmPassword.length > 0;
+
+    const wantsPasswordChange =
+      hasCurrentPassword || hasNewPassword || hasConfirmPassword;
+
+    // 세 칸 모두 비어 있으면 비밀번호 변경을 생략
+    if (wantsPasswordChange) {
+      if (
+        !hasCurrentPassword ||
+        !hasNewPassword ||
+        !hasConfirmPassword
+      ) {
+        setMessage(
+          "비밀번호를 변경하려면 현재 비밀번호, 새 비밀번호, 비밀번호 확인을 모두 입력해 주세요."
+        );
+        return;
+      }
+
+      // 새 비밀번호 형식 확인
+      if (!PASSWORD_REGEX.test(newPassword)) {
+        setMessage(
+          "새 비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해 주세요."
+        );
+        return;
+      }
+
+      // 새 비밀번호와 확인 값 일치 여부 확인
+      if (newPassword !== confirmPassword) {
+        setMessage(
+          "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."
+        );
+        return;
+      }
+
+      // 기존 비밀번호와 새 비밀번호가 같은지 확인
+      if (currentPassword === newPassword) {
+        setMessage(
+          "현재 비밀번호와 다른 비밀번호를 입력해 주세요."
+        );
+        return;
+      }
+    }
+
     setMessage("");
 
     try {
@@ -226,10 +305,19 @@ export default function MyPage({ instructor = false, edit = false }) {
       const member = getCookie("member");
 
       if (!member?.memNo) {
-        console.error("회원 번호가 없습니다.");
+        setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
         return;
       }
 
+      // 비밀번호를 변경하는 경우에만 비밀번호 변경 API 호출
+      if (wantsPasswordChange) {
+        await updatePassword(member.memNo, {
+          currentPassword,
+          newPassword,
+        });
+      }
+
+      // 회원 정보 수정
       await updateMember(member.memNo, {
         memNickname: form.nickname,
         memPhone: phone,
@@ -238,17 +326,33 @@ export default function MyPage({ instructor = false, edit = false }) {
         memImg: form.img || null,
       });
 
-      setProfile({
-        ...form,
-        phone,
-        address,
-      });
+      // 변경된 회원 정보를 다시 조회
+      await fetchMember(member.memNo);
+
+      // 비밀번호 입력값 초기화
+      resetPasswordFields();
 
       // 저장 후 마이페이지로 이동
       navigate(base);
     } catch (error) {
       console.error("회원 정보 수정 실패:", error);
-      setMessage("회원 정보 수정에 실패했습니다.");
+
+      const status = error.response?.status;
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message;
+
+      if (status === 401 || status === 403) {
+        setMessage(
+          serverMessage ||
+            "현재 비밀번호를 확인하거나 다시 로그인해 주세요."
+        );
+      } else {
+        setMessage(
+          serverMessage ||
+            "회원 정보 수정에 실패했습니다. 입력값을 확인해 주세요."
+        );
+      }
     } finally {
       setSaving(false);
     }
@@ -256,9 +360,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
   if (loading) {
     return (
-      <Workspace
-        kind={isInstructor ? "instructor" : "member"}
-      >
+      <Workspace kind={isInstructor ? "instructor" : "member"}>
         <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
           회원 정보를 불러오는 중입니다.
         </section>
@@ -267,9 +369,49 @@ export default function MyPage({ instructor = false, edit = false }) {
   }
 
   return (
-    <Workspace
-      kind={isInstructor ? "instructor" : "member"}
-    >
+    <Workspace kind={isInstructor ? "instructor" : "member"}>
+      {!edit && isPasswordExpired(profile) && (
+        <div
+          className="mb-[20px] flex items-start gap-3 rounded-lg border border-red-300 border-l-4 border-l-red-600 bg-red-50 px-[17px] py-[16px] text-red-800"
+          role="alert"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-6 w-6 text-red-600"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3m0 4h.01M10.3 3.86 2.6 17.2A2 2 0 0 0 4.33 20h15.34a2 2 0 0 0 1.73-2.8L13.7 3.86a2 2 0 0 0-3.4 0Z"
+              />
+            </svg>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <p className="font-bold text-red-800">
+                비밀번호 변경이 필요합니다
+              </p>
+
+              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                보안 경고
+              </span>
+            </div>
+
+            <p className="text-[14px] leading-[1.7] text-red-700">
+              비밀번호 변경 후 90일이 경과했습니다.
+              계정 보안을 위해 비밀번호를 변경해 주세요.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Heading
         title={
           edit
@@ -319,8 +461,7 @@ export default function MyPage({ instructor = false, edit = false }) {
           <div>
             <h3>{profile.nickname}</h3>
             <p>
-              {isInstructor ? "강사" : "회원"} ·{" "}
-              {profile.email}
+              {isInstructor ? "강사" : "회원"} · {profile.email}
             </p>
           </div>
         </div>
@@ -357,9 +498,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    phone: e.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 11),
+                    phone: e.target.value.replace(/\D/g, "").slice(0, 11),
                   })
                 }
               />
@@ -390,6 +529,45 @@ export default function MyPage({ instructor = false, edit = false }) {
                   })
                 }
               />
+
+              {/* 비밀번호 변경 */}
+              <div className="mt-[25px] border-t border-[#ebe6e0] pt-[24px]">
+                <h3 className="text-[18px] font-bold text-[#1f2937] mb-2">
+                  비밀번호 변경
+                </h3>
+
+                <p className="text-[13px] text-[#6b7280] mb-[18px]">
+                  비밀번호를 변경하지 않으려면 아래 항목을 모두 비워 두세요.
+                </p>
+
+                <Field
+                  label="현재 비밀번호"
+                  type="password"
+                  value={currentPassword}
+                  autoComplete="current-password"
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+
+                <Field
+                  label="새 비밀번호"
+                  type="password"
+                  value={newPassword}
+                  autoComplete="new-password"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+
+                <Field
+                  label="새 비밀번호 확인"
+                  type="password"
+                  value={confirmPassword}
+                  autoComplete="new-password"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+
+                <p className="text-[13px] leading-[1.7] text-[#888]">
+                  영문과 숫자를 포함하여 8~20자로 입력해 주세요.
+                </p>
+              </div>
             </div>
 
             <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
@@ -409,8 +587,15 @@ export default function MyPage({ instructor = false, edit = false }) {
                 secondary
                 to={base}
                 onClick={() => {
-                  // 수정 전 상태로 복구
-                  setForm(profile);
+                  setForm({
+                    email: profile.email,
+                    nickname: profile.nickname,
+                    phone: profile.phone,
+                    address: profile.address,
+                    detail: profile.detail,
+                    img: profile.img,
+                  });
+                  resetPasswordFields();
                   setMessage("");
                 }}
               >
@@ -427,9 +612,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                 ["핸드폰", formatPhone(profile.phone)],
                 [
                   "주소",
-                  `${profile.address || ""} ${
-                    profile.detail || ""
-                  }`.trim(),
+                  `${profile.address || ""} ${profile.detail || ""}`.trim(),
                 ],
               ].map(([k, v]) => (
                 <div
@@ -437,9 +620,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                   style={{ display: "contents" }}
                 >
                   <dt className="text-[#888]">{k}</dt>
-                  <dd className="m-0 font-semibold">
-                    {v}
-                  </dd>
+                  <dd className="m-0 font-semibold">{v}</dd>
                 </div>
               ))}
             </dl>
@@ -475,6 +656,7 @@ export default function MyPage({ instructor = false, edit = false }) {
               <p>{request.files.join(", ")}</p>
 
               <button
+                type="button"
                 className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
                 onClick={() => setRequest(null)}
               >
@@ -511,9 +693,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                   type="file"
                   multiple
                   accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(e) =>
-                    setFiles(Array.from(e.target.files))
-                  }
+                  onChange={(e) => setFiles(Array.from(e.target.files))}
                 />
               </Field>
 
@@ -523,6 +703,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
               <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
                 <button
+                  type="submit"
                   className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
                 >
                   신청 화면 완료
@@ -539,6 +720,7 @@ export default function MyPage({ instructor = false, edit = false }) {
             </form>
           ) : (
             <button
+              type="button"
               className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
               onClick={() => setApplying(true)}
             >
@@ -558,10 +740,11 @@ export default function MyPage({ instructor = false, edit = false }) {
       )}
 
       <button
+        type="button"
         className="bg-transparent border-0 p-[7px] text-[#b75b46]!"
         onClick={() =>
           setMessage(
-            "회원 탈퇴는 실제 계정과 예약·환불 상태 확인이 필요하므로 미리보기에서 처리하지 않습니다.",
+            "회원 탈퇴는 실제 계정과 예약·환불 상태 확인이 필요하므로 미리보기에서 처리하지 않습니다."
           )
         }
       >

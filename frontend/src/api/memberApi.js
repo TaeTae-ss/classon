@@ -40,6 +40,7 @@ export const passwordPatch = async (data) => {
 };
 
 // 회원가입 파트
+
 // 이메일 중복 확인
 export const checkEmail = async (email) => {
   const response = await axios.get("/api/auth/check-email", {
@@ -65,6 +66,7 @@ export const signupPost = async (signupData) => {
 };
 
 // 마이페이지 파트
+
 // 회원 정보 조회
 export const getMember = async (memNo) => {
   const response = await axios.get(`/api/member/${memNo}`);
@@ -74,6 +76,16 @@ export const getMember = async (memNo) => {
 // 회원 정보 수정
 export const updateMember = async (memNo, memberData) => {
   const response = await axios.patch(`/api/member/${memNo}`, memberData);
+  return response.data;
+};
+
+// 비밀번호 변경
+export const updatePassword = async (memNo, passwordData) => {
+  const response = await axios.patch(
+    `/api/member/${memNo}/password`,
+    passwordData
+  );
+
   return response.data;
 };
 
