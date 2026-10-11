@@ -1,6 +1,9 @@
 package com.spring.classon.member.service;
 
 import com.spring.classon.common.exception.*;
+import com.spring.classon.instructor.entity.InstructorDocument;
+import com.spring.classon.instructor.entity.InstructorRequest;
+import com.spring.classon.instructor.repository.*;
 import com.spring.classon.member.dto.*;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.mapper.MemberMapper;
@@ -40,6 +43,10 @@ public class MemberServiceImpl implements MemberService {
     private final FavoriteRepository favoriteRepository;
     private final OneDayRepository oneDayRepository;
     private final ScheduleRepository scheduleRepository;
+
+    private final InstructorRequestRepository instructorRequestRepository;
+    private final InstructorDocumentRepository instructorDocumentRepository;
+    private final InstructorRejectionRepository instructorRejectionRepository;
 
     // 회원 정보 조회
     @Override
@@ -244,7 +251,7 @@ public class MemberServiceImpl implements MemberService {
 
         return new WithdrawalCheckDTO(
                 true,
-                "정말로 탈퇴하시겠습니까?"
+                "정말로 탈퇴하시겠습니까"
         );
     }
 
@@ -276,17 +283,76 @@ public class MemberServiceImpl implements MemberService {
                                         "회원의 개인정보가 존재하지 않습니다."
                                 ));
 
+        // 회원의 강사 신청 조회
+        List<InstructorRequest> requests =
+                instructorRequestRepository
+                        .findByMemNoOrderByReqNoDesc(memNo);
+
+        // 강사 신청 관련 데이터 삭제
+        for (InstructorRequest request : requests) {
+            Long reqNo = request.getReqNo();
+
+            // 증빙자료 조회
+            List<InstructorDocument> documents =
+                    instructorDocumentRepository.findAllByReqNo(reqNo);
+
+            // 실제 증빙자료 파일 삭제
+            Path uploadPath = Paths.get(
+                    System.getProperty("user.dir"),
+                    "uploads",
+                    "instructor"
+            ).toAbsolutePath().normalize();
+
+            for (InstructorDocument document : documents) {
+                String docUrl = document.getDocUrl();
+
+                if (docUrl == null || docUrl.isBlank()) {
+                    continue;
+                }
+
+                Path filePath = Paths.get(docUrl)
+                        .toAbsolutePath()
+                        .normalize();
+
+                // 강사 증빙자료 폴더 내부의 파일만 삭제
+                if (!filePath.startsWith(uploadPath)) {
+                    throw new FileException(
+                            "증빙자료 파일 경로가 올바르지 않습니다."
+                    );
+                }
+
+                try {
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    throw new FileException(
+                            "강사 신청 증빙자료 삭제에 실패했습니다."
+                    );
+                }
+            }
+
+            // 증빙자료 DB 데이터 삭제
+            instructorDocumentRepository.deleteAllByReqNo(reqNo);
+
+            // 거절 사유 삭제
+            instructorRejectionRepository.deleteByReqNo(reqNo);
+        }
+
+        // 강사 신청 내역 삭제
+        instructorRequestRepository.deleteAll(requests);
+
         // 회원 예약 조회
         List<Reservation> reservations =
-                reservationRepository.findAllByMemNoOrderByRsvCreatedAtDesc(memNo);
+                reservationRepository
+                        .findAllByMemNoOrderByRsvCreatedAtDesc(memNo);
 
         // 예약에 연결된 결제 삭제
         for (Reservation reservation : reservations) {
 
             List<Payment> payments =
-                    paymentRepository.findAllByReservationOrderByPayCreatedAtDesc(
-                            reservation
-                    );
+                    paymentRepository
+                            .findAllByReservationOrderByPayCreatedAtDesc(
+                                    reservation
+                            );
 
             paymentRepository.deleteAll(payments);
         }
