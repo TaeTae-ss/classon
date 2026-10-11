@@ -205,7 +205,7 @@ public class MemberServiceImpl implements MemberService {
 
             return new WithdrawalCheckDTO(
                     true,
-                    "탈퇴할 수 있습니다."
+                    "정말로 탈퇴하시겠습니까?"
             );
         }
 
@@ -244,7 +244,7 @@ public class MemberServiceImpl implements MemberService {
 
         return new WithdrawalCheckDTO(
                 true,
-                "탈퇴할 수 있습니다."
+                "정말로 탈퇴하시겠습니까?"
         );
     }
 
