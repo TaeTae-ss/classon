@@ -101,3 +101,24 @@ export const updateProfileImage = async (memNo, file) => {
 
   return response.data;
 };
+
+//회원 탈퇴 파트
+// 회원 탈퇴 가능 여부 조회
+export const checkWithdrawal = async (memNo) => {
+  const response = await axios.get(
+    `/api/member/${memNo}/withdrawal-check`
+  );
+
+  return response.data;
+};
+
+// 회원 탈퇴
+export const deleteMember = async (memNo) => {
+  const response = await axios.delete(`/api/member/${memNo}`, {
+    data: {
+      agreedToTerms: true,
+    },
+  });
+
+  return response;
+};

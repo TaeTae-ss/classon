@@ -1,22 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-
 import { useStore } from "../../mocks/data";
-
 import {
   getMember,
   updateMember,
   updatePassword,
   updateProfileImage,
+  checkWithdrawal,
+  deleteMember,
 } from "../../api/memberApi";
-
 import {
   applyInstructor,
   getInstructorRequestByMemNo,
   uploadInstructorDocument,
 } from "../../api/instructorApi";
-
-import { getCookie } from "../../util/cookieUtil";
+import { getCookie, removeCookie } from "../../util/cookieUtil";
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
@@ -138,6 +136,13 @@ export default function MyPage({ instructor = false, edit = false }) {
   const [certificateFile, setCertificateFile] = useState(null);
   const [careerFile, setCareerFile] = useState(null);
   const [otherFile, setOtherFile] = useState(null);
+
+  // 회원 탈퇴 상태
+  const [withdrawalOpen, setWithdrawalOpen] = useState(false);
+  const [withdrawalCheck, setWithdrawalCheck] = useState(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [checkingWithdrawal, setCheckingWithdrawal] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -519,6 +524,123 @@ export default function MyPage({ instructor = false, edit = false }) {
       }
     } finally {
       setSubmittingApplication(false);
+    }
+  };
+
+  // 회원 탈퇴 가능 여부 확인
+  const handleCheckWithdrawal = async () => {
+    if (checkingWithdrawal || withdrawing) return;
+
+    const member = getCookie("member");
+
+    if (!member?.memNo) {
+      setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
+      return;
+    }
+
+    setMessage("");
+    setCheckingWithdrawal(true);
+
+    try {
+      const response = await checkWithdrawal(member.memNo);
+      const result = getResponseData(response);
+
+      setWithdrawalCheck(result);
+
+      if (result?.canWithdraw === false) {
+        setWithdrawalOpen(false);
+        setMessage(
+          result.message ||
+            "현재 진행 중이거나 예정된 예약·클래스가 있어 탈퇴할 수 없습니다."
+        );
+        return;
+      }
+
+      if (result?.canWithdraw === true) {
+        setAgreedToTerms(false);
+        setWithdrawalOpen(true);
+        return;
+      }
+
+      setMessage(
+        result?.message ||
+          "회원 탈퇴 가능 여부를 확인하지 못했습니다. 다시 시도해 주세요."
+      );
+    } catch (error) {
+      console.error("회원 탈퇴 가능 여부 확인 실패:", error);
+
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message;
+
+      setMessage(
+        serverMessage ||
+          "회원 탈퇴 가능 여부를 확인하지 못했습니다. 다시 시도해 주세요."
+      );
+    } finally {
+      setCheckingWithdrawal(false);
+    }
+  };
+
+  // 회원 탈퇴 취소
+  const handleCancelWithdrawal = () => {
+    setWithdrawalOpen(false);
+    setWithdrawalCheck(null);
+    setAgreedToTerms(false);
+  };
+
+  // 회원 탈퇴
+  const handleWithdrawal = async () => {
+    if (withdrawing) return;
+
+    if (!agreedToTerms) {
+      setMessage("회원 탈퇴 약관에 동의해 주세요.");
+      return;
+    }
+
+    const member = getCookie("member");
+
+    if (!member?.memNo) {
+      setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
+      return;
+    }
+
+    // 최종 탈퇴 확인
+    const confirmed = window.confirm(
+      "정말로 탈퇴하시겠습니까? 탈퇴 후에는 계정을 복구할 수 없습니다."
+    );
+
+    if (!confirmed) return;
+
+    setMessage("");
+    setWithdrawing(true);
+
+    try {
+      await deleteMember(member.memNo);
+
+      // 탈퇴 성공 시 로그인 쿠키 삭제
+      removeCookie("member");
+
+      setWithdrawalOpen(false);
+      setWithdrawalCheck(null);
+      setAgreedToTerms(false);
+
+      window.alert("회원 탈퇴가 완료되었습니다.");
+
+      navigate("/");
+    } catch (error) {
+      console.error("회원 탈퇴 실패:", error);
+
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message;
+
+      setMessage(
+        serverMessage ||
+          "회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해 주세요."
+      );
+    } finally {
+      setWithdrawing(false);
     }
   };
 
@@ -964,17 +1086,104 @@ export default function MyPage({ instructor = false, edit = false }) {
         </p>
       )}
 
-      <button
-        type="button"
-        className="bg-transparent border-0 p-[7px] text-[#b75b46]!"
-        onClick={() =>
-          setMessage(
-            "회원 탈퇴는 실제 계정과 예약·환불 상태 확인이 필요하므로 미리보기에서 처리하지 않습니다."
-          )
-        }
-      >
-        회원 탈퇴 안내
-      </button>
+      {/* 회원 탈퇴 버튼 */}
+      {!edit && (
+        <div className="flex justify-end mb-[26px]">
+          <button
+            type="button"
+            disabled={checkingWithdrawal || withdrawing}
+            className="bg-transparent border-0 p-[7px] text-[#b75b46] cursor-pointer disabled:opacity-50"
+            onClick={handleCheckWithdrawal}
+          >
+            {checkingWithdrawal ? "탈퇴 가능 여부 확인 중..." : "회원 탈퇴"}
+          </button>
+        </div>
+      )}
+
+      {/* 회원 탈퇴 모달 */}
+      {withdrawalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="withdrawal-title"
+        >
+          <section className="w-full max-w-[520px] rounded-xl bg-white p-6 shadow-xl max-md:p-[18px]">
+            {/* 기존 모달 제목 유지 */}
+            <h2
+              id="withdrawal-title"
+              className="mb-4 text-xl font-bold text-[#1f2937]"
+            >
+              회원 탈퇴
+            </h2>
+
+            {/* 기존 경고 안내 문구 유지 */}
+            <p className="mb-4 text-[14px] leading-[1.8] text-[#4b5563]">
+              탈퇴하면 계정에 연결된 개인정보가 삭제되며, 탈퇴 후에는
+              계정을 복구할 수 없습니다.
+            </p>
+
+            {/* 탈퇴 가능 여부 알림 상자 유지 */}
+            {withdrawalCheck?.message && (
+              <p className="mb-4 rounded-lg bg-[#fff7ed] p-3 text-[14px] text-[#9a3412]">
+                {withdrawalCheck.message}
+              </p>
+            )}
+
+            {/* 탈퇴 확인 사항 */}
+            <div className="mb-5 rounded-lg border border-[#ebe6e0] bg-[#fffdf9] p-4">
+              <p className="mb-2 font-semibold text-[#1f2937]">
+                탈퇴 전 확인 사항
+              </p>
+
+              <ul className="list-disc space-y-1 pl-5 text-[13px] leading-[1.8] text-[#6b7280]">
+                <li>탈퇴 후에는 계정 복구가 불가능합니다.</li>
+                <li>
+                  진행 중인 예약, 결제, 환불 및 클래스 상태에 따라 탈퇴가 제한될 수 있습니다.
+                </li>
+                <li>
+                  탈퇴 완료 시 예약, 결제, 환불은 불가하며 해당 내역은 즉시 삭제됩니다.
+                </li>
+                <li>탈퇴 완료 시 개인정보는 즉시 삭제됩니다.</li>
+              </ul>
+            </div>
+
+            {/* 약관 동의 */}
+            <label className="mb-6 flex cursor-pointer items-start gap-2 text-[14px] leading-[1.7] text-[#1f2937]">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1"
+              />
+              <span>
+                위 내용을 확인했으며 회원 탈퇴 및 개인정보 삭제에 동의합니다.
+              </span>
+            </label>
+
+            {/* 버튼은 기존처럼 오른쪽 정렬 */}
+            <div className="flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                disabled={withdrawing}
+                onClick={handleCancelWithdrawal}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[#edddcf] bg-white px-5 py-2 font-bold text-[#e56b00] disabled:opacity-50"
+              >
+                취소
+              </button>
+
+              <button
+                type="button"
+                disabled={!agreedToTerms || withdrawing}
+                onClick={handleWithdrawal}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[#b75b46] bg-[#b75b46] px-5 py-2 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {withdrawing ? "탈퇴 처리 중..." : "탈퇴하기"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </Workspace>
   );
 }
