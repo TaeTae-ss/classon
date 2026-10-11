@@ -160,8 +160,29 @@ public class MemberAuthServiceImpl implements MemberAuthService {
         Map<String, Object> claims =
                 JWTUtil.validateToken(refreshToken);
 
-        // 새 Access Token 발급
-        return JWTUtil.generateToken(claims, 60);
+        // 회원 번호 확인
+        Number memNoValue = (Number) claims.get("memNo");
+
+        if (memNoValue == null) {
+            throw new AuthException("유효하지 않은 Refresh Token입니다.");
+        }
+
+        Long memNo = memNoValue.longValue();
+
+        // DB에서 최신 회원 정보 조회
+        Member member = memberRepository.findById(memNo)
+                .orElseThrow(() ->
+                        new AuthException("존재하지 않는 회원입니다.")
+                );
+
+        // 최신 회원 정보로 Access Token 발급
+        Map<String, Object> newClaims = Map.of(
+                "memNo", member.getMemNo(),
+                "memEmail", claims.get("memEmail"),
+                "memRole", member.getMemRole()
+        );
+
+        return JWTUtil.generateToken(newClaims, 60);
     }
 
     // 비밀번호 재설정 인증번호 발송
