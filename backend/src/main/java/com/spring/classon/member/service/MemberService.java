@@ -19,8 +19,11 @@ public interface MemberService {
     // 비밀번호 변경
     void updatePassword(Long memNo, MemberPasswordUpdateDTO dto);
 
+    // 회원 탈퇴 가능 여부 조회
+    WithdrawalCheckDTO checkWithdrawal(Long memNo);
+
     // 회원 탈퇴
-    void deleteMember(Long memNo);
+    void deleteMember(Long memNo, boolean agreedToTerms);
 
     // 여기부터 추가 (oneday 등 다른 도메인이 개인정보 없이 닉네임/role만 조회할 때 사용)
     // 회원 공개 정보 요약 조회
