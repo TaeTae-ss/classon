@@ -10,8 +10,13 @@ import {
   updateProfileImage,
 } from "../../api/memberApi";
 
-import { getCookie } from "../../util/cookieUtil";
+import {
+  applyInstructor,
+  getInstructorRequestByMemNo,
+  uploadInstructorDocument,
+} from "../../api/instructorApi";
 
+import { getCookie } from "../../util/cookieUtil";
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
@@ -21,6 +26,12 @@ const SERVER_URL = "http://localhost:8080";
 const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,20}$/;
 const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
 
+// API 응답 데이터 확인
+const getResponseData = (response) => {
+  return response?.data?.data ?? response?.data ?? response;
+};
+
+// 전화번호 형식 변환
 const formatPhone = (phone) => {
   if (!phone) return "";
 
@@ -62,6 +73,20 @@ const isPasswordExpired = (profile) => {
   return Date.now() - updatedAt.getTime() >= NINETY_DAYS;
 };
 
+// 강사 신청 상태 표시
+const getInstructorStatus = (status) => {
+  switch (status) {
+    case "NEW":
+      return "관리자 검토 중";
+    case "APPROVED":
+      return "승인 완료";
+    case "REJECTED":
+      return "신청 반려";
+    default:
+      return status || "상태 확인 중";
+  }
+};
+
 export default function MyPage({ instructor = false, edit = false }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -100,11 +125,19 @@ export default function MyPage({ instructor = false, edit = false }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  const [request, setRequest] = useStore("instructorRequest", null);
+  // 백엔드에서 조회한 강사 신청 정보
+  const [request, setRequest] = useState(null);
 
+  // 강사 신청 화면 상태
   const [applying, setApplying] = useState(false);
-  const [bio, setBio] = useState("");
-  const [files, setFiles] = useState([]);
+  const [submittingApplication, setSubmittingApplication] = useState(false);
+  const [introduction, setIntroduction] = useState("");
+  const [career, setCareer] = useState("");
+
+  // 증빙 서류는 각각 한 파일씩 선택
+  const [certificateFile, setCertificateFile] = useState(null);
+  const [careerFile, setCareerFile] = useState(null);
+  const [otherFile, setOtherFile] = useState(null);
 
   const fileInputRef = useRef(null);
 
@@ -122,7 +155,8 @@ export default function MyPage({ instructor = false, edit = false }) {
   // 회원 정보 조회
   const fetchMember = async (memNo) => {
     const response = await getMember(memNo);
-    const memberProfile = toMemberProfile(response.data);
+    const data = getResponseData(response);
+    const memberProfile = toMemberProfile(data);
 
     setProfile(memberProfile);
 
@@ -138,12 +172,31 @@ export default function MyPage({ instructor = false, edit = false }) {
     return memberProfile;
   };
 
+  // 강사 신청 정보 조회
+  const fetchInstructorRequest = async (memNo) => {
+    try {
+      const response = await getInstructorRequestByMemNo(memNo);
+      const data = getResponseData(response);
+
+      setRequest(data || null);
+    } catch (error) {
+      // 신청 내역이 없는 경우에는 신청 버튼 표시
+      if (error.response?.status === 404) {
+        setRequest(null);
+        return;
+      }
+
+      console.error("강사 신청 정보 조회 실패:", error);
+      setRequest(null);
+    }
+  };
+
   // 페이지 이동 시 기존 메시지 제거
   useEffect(() => {
     setMessage("");
   }, [location.pathname]);
 
-  // 회원 정보 최초 조회
+  // 회원 정보 및 강사 신청 정보 최초 조회
   useEffect(() => {
     const loadMember = async () => {
       try {
@@ -156,6 +209,11 @@ export default function MyPage({ instructor = false, edit = false }) {
         }
 
         await fetchMember(member.memNo);
+
+        // 일반 회원 마이페이지에서만 강사 신청 내역 조회
+        if (!isInstructor) {
+          await fetchInstructorRequest(member.memNo);
+        }
       } catch (error) {
         console.error("회원 정보 조회 실패:", error);
         setMessage("회원 정보를 불러오지 못했습니다.");
@@ -215,7 +273,6 @@ export default function MyPage({ instructor = false, edit = false }) {
       }
 
       await updateProfileImage(member.memNo, file);
-
       await fetchMember(member.memNo);
 
       // 이미지 업로드 성공 시 기존 메시지 제거
@@ -355,6 +412,113 @@ export default function MyPage({ instructor = false, edit = false }) {
       }
     } finally {
       setSaving(false);
+    }
+  };
+
+  // 강사 신청 화면 닫기
+  const handleCancelApplication = () => {
+    setApplying(false);
+    setIntroduction("");
+    setCareer("");
+    setCertificateFile(null);
+    setCareerFile(null);
+    setOtherFile(null);
+    setMessage("");
+  };
+
+  // 강사 신청
+  const handleInstructorApplication = async (e) => {
+    e.preventDefault();
+
+    if (submittingApplication) return;
+
+    const trimmedIntroduction = introduction.trim();
+    const trimmedCareer = career.trim();
+
+    // 필수 항목 확인
+    if (!trimmedIntroduction || !certificateFile || !careerFile) {
+      setMessage(
+        "자기소개, 자격증, 경력증명서는 필수 항목입니다. 모두 입력하거나 파일을 첨부해 주세요."
+      );
+      return;
+    }
+
+    const member = getCookie("member");
+
+    if (!member?.memNo) {
+      setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
+      return;
+    }
+
+    setMessage("");
+    setSubmittingApplication(true);
+
+    let reqNo = null;
+
+    try {
+      // 강사 신청 정보 등록
+      const response = await applyInstructor(member.memNo, {
+        reqIntroduction: trimmedIntroduction,
+        reqCareer: trimmedCareer,
+      });
+
+      const result = getResponseData(response);
+
+      // 신청 API는 신청 번호를 반환
+      reqNo =
+        typeof result === "number"
+          ? result
+          : Number(result?.reqNo ?? result);
+
+      if (!Number.isFinite(reqNo) || reqNo <= 0) {
+        throw new Error("강사 신청 번호를 확인할 수 없습니다.");
+      }
+
+      // 신청 번호를 먼저 저장해 중복 신청 방지
+      setRequest({
+        reqNo,
+        memNo: member.memNo,
+        reqIntroduction: trimmedIntroduction,
+        reqCareer: trimmedCareer,
+        reqStatus: "NEW",
+      });
+
+      // 선택한 서류를 각각 한 개씩 업로드
+      await uploadInstructorDocument(reqNo, certificateFile);
+      await uploadInstructorDocument(reqNo, careerFile);
+
+      if (otherFile) {
+        await uploadInstructorDocument(reqNo, otherFile);
+      }
+
+      setApplying(false);
+      setIntroduction("");
+      setCareer("");
+      setCertificateFile(null);
+      setCareerFile(null);
+      setOtherFile(null);
+      setMessage("");
+    } catch (error) {
+      console.error("강사 신청 실패:", error);
+
+      if (reqNo) {
+        // 신청 정보는 등록됐으나 서류 업로드가 실패한 경우
+        setApplying(false);
+        setMessage(
+          "강사 신청 정보는 등록되었지만 서류 업로드 중 오류가 발생했습니다. 관리자에게 확인해 주세요."
+        );
+      } else {
+        const serverMessage =
+          error.response?.data?.message ||
+          error.response?.data?.data?.message;
+
+        setMessage(
+          serverMessage ||
+            "강사 신청에 실패했습니다. 입력 내용을 확인해 주세요."
+        );
+      }
+    } finally {
+      setSubmittingApplication(false);
     }
   };
 
@@ -595,6 +759,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                     detail: profile.detail,
                     img: profile.img,
                   });
+
                   resetPasswordFields();
                   setMessage("");
                 }}
@@ -615,10 +780,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                   `${profile.address || ""} ${profile.detail || ""}`.trim(),
                 ],
               ].map(([k, v]) => (
-                <div
-                  key={k}
-                  style={{ display: "contents" }}
-                >
+                <div key={k} style={{ display: "contents" }}>
                   <dt className="text-[#888]">{k}</dt>
                   <dd className="m-0 font-semibold">{v}</dd>
                 </div>
@@ -635,6 +797,7 @@ export default function MyPage({ instructor = false, edit = false }) {
         )}
       </section>
 
+      {/* 강사 신청 */}
       {!isInstructor && !edit && (
         <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
           <Heading
@@ -645,74 +808,136 @@ export default function MyPage({ instructor = false, edit = false }) {
           {request ? (
             <>
               <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
-                {request.status}
+                {getInstructorStatus(request.reqStatus)}
               </span>
 
-              <p style={{ marginTop: 14 }}>
-                신청일: {request.date}
+              <p className="mt-3">
+                자기소개: {request.reqIntroduction || ""}
               </p>
 
-              <p>{request.bio}</p>
-              <p>{request.files.join(", ")}</p>
-
-              <button
-                type="button"
-                className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
-                onClick={() => setRequest(null)}
-              >
-                신청 취소
-              </button>
+              <p className="mt-3">
+                강의 경력 및 활동 이력: {request.reqCareer || ""}
+              </p>
             </>
           ) : applying ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-
-                setRequest({
-                  bio,
-                  files: files.map((f) => f.name),
-                  date: "2026-10-01",
-                  status: "관리자 검토 중",
-                });
-
-                setApplying(false);
-              }}
-            >
-              <Field label="강사 소개 및 경력">
+            <form onSubmit={handleInstructorApplication}>
+              {/* 자기소개 */}
+              <Field
+                label={
+                  <>
+                    자기소개{" "}
+                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                  </>
+                }
+              >
                 <textarea
-                  required
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="경력 및 활동 이력을 적어주세요."
+                  rows={6}
+                  value={introduction}
+                  onChange={(e) => setIntroduction(e.target.value)}
+                  placeholder="강사로서 자신을 소개해 주세요."
+                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[15px] leading-[1.7] outline-none focus:border-[#f97316]"
                 />
               </Field>
 
-              <Field label="자격 및 경력 증명 서류">
-                <input
-                  required
-                  type="file"
-                  multiple
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(e) => setFiles(Array.from(e.target.files))}
+              {/* 강의 경력 및 활동 이력 */}
+              <Field label="강의 경력 및 활동 이력">
+                <textarea
+                  rows={6}
+                  value={career}
+                  onChange={(e) => setCareer(e.target.value)}
+                  placeholder="관련 경력, 강의 경험 및 활동 이력을 작성해 주세요."
+                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[15px] leading-[1.7] outline-none focus:border-[#f97316]"
                 />
+              </Field>
+
+              {/* 자격증 */}
+              <Field
+                label={
+                  <>
+                    자격증{" "}
+                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                  </>
+                }
+              >
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) =>
+                    setCertificateFile(e.target.files?.[0] || null)
+                  }
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                />
+
+                {certificateFile && (
+                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                    {certificateFile.name}
+                  </p>
+                )}
+              </Field>
+
+              {/* 경력증명서 */}
+              <Field
+                label={
+                  <>
+                    경력증명서{" "}
+                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                  </>
+                }
+              >
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) =>
+                    setCareerFile(e.target.files?.[0] || null)
+                  }
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                />
+
+                {careerFile && (
+                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                    {careerFile.name}
+                  </p>
+                )}
+              </Field>
+
+              {/* 기타 서류 */}
+              <Field label="기타 서류">
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) =>
+                    setOtherFile(e.target.files?.[0] || null)
+                  }
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                />
+
+                {otherFile && (
+                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                    {otherFile.name}
+                  </p>
+                )}
               </Field>
 
               <p className="text-[13px] leading-[1.8] text-[#999]">
-                미리보기에는 파일 이름만 보관하며 파일을 업로드하지 않습니다.
+                PDF, JPG, JPEG, PNG 파일을 업로드할 수 있습니다.
+                자기소개, 자격증, 경력증명서는 필수이며 기타 서류는 선택 사항입니다.
               </p>
 
+              {/* 버튼은 오른쪽 끝에 나란히 배치 */}
               <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
                 <button
                   type="submit"
+                  disabled={submittingApplication}
                   className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
                 >
-                  신청 화면 완료
+                  {submittingApplication ? "신청 중..." : "신청 완료"}
                 </button>
 
                 <button
                   type="button"
+                  disabled={submittingApplication}
                   className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
-                  onClick={() => setApplying(false)}
+                  onClick={handleCancelApplication}
                 >
                   취소
                 </button>
