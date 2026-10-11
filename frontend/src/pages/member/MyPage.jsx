@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+
 import { useStore } from "../../mocks/data";
+
 import {
   getMember,
   updateMember,
@@ -9,11 +11,14 @@ import {
   checkWithdrawal,
   deleteMember,
 } from "../../api/memberApi";
+
 import {
   applyInstructor,
   getInstructorRequestByMemNo,
   uploadInstructorDocument,
+  getInstructorDocuments,
 } from "../../api/instructorApi";
+
 import { getCookie, removeCookie } from "../../util/cookieUtil";
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
@@ -126,6 +131,9 @@ export default function MyPage({ instructor = false, edit = false }) {
   // 백엔드에서 조회한 강사 신청 정보
   const [request, setRequest] = useState(null);
 
+  // 강사 신청 증빙자료 목록
+  const [instructorDocuments, setInstructorDocuments] = useState([]);
+
   // 강사 신청 화면 상태
   const [applying, setApplying] = useState(false);
   const [submittingApplication, setSubmittingApplication] = useState(false);
@@ -177,22 +185,47 @@ export default function MyPage({ instructor = false, edit = false }) {
     return memberProfile;
   };
 
-  // 강사 신청 정보 조회
+  // 강사 신청 정보 및 증빙자료 조회
   const fetchInstructorRequest = async (memNo) => {
     try {
       const response = await getInstructorRequestByMemNo(memNo);
       const data = getResponseData(response);
 
       setRequest(data || null);
+      setInstructorDocuments([]);
+
+      if (data?.reqNo) {
+        try {
+          const documentResponse = await getInstructorDocuments(data.reqNo);
+          const documents = getResponseData(documentResponse);
+
+          console.log("증빙자료 API 응답:", documentResponse);
+
+          // 응답이 배열이거나 data 속성 안에 배열이 있는 경우 처리
+          const documentList = Array.isArray(documents)
+            ? documents
+            : Array.isArray(documents?.data)
+              ? documents.data
+              : Array.isArray(documents?.documents)
+                ? documents.documents
+                : [];
+
+          setInstructorDocuments(documentList);
+        } catch (documentError) {
+          console.error("증빙자료 목록 조회 실패:", documentError);
+        }
+      }
     } catch (error) {
       // 신청 내역이 없는 경우에는 신청 버튼 표시
       if (error.response?.status === 404) {
         setRequest(null);
+        setInstructorDocuments([]);
         return;
       }
 
       console.error("강사 신청 정보 조회 실패:", error);
       setRequest(null);
+      setInstructorDocuments([]);
     }
   };
 
@@ -494,6 +527,24 @@ export default function MyPage({ instructor = false, edit = false }) {
 
       if (otherFile) {
         await uploadInstructorDocument(reqNo, otherFile);
+      }
+
+      // 업로드 완료 후 증빙자료 목록 다시 조회
+      try {
+        const documentResponse = await getInstructorDocuments(reqNo);
+        const documents = getResponseData(documentResponse);
+
+        const documentList = Array.isArray(documents)
+          ? documents
+          : Array.isArray(documents?.data)
+            ? documents.data
+            : Array.isArray(documents?.documents)
+              ? documents.documents
+              : [];
+
+        setInstructorDocuments(documentList);
+      } catch (documentError) {
+        console.error("증빙자료 목록 조회 실패:", documentError);
       }
 
       setApplying(false);
@@ -933,13 +984,63 @@ export default function MyPage({ instructor = false, edit = false }) {
                 {getInstructorStatus(request.reqStatus)}
               </span>
 
-              <p className="mt-3">
-                자기소개: {request.reqIntroduction || ""}
-              </p>
+              {/* 자기소개 */}
+              <div className="mt-4">
+                <p className="font-bold text-[#1f2937]">
+                  자기소개
+                </p>
 
-              <p className="mt-3">
-                강의 경력 및 활동 이력: {request.reqCareer || ""}
-              </p>
+                <p className="mt-2 leading-[1.8] break-words whitespace-pre-wrap">
+                  {request.reqIntroduction || ""}
+                </p>
+              </div>
+
+              <div className="my-5 border-t border-[#ebe6e0]" />
+
+              {/* 강의 경력 및 활동 이력 */}
+              <div>
+                <p className="font-bold text-[#1f2937]">
+                  강의 경력 및 활동 이력
+                </p>
+
+                <p className="mt-2 leading-[1.8] break-words whitespace-pre-wrap">
+                  {request.reqCareer || ""}
+                </p>
+              </div>
+
+              <div className="my-5 border-t border-[#ebe6e0]" />
+
+              {/* 제출한 증빙자료 */}
+              <div>
+                <p className="font-bold text-[#1f2937]">
+                  제출한 증빙자료
+                </p>
+
+                {instructorDocuments.length > 0 ? (
+                  <ul className="mt-2 space-y-2">
+                    {instructorDocuments.map((document, index) => {
+                      const fileName =
+                        document.docName ??
+                        document.documentName ??
+                        document.originalFileName ??
+                        document.fileName;
+
+                      return (
+                        <li
+                          key={document.docNo ?? index}
+                          className="break-all leading-[1.8]"
+                        >
+                          {fileName || "파일명 확인 불가"}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-[#6b7280]">
+                    증빙자료를 불러오지 못했습니다.
+                  </p>
+                )}
+              </div>
             </>
           ) : applying ? (
             <form onSubmit={handleInstructorApplication}>
@@ -1109,7 +1210,6 @@ export default function MyPage({ instructor = false, edit = false }) {
           aria-labelledby="withdrawal-title"
         >
           <section className="w-full max-w-[520px] rounded-xl bg-white p-6 shadow-xl max-md:p-[18px]">
-            {/* 기존 모달 제목 유지 */}
             <h2
               id="withdrawal-title"
               className="mb-4 text-xl font-bold text-[#1f2937]"
@@ -1117,13 +1217,11 @@ export default function MyPage({ instructor = false, edit = false }) {
               회원 탈퇴
             </h2>
 
-            {/* 기존 경고 안내 문구 유지 */}
             <p className="mb-4 text-[14px] leading-[1.8] text-[#4b5563]">
               탈퇴하면 계정에 연결된 개인정보가 삭제되며, 탈퇴 후에는
               계정을 복구할 수 없습니다.
             </p>
 
-            {/* 탈퇴 가능 여부 알림 상자 유지 */}
             {withdrawalCheck?.message && (
               <p className="mb-4 rounded-lg bg-[#fff7ed] p-3 text-[14px] text-[#9a3412]">
                 {withdrawalCheck.message}
@@ -1156,6 +1254,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
                 className="mt-1"
               />
+
               <span>
                 위 내용을 확인했으며 회원 탈퇴 및 개인정보 삭제에 동의합니다.
               </span>

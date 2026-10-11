@@ -31,3 +31,12 @@ export const uploadInstructorDocument = async (reqNo, file) => {
 
   return response.data;
 };
+
+// 강사 신청 증빙자료 목록 조회
+export const getInstructorDocuments = async (reqNo) => {
+  const response = await axios.get(
+    `/api/instructor/${reqNo}/documents`
+  );
+
+  return response.data;
+};
