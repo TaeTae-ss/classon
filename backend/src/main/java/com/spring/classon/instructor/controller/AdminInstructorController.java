@@ -2,11 +2,14 @@
 package com.spring.classon.instructor.controller;
 
 import com.spring.classon.instructor.dto.InstructorApprovalDTO;
+import com.spring.classon.instructor.dto.InstructorDocumentResponseDTO;
 import com.spring.classon.instructor.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/instructor")
@@ -25,5 +28,16 @@ public class AdminInstructorController {
         instructorService.updateInstructorStatus(reqNo, dto);
 
         return ResponseEntity.noContent().build();
+    }
+
+    // 강사 신청 증빙자료 목록 조회
+    @GetMapping("/{reqNo}/documents")
+    public ResponseEntity<List<InstructorDocumentResponseDTO>>
+    getInstructorDocuments(
+            @PathVariable Long reqNo
+    ) {
+        return ResponseEntity.ok(
+                instructorService.getInstructorDocuments(reqNo)
+        );
     }
 }

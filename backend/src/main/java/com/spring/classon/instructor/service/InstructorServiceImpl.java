@@ -1,3 +1,4 @@
+
 package com.spring.classon.instructor.service;
 
 import com.spring.classon.common.exception.FileException;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -106,8 +108,7 @@ public class InstructorServiceImpl implements InstructorService {
 
             String fileName = file.getOriginalFilename();
 
-            Path filePath =
-                    uploadPath.resolve(fileName);
+            Path filePath = uploadPath.resolve(fileName);
 
             file.transferTo(filePath);
 
@@ -130,6 +131,53 @@ public class InstructorServiceImpl implements InstructorService {
                     "파일 저장에 실패했습니다."
             );
         }
+    }
+
+    // 강사 신청 증빙자료 목록 조회(관리자)
+    @Override
+    @Transactional(readOnly = true)
+    public List<InstructorDocumentResponseDTO> getInstructorDocuments(
+            Long reqNo
+    ) {
+        // 강사 신청 확인
+        instructorRequestRepository.findById(reqNo)
+                .orElseThrow(() ->
+                        new InstructorException(
+                                "존재하지 않는 강사 신청입니다."
+                        )
+                );
+
+        // 증빙자료 목록 조회
+        return instructorDocumentRepository
+                .findAllByReqNo(reqNo)
+                .stream()
+                .map(instructorDocumentMapper::toResponseDto)
+                .toList();
+    }
+
+    // 강사 신청 증빙자료 목록 조회(회원 본인)
+    @Override
+    @Transactional(readOnly = true)
+    public List<InstructorDocumentResponseDTO> getMyInstructorDocuments(
+            Long reqNo,
+            Long memNo
+    ) {
+        // 강사 신청 확인
+        InstructorRequest request = instructorRequestRepository.findById(reqNo)
+                .orElseThrow(() ->
+                        new InstructorException("존재하지 않는 강사 신청입니다.")
+                );
+
+        // 본인 신청인지 확인
+        if (!request.getMemNo().equals(memNo)) {
+            throw new InstructorException("본인의 신청 서류만 조회할 수 있습니다.");
+        }
+
+        // 증빙자료 목록 조회
+        return instructorDocumentRepository.findAllByReqNo(reqNo)
+                .stream()
+                .map(instructorDocumentMapper::toResponseDto)
+                .toList();
     }
 
     // 강사 신청 승인 및 반려
