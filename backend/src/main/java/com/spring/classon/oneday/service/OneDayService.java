@@ -7,10 +7,15 @@ import com.spring.classon.oneday.dto.ProductRequestDTO;
 import com.spring.classon.oneday.dto.ProductResponseDTO;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface OneDayService {
 
     // 카테고리별 상품 목록 조회
     PageResponseDTO<ProductResponseDTO> findProducts(Long categoryId, PageRequestDTO pageRequestDTO);
+
+    // 강사 본인 클래스 목록 조회
+    List<ProductResponseDTO> findMyProducts(Long memNo);
 
     // 상품 상세 조회
     ProductDetailResponseDTO getProductDetail(Long clsNo);

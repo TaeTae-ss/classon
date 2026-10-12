@@ -32,8 +32,8 @@ public class ScheduleController {
                 .body(scheduleService.registerSchedule(memNo, clsNo, dto));
     }
 
-    // 클래스별 일정 목록 조회 (예약 인원/남은 인원 포함, 로그인 회원 누구나)
-    @PreAuthorize("isAuthenticated()")
+    // 클래스별 일정 목록 조회 (예약 인원/남은 인원 포함, 비회원도 조회 가능)
+    @PreAuthorize("permitAll()")
     @GetMapping("/api/v1/oneday/{clsNo}/schedules")
     public ResponseEntity<List<ScheduleResponseDTO>> getSchedules(@PathVariable Long clsNo) {
 

@@ -6,11 +6,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/member")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('USER')")
+@PreAuthorize("hasAnyRole('USER', 'INSTRUCTOR')")
 public class MemberController {
 
     private final MemberService memberService;
@@ -30,6 +31,20 @@ public class MemberController {
             @RequestBody MemberUpdateDTO dto) {
 
         memberService.updateMember(memNo, dto);
+
+        return ResponseEntity.ok().build();
+    }
+
+    // 프로필 이미지 수정
+    @PatchMapping("/{memNo}/image")
+    public ResponseEntity<Void> updateProfileImage(
+            @PathVariable Long memNo,
+            @RequestParam("file") MultipartFile file) {
+
+        memberService.updateProfileImage(
+                memNo,
+                file
+        );
 
         return ResponseEntity.ok().build();
     }

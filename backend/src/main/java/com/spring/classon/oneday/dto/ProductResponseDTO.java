@@ -17,9 +17,13 @@ public class ProductResponseDTO {
 
     private String clsName;
 
+    private String catName;
+
     private String instructorName;
 
     private String clsLevel;
+
+    private Integer clsPrice;
 
     private String clsImgThumb;
 

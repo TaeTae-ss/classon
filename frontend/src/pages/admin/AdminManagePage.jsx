@@ -59,8 +59,7 @@ export default function AdminManagePage({ kind = "classes" }) {
     <Workspace kind="admin">
       <Heading
         title={title}
-        description="등록된 정보를 조회하고 관리할 수 있습니다."
-      />
+        description="등록된 정보를 조회하고 관리할 수 있습니다."/>
       <p className="text-right text-[14px] text-[#85888d]">전체 {filtered.length}건</p>
       {detail && (
         <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
@@ -117,8 +116,7 @@ export default function AdminManagePage({ kind = "classes" }) {
             ))}
           <button
             className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3]"
-            onClick={() => setDetail(null)}
-          >
+            onClick={() => setDetail(null)}>
             닫기
           </button>
         </section>
@@ -132,15 +130,12 @@ export default function AdminManagePage({ kind = "classes" }) {
               onClick={() => {
                 setItems((v) => v.filter((x) => x.id !== confirm));
                 setConfirm(null);
-                setDetail(null);
-              }}
-            >
+                setDetail(null);}}>
               삭제 확인
             </button>
             <button
               className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3]"
-              onClick={() => setConfirm(null)}
-            >
+              onClick={() => setConfirm(null)}>
               취소
             </button>
           </div>
@@ -196,7 +191,8 @@ export default function AdminManagePage({ kind = "classes" }) {
                     <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
                       <span className="text-[#eb790b] whitespace-nowrap">★ {x.rating}</span>
                     </td>
-                    <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">{x.content.slice(0, 18)}…</td>
+                    <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
+                      {x.content ? `${x.content.slice(0, 18)}${x.content.length > 18 ? "…" : ""}` : "-"}</td>
                     <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
                       <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
                         {x.blinded ? "블라인드" : "공개"}
@@ -221,8 +217,7 @@ export default function AdminManagePage({ kind = "classes" }) {
                       className="px-[14px] py-[9px] border border-[#f07813] rounded-[7px] bg-[#fff2e5] text-[#ba5706] font-semibold disabled:border-[#ddd] disabled:bg-[#f4f4f4] disabled:text-[#777] disabled:opacity-100"
                       disabled={x.blinded}
                       aria-label={`${x.id}번 후기 ${x.blinded ? "블라인드 완료" : "블라인드"}`}
-                      onClick={() => blindReview(x.id)}
-                    >
+                      onClick={() => blindReview(x.id)}>
                       {x.blinded ? "블라인드 완료" : "블라인드"}
                     </button>
                   ) : (
@@ -235,12 +230,11 @@ export default function AdminManagePage({ kind = "classes" }) {
         </table>
       </div>
       <form
-        className="flex justify-center gap-3 mb-6 [zoom:0.9]"
+        className="flex justify-center gap-3 mt-6 mb-6 [zoom:0.9]"
         onSubmit={(e) => {
           e.preventDefault();
           setSearch(keyword);
-        }}
-      >
+        }}>
         <input
           aria-label={`${title} 검색`}
           value={keyword}
@@ -251,8 +245,7 @@ export default function AdminManagePage({ kind = "classes" }) {
               : kind === "reviews"
                 ? "후기 내용 / 작성자 검색"
                 : "클래스명 / 강사 / 카테고리 검색"
-          }
-        />
+          }/>
         <button className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3]">검색</button>
       </form>
       {!filtered.length && <Empty>조회된 정보가 없습니다.</Empty>}

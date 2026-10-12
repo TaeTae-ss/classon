@@ -76,12 +76,12 @@ public class InquiryServiceImpl implements InquiryService {
         String keyword = pageRequestDTO.getKeyword();
         String status = pageRequestDTO.getStatus();
 
-        if (keyword == null) {
-            keyword = "";
+        if (keyword != null && keyword.isBlank()) {
+            keyword = null;
         }
 
-        if (status == null) {
-            status = "";
+        if (status != null && status.isBlank()) {
+            status = null;
         }
 
         Page<Inquiry> result =

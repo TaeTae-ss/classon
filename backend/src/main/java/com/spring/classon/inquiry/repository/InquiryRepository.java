@@ -20,11 +20,11 @@ public interface InquiryRepository
         SELECT i
         FROM Inquiry i
         WHERE
-            (:keyword = '' OR
-             i.inqTitle LIKE CONCAT('%', :keyword, '%') OR
-             i.inqContent LIKE CONCAT('%', :keyword, '%'))
+        (:keyword IS NULL OR
+         i.inqTitle LIKE CONCAT('%', :keyword, '%') OR
+         i.inqContent LIKE CONCAT('%', :keyword, '%'))
         AND
-            (:status = '' OR i.inqStatus = :status)
+        (:status IS NULL OR i.inqStatus = :status)
         """)
     Page<Inquiry> searchAdmin(
             @Param("keyword") String keyword,

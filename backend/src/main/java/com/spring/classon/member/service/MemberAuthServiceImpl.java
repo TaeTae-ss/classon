@@ -144,8 +144,10 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 JWTUtil.generateToken(claims, 60 * 24 * 7);
 
         return LoginResponseDTO.builder()
+                .memNo(member.getMemNo())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .memRole(member.getMemRole())
                 .build();
     }
 
