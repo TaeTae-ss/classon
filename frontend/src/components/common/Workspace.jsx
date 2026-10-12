@@ -4,8 +4,7 @@ import { useStore } from "../../mocks/data";
 
 const memberMenu = [
   ["/member/mypage", "내 정보"],
-  ["/member/reservations", "예약 내역"],
-  ["/member/payments", "결제 내역"],
+  ["/member/reservations", "예약 및 결제 내역"],
   ["/member/favorites", "내가 찜한 클래스"],
   ["/member/reviews", "내가 작성한 후기"],
   ["/inquiry/list", "문의 및 신고 내역"],
