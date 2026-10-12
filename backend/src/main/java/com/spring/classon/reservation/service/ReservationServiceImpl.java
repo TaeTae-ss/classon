@@ -1,11 +1,13 @@
 package com.spring.classon.reservation.service;
 
 import com.spring.classon.common.exception.ReservationException;
+import com.spring.classon.member.entity.Member;
 import com.spring.classon.oneday.entity.OneDay;
 import com.spring.classon.oneday.entity.Schedule;
 import com.spring.classon.oneday.repository.OneDayRepository;
 import com.spring.classon.oneday.repository.ScheduleRepository;
 import com.spring.classon.payment.service.PaymentService;
+import com.spring.classon.reservation.dto.ClassSummaryDTO;
 import com.spring.classon.reservation.dto.ReservationCountDTO;
 import com.spring.classon.reservation.dto.ReservationDTO;
 import com.spring.classon.reservation.entity.Reservation;
@@ -28,17 +30,30 @@ public class ReservationServiceImpl implements ReservationService{
     private final ReservationMapper reservationMapper;
     private final PaymentService paymentService;
 
-    // 수업일정정보 포함 dto 변경
+    // 수업 일정 및 클래스 정보 포함 DTO 변환
     private ReservationDTO toReservationDTO(Reservation reservation) {
 
+        // 기존 예약 정보 DTO 변환
         ReservationDTO dto = reservationMapper.toDTO(reservation);
 
+        // 예약에 연결된 일정 조회
         Schedule schedule = scheduleRepository.findById(reservation.getSchNo())
                 .orElseThrow(() -> new ReservationException(
                         "일정 정보를 찾을 수 없습니다."
                 ));
 
+        // 수업 시작일 설정
         dto.setSchStartDate(schedule.getSchStartDate());
+
+        // 클래스 요약 정보 조회 (클래스명, 강사 닉네임, 썸네일)
+        ClassSummaryDTO classInfo = oneDayRepository
+                .findClassSummaryByClsNo(schedule.getClsNo())
+                .orElseThrow(() -> new ReservationException(
+                        "클래스 정보를 찾을 수 없습니다."
+                ));
+
+        // 예약 DTO에 클래스 정보 설정
+        dto.setClassInfo(classInfo);
 
         return dto;
     }
@@ -48,36 +63,55 @@ public class ReservationServiceImpl implements ReservationService{
     @Transactional
     public ReservationDTO createReservation(ReservationDTO reservationDTO, Long memNo) {
 
-        // 회원번호는 요청 DTO가 아닌 JWT에서 전달받은 로그인 회원 번호 사용
+        // 로그인한 회원 번호 설정
         reservationDTO.setMemNo(memNo);
 
-        // 정원 및 금액 계산 + Schedule Lock
-        ReservationCountDTO countDTO = countReservation(
-                reservationDTO.getSchNo(), reservationDTO.getRsvCount()
-        );
+        Long schNo = reservationDTO.getSchNo();
+        Integer rsvCount = reservationDTO.getRsvCount();
 
-        // 중복 예약 검사
-        List<ReservationStatus> activeStatuses = List.of(
-                ReservationStatus.WAIT,
-                ReservationStatus.CONFIRMED
-        );
-
-        boolean exists = reservationRepository
+        // 이미 확정된 예약이 있다면 중복 예약 차단
+        boolean confirmedExists = reservationRepository
                 .existsByMemNoAndSchNoAndRsvStatusIn(
-                        reservationDTO.getMemNo(),
-                        reservationDTO.getSchNo(),
-                        activeStatuses
+                        memNo,
+                        schNo,
+                        List.of(ReservationStatus.CONFIRMED)
                 );
 
-        if (exists) {
+        if (confirmedExists) {
             throw new ReservationException(
-                    "이미 해당 일정에 예약한 회원입니다."
+                    "이미 해당 일정에 확정된 예약이 있습니다."
             );
         }
 
-        // 서버에서 계산된 예약 금액 적용
+        // 기존 미결제 예약 조회
+        Reservation existingReservation = reservationRepository
+                .findFirstByMemNoAndSchNoAndRsvStatusOrderByRsvCreatedAtDesc(
+                        memNo,
+                        schNo,
+                        ReservationStatus.WAIT
+                )
+                .orElse(null);
+
+        // 기존 미결제 예약이 있으면 인원과 금액 갱신
+        if (existingReservation != null) {
+
+            ReservationCountDTO countDTO =
+                    countReservation(schNo, rsvCount);
+
+            existingReservation.setRsvCount(rsvCount);
+            existingReservation.setRsvAmount(countDTO.getRsvAmount());
+
+            return reservationMapper.toDTO(existingReservation);
+        }
+
+        // 정원 확인 및 예약 금액 계산 + 일정 Lock
+        ReservationCountDTO countDTO =
+                countReservation(schNo, rsvCount);
+
+        // 서버에서 계산한 금액 적용
         reservationDTO.setRsvAmount(countDTO.getRsvAmount());
 
+        // Entity 변환 및 저장
         Reservation reservation = reservationMapper.toEntity(reservationDTO);
         Reservation savedReservation = reservationRepository.save(reservation);
 
