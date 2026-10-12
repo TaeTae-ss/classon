@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
-import { initialReviews, money, useStore } from "../../mocks/data";
-import useFavorite from "../../hooks/useFavorite";
-import { usePagination } from "../../hooks/usePagination";
+import { useParams } from "react-router";
+import { money } from "../../mocks/data";
 import { getClassDetail } from "../../api/classApi";
 import { Heading } from "../../components/common/Heading";
 import { Empty } from "../../components/common/Empty";
-import Pagination from "../../components/common/Pagination";
 import BookingForm from "../../components/booking/BookingForm";
+import useFavorite from "../../hooks/useFavorite";
+import ClassReview from "../../components/review/ClassReview";
 
 export default function ClassDetailPage() {
   const { clsNo } = useParams();
@@ -15,8 +14,6 @@ export default function ClassDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { favorites, handleToggleFavorite } = useFavorite();
-  const [reviews] = useStore("reviews", initialReviews);
-  const reviewPagination = usePagination(reviews.filter((r) => r.classId === item?.id));
 
   useEffect(() => {
     const loadDetail = async () => {
@@ -101,39 +98,7 @@ export default function ClassDetailPage() {
             정확한 방문 안내는 예약 정보를 확인해주세요.
           </p>
         </section>
-      <section id="reviews" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
-        <h2>수강 후기</h2>
-        {reviewPagination.items.map((r) => (
-            <article className="border-t border-[#eee] py-6" key={r.id}>
-              <span className="text-[#eb790b] whitespace-nowrap">
-                {"★".repeat(r.rating)}
-                {"☆".repeat(5 - r.rating)}
-              </span>{" "}
-              <span className="text-right text-[14px] text-[#85888d]">
-                {r.author} · {r.date}
-              </span>
-              <p style={{ marginTop: 10 }}>
-                {r.blinded ? "관리자에의해 블라인드된 후기입니다" : r.content}
-              </p>
-              <Link
-                className="text-[13px] leading-[1.8] text-[#999]"
-                to={`/reports/register?type=후기 신고&target=${r.id}`}
-              >
-                후기 신고
-              </Link>
-            </article>
-          ))}
-        <Pagination {...reviewPagination} />
-        {!reviews.some((r) => r.classId === item.id) && (
-          <p>아직 작성된 후기가 없습니다.</p>
-        )}
-        <Link
-          className="text-[13px] leading-[1.8] text-[#999]"
-          to={`/reports/register?type=클래스 신고&target=${item.id}`}
-        >
-          클래스 신고
-        </Link>
-      </section>
+          <ClassReview clsNo={item.clsNo} />
         </div>
         <div className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] sticky top-[124px] self-start max-md:static min-[769px]:max-[1024px]:top-[220px]">
           <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
@@ -143,9 +108,8 @@ export default function ClassDetailPage() {
           <p>{item.instructorName} 강사</p>
           <p>
             <span className="text-[#eb790b] whitespace-nowrap">
-              ★ {item.rating != null ? item.rating.toFixed(1) : "평점 없음"}
-            </span>{" "}
-            · 후기 {reviews.filter((r) => r.classId === item.id).length}개
+              ★ {item.rating != null ? Number(item.rating).toFixed(1) : "평점 없음"}
+            </span>
           </p>
           <p>
             {money(item.clsPrice)} · 최대 정원 {item.maxCapacity ?? "-"}명

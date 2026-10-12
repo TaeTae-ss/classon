@@ -116,11 +116,20 @@ export default function ClassReview({ clsNo }) {
         </article>
       ))}
 
-      {reviews.length === 0 && (
-        <p>아직 작성된 후기가 없습니다.</p>
+      {reviews.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-[15px] text-[#85888d]">
+            아직 작성된 후기가 없습니다.
+          </p>
+          <p className="mt-2 text-[13px] text-[#a0a0a0]">
+            첫 번째 수강 후기를 기다리고 있어요.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-6">
+          <Pagination {...reviewPagination} />
+        </div>
       )}
-
-      <Pagination {...reviewPagination} />
     </section>
   );
 }
