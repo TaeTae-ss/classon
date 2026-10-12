@@ -12,7 +12,7 @@ import ReservationListPage from "../pages/class/ReservationListPage";
 import ReviewListPage from "../pages/class/ReviewListPage";
 
 const instructorRouter = (
-    <Route element={<Access roles={["INS"]} />}>
+    <Route element={<Access roles={["INS", "INSTRUCTOR"]} />}>
 
         <Route
             path="instructor/mypage"
