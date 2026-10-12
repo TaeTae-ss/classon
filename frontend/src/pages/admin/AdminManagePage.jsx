@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useStore, classes, initialReviews, money } from "../../mocks/data";
+import AdminReview from "../../components/review/AdminReview";
 import { usePagination } from "../../hooks/usePagination";
 import { Workspace } from "../../components/common/Workspace";
 import { Heading } from "../../components/common/Heading";
@@ -12,6 +13,14 @@ const initialMembers = [
   { id: 3, name: "홍길동", email: "instructor@classon.com", role: "INS" },
 ];
 export default function AdminManagePage({ kind = "classes" }) {
+  if (kind === "reviews") {
+    return (
+      <Workspace kind="admin">
+        <AdminReview />
+      </Workspace>
+    );
+  }
+
   const key =
     kind === "members" ? "members" : kind === "reviews" ? "reviews" : "classes";
   const [items, setItems] = useStore(
