@@ -1,11 +1,17 @@
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { classes, findClass, getSchedules, initialReservations, money, useStore } from "../../mocks/data";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, Link } from "react-router";
+
+import {
+  getReservation,
+  cancelReservation,
+} from "../../api/reservationApi";
+
+import { money } from "../../util/format";
+
 import { Heading } from "../../components/common/Heading";
 import { Empty } from "../../components/common/Empty";
 import { ClassSummary } from "../../components/common/ClassSummary";
 import { Field } from "../../components/common/Field";
-import { ButtonLink } from "../../components/common/ButtonLink";
 
 function FragmentRow({ label, value }) {
   return (
@@ -16,144 +22,266 @@ function FragmentRow({ label, value }) {
   );
 }
 
-export default function ReservationDetailPage({ cancel = false, status = false }) {
-  const schedules = getSchedules();
+const statusLabel = {
+  WAIT: "결제대기",
+  CONFIRMED: "예약완료",
+  COMPLETED: "수강완료",
+  CANCEL: "취소",
+};
+
+// 이 페이지에서만 사용하는 버튼 스타일
+const secondaryButtonStyle =
+  "flex flex-1 items-center justify-center min-h-[48px] " +
+  "rounded-xl border border-[#E5E7EB] bg-white px-5 py-3 " +
+  "font-medium text-[#4B5563] transition hover:bg-[#F9FAFB]";
+
+const primaryButtonStyle =
+  "flex flex-1 items-center justify-center min-h-[48px] " +
+  "rounded-xl border border-[#F97316] bg-[#F97316] px-5 py-3 " +
+  "font-semibold text-white transition hover:bg-[#EA580C]";
+
+export default function ReservationDetailPage({
+  cancel = false,
+}) {
   const { rsvNo } = useParams();
   const navigate = useNavigate();
-  const [reservations, setReservations] = useStore(
-    "reservations",
-    initialReservations,
-  );
-  const [list] = useStore("classes", classes);
-  const r = reservations.find((x) => x.id === Number(rsvNo));
+
+  const [reservation, setReservation] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [reason, setReason] = useState("");
-  const [newStatus, setNewStatus] = useState(r?.status || "예약완료");
-  if (!r)
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  useEffect(() => {
+  let active = true;
+
+  const fetchReservation = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getReservation(rsvNo);
+
+      if (active) {
+        setReservation(data);
+      }
+    } catch (error) {
+      console.error("예약 상세 조회 실패:", error);
+
+      if (active) {
+        setError("예약 정보를 불러오지 못했습니다.");
+      }
+    } finally {
+      if (active) {
+        setLoading(false);
+      }
+    }
+  };
+
+  if (rsvNo) {
+    fetchReservation();
+  }
+
+  return () => {
+    active = false;
+  };
+}, [rsvNo, cancel]);
+
+  // 예약 취소
+  const handleCancel = async () => {
+    if (!reason.trim() || cancelLoading) {
+      return;
+    }
+
+    try {
+      setCancelLoading(true);
+
+      await cancelReservation(rsvNo, reason);
+
+      setReservation((prev) =>
+      prev
+        ? { ...prev, rsvStatus: "CANCEL" }
+        : prev
+    );
+
+      navigate(`/reservation/${rsvNo}`, {
+        replace: true,
+      });
+    } catch (error) {
+      console.error("예약 취소 실패:", error);
+      alert("예약 취소에 실패했습니다.");
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <Empty to="/reservation/member/1" label="예약 내역">
-        예약 정보를 찾을 수 없습니다.
+      <p className="py-10 text-center text-[#777]">
+        예약 정보를 불러오는 중입니다.
+      </p>
+    );
+  }
+
+  if (error || !reservation) {
+    return (
+      <Empty
+        to="/reservation/member/1"
+        label="예약 내역"
+      >
+        {error || "예약 정보를 찾을 수 없습니다."}
       </Empty>
     );
-  const item = findClass(r.classId, list);
-  const s = schedules.find((x) => x.id === r.scheduleId);
-  const update = () => {
-    setReservations((v) =>
-      v.map((x) =>
-        x.id === r.id
-          ? { ...x, status: cancel ? "취소" : newStatus, cancelReason: reason }
-          : x,
-      ),
-    );
-    navigate(`/reservation/${r.id}`);
-  };
+  }
+
+  const currentStatus = reservation.rsvStatus;
+  const currentStatusLabel =
+    statusLabel[currentStatus] ?? currentStatus;
+
   return (
-    <div className="max-w-[648px] mx-auto my-[46px]">
+    <div className="mx-auto my-[46px] max-w-[648px] px-4">
       <Heading
-        title={
-          cancel
-            ? "예약을 취소할까요?"
-            : status
-              ? "예약 상태 변경"
-              : "예약 상세"
-        }
+        title={cancel ? "예약을 취소할까요?" : "예약 상세"}
       />
-      <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
-        <ClassSummary reservation={r} list={list} />
-        <dl className="grid grid-cols-[150px_1fr] gap-[17px] my-[26px] max-md:grid-cols-[120px_1fr] max-[420px]:grid-cols-[100px_minmax(0,1fr)]">
+
+      <section className="mb-[26px] rounded-xl border border-[#EBE6E0] bg-white p-[31px] max-md:p-[23px]">
+        <ClassSummary reservation={reservation} />
+
+        {/* 예약 정보 */}
+        <dl className="my-[26px] grid grid-cols-[120px_1fr] gap-x-4 gap-y-[17px] max-[420px]:grid-cols-[95px_minmax(0,1fr)]">
           {[
-            ["예약 번호", r.id],
-            ["수업 일정", `${s?.date} ${s?.time}`],
-            ["예약 인원", `${r.count}명`],
-            ["예약 상태", r.status],
-            ["결제 금액", money((item?.price || 0) * r.count)],
-          ].map(([k, v]) => (
-            <FragmentRow key={k} label={k} value={v} />
+            ["예약 번호", reservation.rsvNo],
+            ["강의 일정", reservation.schStartDate],
+            ["예약 인원", `${reservation.rsvCount}명`],
+            ["예약 상태", currentStatusLabel],
+            ["결제 금액", money(reservation.rsvAmount)],
+          ].map(([label, value]) => (
+            <FragmentRow
+              key={label}
+              label={label}
+              value={value}
+            />
           ))}
         </dl>
+
+        {/* 예약 취소 화면 */}
         {cancel ? (
           <>
-            <p>예약을 취소하면 예시 데이터의 상태가 변경됩니다.</p>
-            <Field label="취소 사유">
-              <textarea
-                required
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="취소 사유를 입력해주세요."
-              />
-            </Field>
-            <div className="flex justify-between items-center border-t border-[#eee] py-[22px] mt-[18px]">
-              <span>예상 환불 금액</span>
-              <strong className="text-[28px] text-[#ef770e]">
-                {money(r.paid ? (item?.price || 0) * r.count : 0)}
-              </strong>
-            </div>
-            <p className="text-[13px] leading-[1.8] text-[#999]">
-              미리보기에서는 실제 결제 취소 및 환불이 발생하지 않습니다.
-            </p>
-            <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
-              <button
-                className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
-                disabled={
-                  !reason.trim() ||
-                  r.status === "취소" ||
-                  r.status === "수강완료"
-                }
-                onClick={update}
-              >
-                취소하기
-              </button>
-              <ButtonLink secondary to={`/reservation/${r.id}`}>
-                돌아가기
-              </ButtonLink>
-            </div>
-          </>
-        ) : status ? (
-          <>
-            <Field label="예약 상태">
-              <select
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-              >
-                {["결제대기", "예약완료", "수강완료", "취소"].map((v) => (
-                  <option key={v}>{v}</option>
-                ))}
-              </select>
-            </Field>
-            <button className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed" onClick={update}>
-              상태 저장
-            </button>
-          </>
-        ) : (
-          <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
-            {!["취소", "수강완료"].includes(r.status) && (
+            {currentStatus === "CANCEL" ? (
+              <div className="rounded-lg bg-[#FFF7ED] px-4 py-5 text-center text-[#C2410C]">
+                이미 취소된 예약입니다.
+              </div>
+            ) : currentStatus === "COMPLETED" ? (
+              <div className="rounded-lg bg-[#F9FAFB] px-4 py-5 text-center text-[#6B7280]">
+                수강이 완료된 예약은 취소할 수 없습니다.
+              </div>
+            ) : currentStatus !== "CONFIRMED" &&
+              currentStatus !== "WAIT" ? (
+              <div className="rounded-lg bg-[#F9FAFB] px-4 py-5 text-center text-[#6B7280]">
+                현재 예약 상태에서는 취소할 수 없습니다.
+              </div>
+            ) : (
               <>
-                <ButtonLink secondary to={`/reservation/${r.id}/edit`}>
-                  예약 수정
-                </ButtonLink>
-                <ButtonLink secondary to={`/reservation/${r.id}/cancel`}>
-                  예약 취소
-                </ButtonLink>
+                <Field label="취소 사유">
+                  <textarea
+                    required
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="취소 사유를 입력해주세요."
+                  />
+                </Field>
+
+                <div className="mt-5 flex items-center justify-between border-t border-[#F3E8DC] py-5">
+                  <span className="text-[#6B7280]">
+                    환불 예정 금액
+                  </span>
+
+                  <strong className="text-2xl font-bold text-[#F97316]">
+                    {money(reservation.rsvAmount)}
+                  </strong>
+                </div>
+
+                {/* 취소 화면 버튼 */}
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <Link
+                    to={`/reservation/${reservation.rsvNo}`}
+                    className={secondaryButtonStyle}
+                  >
+                    돌아가기
+                  </Link>
+
+                  <button
+                    type="button"
+                    disabled={!reason.trim() || cancelLoading}
+                    onClick={handleCancel}
+                    className={`${primaryButtonStyle} disabled:cursor-not-allowed disabled:opacity-50`}
+                  >
+                    {cancelLoading ? "취소 처리 중..." : "취소 확인"}
+                  </button>
+                </div>
               </>
             )}
-            {r.status === "수강완료" && (
-              <ButtonLink to={`/reservation/${r.id}/review`}>
-                후기 작성
-              </ButtonLink>
+          </>
+        ) : (
+          /* 일반 예약 상세 화면 */
+          <div className="mt-7 border-t border-[#F3E8DC] pt-5">
+            {currentStatus === "CONFIRMED" && (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/reservation/member/1"
+                  className={secondaryButtonStyle}
+                >
+                  예약 내역으로
+                </Link>
+
+                <Link
+                  to={`/reservation/${reservation.rsvNo}/cancel`}
+                  className={primaryButtonStyle}
+                >
+                  예약 취소
+                </Link>
+              </div>
             )}
-            {r.status === "결제대기" && (
-              <ButtonLink to={`/payment/${r.id}`}>결제 진행</ButtonLink>
+
+            {currentStatus === "COMPLETED" && (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/reservation/member/1"
+                  className={secondaryButtonStyle}
+                >
+                  예약 내역으로
+                </Link>
+
+                <Link
+                  to={`/reservation/${reservation.rsvNo}/review`}
+                  className={primaryButtonStyle}
+                >
+                  후기 작성
+                </Link>
+              </div>
             )}
-            {r.paid && (
-              <ButtonLink secondary to={`/payment/reservation/${r.id}`}>
-                결제 정보
-              </ButtonLink>
+
+            {(currentStatus === "WAIT" ||
+              currentStatus === "CANCEL") && (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/reservation/member/1"
+                  className={secondaryButtonStyle}
+                >
+                  예약 내역으로
+                </Link>
+
+                {currentStatus === "CANCEL" && (
+                  <div className="flex flex-1 items-center justify-center rounded-xl bg-[#FFF7ED] px-5 py-3 font-medium text-[#C2410C]">
+                    취소 완료
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}
       </section>
-      <ButtonLink secondary to="/reservation/member/1">
-        예약 내역 보기
-      </ButtonLink>
     </div>
   );
 }
+

@@ -6,6 +6,7 @@ import com.spring.classon.oneday.entity.Schedule;
 import com.spring.classon.oneday.repository.OneDayRepository;
 import com.spring.classon.oneday.repository.ScheduleRepository;
 import com.spring.classon.payment.service.PaymentService;
+import com.spring.classon.reservation.dto.ClassSummaryDTO;
 import com.spring.classon.reservation.dto.ReservationCountDTO;
 import com.spring.classon.reservation.dto.ReservationDTO;
 import com.spring.classon.reservation.entity.Reservation;
@@ -28,6 +29,29 @@ public class ReservationServiceImpl implements ReservationService{
     private final ReservationMapper reservationMapper;
     private final PaymentService paymentService;
 
+    // 수업일정정보 포함 dto 변경
+    private ReservationDTO toReservationDTO(Reservation reservation) {
+
+        ReservationDTO dto = reservationMapper.toDTO(reservation);
+
+        Schedule schedule = scheduleRepository.findById(reservation.getSchNo())
+                .orElseThrow(() -> new ReservationException(
+                        "일정 정보를 찾을 수 없습니다."
+                ));
+
+        dto.setSchStartDate(schedule.getSchStartDate());
+
+        // 클래스 요약 정보 조회
+        ClassSummaryDTO classInfo = oneDayRepository
+                .findClassSummaryByClsNo(schedule.getClsNo())
+                .orElseThrow(() -> new ReservationException(
+                        "클래스 정보를 찾을 수 없습니다."
+                ));
+
+        dto.setClassInfo(classInfo);
+
+        return dto;
+    }
 
     //예약 등록
     @Override
@@ -76,7 +100,7 @@ public class ReservationServiceImpl implements ReservationService{
                         "예약 정보를 찾을 수 없습니다."
                 ));
 
-        return reservationMapper.toDTO(reservation);
+        return toReservationDTO(reservation);
     }
 
     // 예약 목록 조회
@@ -86,7 +110,7 @@ public class ReservationServiceImpl implements ReservationService{
 
         return reservationRepository.findAll()
                 .stream()
-                .map(reservationMapper::toDTO)
+                .map(this::toReservationDTO)
                 .toList();
     }
 
@@ -98,7 +122,7 @@ public class ReservationServiceImpl implements ReservationService{
         return reservationRepository
                 .findAllByMemNoOrderByRsvCreatedAtDesc(memNo)
                 .stream()
-                .map(reservationMapper::toDTO)
+                .map(this::toReservationDTO)
                 .toList();
     }
 

@@ -153,7 +153,11 @@ export default function PaymentDetailPage({
 
           <FragmentRow
             label="결제 수단"
-            value={payment.payMethod || "-"}
+            value={
+              payment.payMethod === "EASY_PAY"
+                ? "간편결제"
+                : payment.payMethod || "-"
+            }
           />
 
           <FragmentRow
