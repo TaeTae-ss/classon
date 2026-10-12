@@ -3,8 +3,8 @@ import { useStore } from "../../mocks/data";
 
 const memberMenu = [
   ["/member/mypage", "내 정보"],
-  ["/reservation/member/1", "예약 내역"],
-  ["/payment/member/1", "결제 내역"],
+  ["/member/reservations", "예약 내역"],
+  ["/member/payments", "결제 내역"],
   ["/member/favorites", "내가 찜한 클래스"],
   ["/member/reviews", "내가 작성한 후기"],
   ["/inquiry/list", "문의 및 신고 내역"],
@@ -14,7 +14,7 @@ const instructorMenu = [
   ["/instructor", "강사 대시보드"],
   ["/instructor/classes", "내 클래스 관리"],
   ["/instructor/schedules", "수업 일정 관리"],
-  ["/reservation/instructor/1", "예약 회원 정보"],
+  ["/instructor/reservations", "예약 회원 정보"],
   ["/instructor/reviews", "클래스 후기"],
   ["/instructor/mypage", "내 정보"],
 ];

@@ -132,8 +132,8 @@ export default function PaymentPage() {
         },
         orderId: paymentData.orderNo,
         orderName: `원데이클래스 예약 ${reservation.rsvNo}`,
-        successUrl: `${window.location.origin}/payment/success`,
-        failUrl: `${window.location.origin}/payment/fail`,
+        successUrl: `${window.location.origin}/member/payments/success`,
+        failUrl: `${window.location.origin}/member/payments/fail`,
       });
     } catch (error) {
       console.error("결제 요청 실패:", error);
@@ -158,7 +158,7 @@ export default function PaymentPage() {
   // 예약 조회 실패
   if (error && !reservation) {
     return (
-      <Empty to="/reservation/member/1" label="예약 내역">
+      <Empty to="/member/reservations" label="예약 내역">
         {error}
       </Empty>
     );
@@ -167,7 +167,7 @@ export default function PaymentPage() {
   // 예약 정보 없음
   if (!reservation) {
     return (
-      <Empty to="/reservation/member/1" label="예약 내역">
+      <Empty to="/member/reservations" label="예약 내역">
         예약 정보를 찾을 수 없습니다.
       </Empty>
     );
@@ -177,7 +177,7 @@ export default function PaymentPage() {
   if (reservation.rsvStatus !== "WAIT") {
     return (
       <Empty
-        to={`/reservation/${reservation.rsvNo}`}
+        to={`/member/reservations/${reservation.rsvNo}`}
         label="예약 확인"
       >
         현재 상태에서는 결제를 진행할 수 없습니다.

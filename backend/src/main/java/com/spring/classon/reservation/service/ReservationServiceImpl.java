@@ -6,7 +6,6 @@ import com.spring.classon.oneday.entity.Schedule;
 import com.spring.classon.oneday.repository.OneDayRepository;
 import com.spring.classon.oneday.repository.ScheduleRepository;
 import com.spring.classon.payment.service.PaymentService;
-import com.spring.classon.reservation.dto.ClassSummaryDTO;
 import com.spring.classon.reservation.dto.ReservationCountDTO;
 import com.spring.classon.reservation.dto.ReservationDTO;
 import com.spring.classon.reservation.entity.Reservation;
@@ -41,22 +40,16 @@ public class ReservationServiceImpl implements ReservationService{
 
         dto.setSchStartDate(schedule.getSchStartDate());
 
-        // 클래스 요약 정보 조회
-        ClassSummaryDTO classInfo = oneDayRepository
-                .findClassSummaryByClsNo(schedule.getClsNo())
-                .orElseThrow(() -> new ReservationException(
-                        "클래스 정보를 찾을 수 없습니다."
-                ));
-
-        dto.setClassInfo(classInfo);
-
         return dto;
     }
 
     //예약 등록
     @Override
     @Transactional
-    public ReservationDTO createReservation(ReservationDTO reservationDTO) {
+    public ReservationDTO createReservation(ReservationDTO reservationDTO, Long memNo) {
+
+        // 회원번호는 요청 DTO가 아닌 JWT에서 전달받은 로그인 회원 번호 사용
+        reservationDTO.setMemNo(memNo);
 
         // 정원 및 금액 계산 + Schedule Lock
         ReservationCountDTO countDTO = countReservation(
@@ -94,27 +87,33 @@ public class ReservationServiceImpl implements ReservationService{
     // 예약 상세 조회
     @Override
     @Transactional(readOnly = true)
-    public ReservationDTO getReservation(Long rsvNo) {
+    public ReservationDTO getReservation(Long rsvNo, Long memNo, String memRole) {
         Reservation reservation = reservationRepository.findById(rsvNo)
                 .orElseThrow(() -> new ReservationException(
                         "예약 정보를 찾을 수 없습니다."
                 ));
 
+        // 회원은 본인 예약만 조회 가능
+        boolean isOwner = reservation.getMemNo().equals(memNo);
+
+        // 강사는 본인이 등록한 클래스의 예약 상세만 조회 가능
+        boolean isClassInstructor = false;
+        if ("INS".equals(memRole)) {
+            Schedule schedule = scheduleRepository.findById(reservation.getSchNo())
+                    .orElseThrow(() -> new ReservationException("일정 정보를 찾을 수 없습니다."));
+            OneDay oneDay = oneDayRepository.findById(schedule.getClsNo())
+                    .orElseThrow(() -> new ReservationException("클래스 정보를 찾을 수 없습니다."));
+            isClassInstructor = oneDay.getMemNo().equals(memNo);
+        }
+
+        if (!isOwner && !isClassInstructor) {
+            throw new ReservationException("해당 예약에 접근할 수 없습니다.");
+        }
+
         return toReservationDTO(reservation);
     }
 
-    // 예약 목록 조회
-    @Override
-    @Transactional(readOnly = true)
-    public List<ReservationDTO> getReservationList() {
-
-        return reservationRepository.findAll()
-                .stream()
-                .map(this::toReservationDTO)
-                .toList();
-    }
-
-    // 회원 예약 내역 조회
+    // 로그인 회원의 예약 내역 조회
     @Override
     @Transactional(readOnly = true)
     public List<ReservationDTO> getReservationListByMember(Long memNo) {
@@ -126,22 +125,57 @@ public class ReservationServiceImpl implements ReservationService{
                 .toList();
     }
 
+    // 로그인 강사가 등록한 클래스의 예약 목록
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDTO> getReservationListByInstructor(Long memNo) {
+        return reservationRepository
+                .findAllByInstructorMemNoOrderByRsvCreatedAtDesc(memNo)
+                .stream()
+                .map(this::toReservationDTO)
+                .toList();
+    }
+
+    // 로그인 강사가 등록한 특정 일정의 예약 목록
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDTO> getReservationListByInstructorAndSchedule(Long memNo, Long schNo) {
+        Schedule schedule = scheduleRepository.findById(schNo)
+                .orElseThrow(() -> new ReservationException("일정 정보를 찾을 수 없습니다."));
+        OneDay oneDay = oneDayRepository.findById(schedule.getClsNo())
+                .orElseThrow(() -> new ReservationException("클래스 정보를 찾을 수 없습니다."));
+
+        if (!oneDay.getMemNo().equals(memNo)) {
+            throw new ReservationException("해당 일정의 예약을 조회할 권한이 없습니다.");
+        }
+
+        return reservationRepository
+                .findAllByInstructorAndScheduleOrderByRsvCreatedAtDesc(memNo, schNo)
+                .stream()
+                .map(this::toReservationDTO)
+                .toList();
+    }
+
     // 예약 취소
     @Override
     @Transactional
-    public void cancelReservation(Long rsvNo, String cancelReason) {
+    public void cancelReservation(Long rsvNo, String cancelReason, Long memNo) {
 
         Reservation reservation = reservationRepository.findById(rsvNo)
                 .orElseThrow(() -> new ReservationException(
                         "예약 정보를 찾을 수 없습니다."
                 ));
 
+        if (!reservation.getMemNo().equals(memNo)) {
+            throw new ReservationException("해당 예약을 취소할 권한이 없습니다.");
+        }
+
         if (reservation.getRsvStatus() == ReservationStatus.CANCEL) {
             throw new ReservationException("이미 취소된 예약입니다.");
         }
 
         // 결제 취소
-        paymentService.cancelPayment(rsvNo);
+        paymentService.cancelPayment(rsvNo, memNo);
 
         // 예약 취소
         reservation.cancel(cancelReason);
