@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
@@ -71,5 +72,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Integer sumConfirmedCount(
             @Param("schNo") Long schNo,
             @Param("status") ReservationStatus status
+    );
+
+    // 회원의 특정 일정에 대한 결제 대기 예약 조회
+    Optional<Reservation> findFirstByMemNoAndSchNoAndRsvStatusOrderByRsvCreatedAtDesc(
+            Long memNo,
+            Long schNo,
+            ReservationStatus rsvStatus
     );
 }

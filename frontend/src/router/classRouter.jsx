@@ -50,11 +50,6 @@ const classRouter = (
             />
 
             <Route
-                path="member/reservations/:rsvNo/edit"
-                element={<ReservationPage edit />}
-            />
-
-            <Route
                 path="member/reservations/:rsvNo/cancel"
                 element={<ReservationDetailPage cancel />}
             />
