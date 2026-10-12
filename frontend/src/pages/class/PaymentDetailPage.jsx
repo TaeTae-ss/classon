@@ -91,7 +91,7 @@ export default function PaymentDetailPage({
 
   if (!payment) {
     return (
-      <Empty to="/payment/member/1" label="결제 내역">
+      <Empty to="/member/payments" label="결제 내역">
         {error || "결제 정보를 찾을 수 없습니다."}
       </Empty>
     );
@@ -153,7 +153,11 @@ export default function PaymentDetailPage({
 
           <FragmentRow
             label="결제 수단"
-            value={payment.payMethod || "-"}
+            value={
+              payment.payMethod === "EASY_PAY"
+                ? "간편결제"
+                : payment.payMethod || "-"
+            }
           />
 
           <FragmentRow
@@ -189,13 +193,13 @@ export default function PaymentDetailPage({
         <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
           <ButtonLink
             secondary
-            to="/reservation/member/1"
+            to="/member/reservations"
           >
             예약 내역 보기
           </ButtonLink>
 
           <ButtonLink
-            to={`/reservation/${payment.rsvNo}`}
+            to={`/member/reservations/${payment.rsvNo}`}
           >
             예약 상세로 이동
           </ButtonLink>

@@ -49,12 +49,15 @@ public class PaymentServiceImpl implements PaymentService{
     // 결제 생성
     @Override
     @Transactional
-    public PaymentDTO createPayment(PaymentCreateDTO paymentCreateDTO) {
+    public PaymentDTO createPayment(PaymentCreateDTO paymentCreateDTO, Long memNo) {
         Reservation reservation = reservationRepository
                 .findById(paymentCreateDTO.getRsvNo())
                 .orElseThrow(() ->
                         new PaymentException("예약 정보를 찾을 수 없습니다.")
                 );
+
+        // 로그인 회원 본인의 예약인지 확인
+        validateReservationOwner(reservation, memNo);
 
         // 이미 예약이 확정된 경우
         if (reservation.getRsvStatus() == ReservationStatus.CONFIRMED) {
@@ -103,7 +106,7 @@ public class PaymentServiceImpl implements PaymentService{
         Payment payment = new Payment(
                 reservation,
                 orderNo,
-                "CARD",
+                "EASY_PAY",
                 payAmount
         );
 
@@ -115,11 +118,14 @@ public class PaymentServiceImpl implements PaymentService{
     // 결제 승인
     @Override
     @Transactional
-    public PaymentDTO confirmPayment(PaymentConfirmDTO paymentConfirmDTO) {
+    public PaymentDTO confirmPayment(PaymentConfirmDTO paymentConfirmDTO, Long memNo) {
 
         Payment payment = paymentRepository
                 .findByOrderNo(paymentConfirmDTO.getOrderNo())
                 .orElseThrow(() -> new PaymentException("결제 정보를 찾을 수 없습니다."));
+
+        // 로그인 회원 본인의 예약에 대한 결제인지 확인
+        validateReservationOwner(payment.getReservation(), memNo);
 
         // 이미 결제 완료된 경우
         if (payment.getPayStatus() == PaymentStatus.PAID) {
@@ -225,25 +231,27 @@ public class PaymentServiceImpl implements PaymentService{
 
     // 결제 조회
     @Override
-    public PaymentDTO getPayment(Long payNo) {
+    public PaymentDTO getPayment(Long payNo, Long memNo) {
         Payment payment = paymentRepository
                 .findById(payNo)
                 .orElseThrow(() -> new PaymentException(
                         "결제 정보를 찾을 수 없습니다."
                 ));
 
+        validateReservationOwner(payment.getReservation(), memNo);
         return paymentMapper.toDTO(payment);
     }
 
     // 결제 실패
     @Override
     @Transactional
-    public PaymentDTO failPayment(String orderNo) {
+    public PaymentDTO failPayment(String orderNo, Long memNo) {
         Payment payment = paymentRepository
                 .findByOrderNo(orderNo)
                 .orElseThrow(() -> new PaymentException(
                         "결제 정보를 찾을 수 없습니다."
                 ));
+        validateReservationOwner(payment.getReservation(), memNo);
         payment.fail();
 
         return paymentMapper.toDTO(payment);
@@ -252,7 +260,7 @@ public class PaymentServiceImpl implements PaymentService{
     // 결제 취소
     @Override
     @Transactional
-    public PaymentDTO cancelPayment(Long rsvNo) {
+    public PaymentDTO cancelPayment(Long rsvNo, Long memNo) {
 
         Reservation reservation = reservationRepository
                 .findById(rsvNo)
@@ -261,6 +269,9 @@ public class PaymentServiceImpl implements PaymentService{
                                 "예약 정보를 찾을 수 없습니다."
                         )
                 );
+
+        // 로그인 회원 본인의 예약인지 확인
+        validateReservationOwner(reservation, memNo);
 
         // 가장 최근 결제 조회
         Payment payment = paymentRepository
@@ -291,6 +302,13 @@ public class PaymentServiceImpl implements PaymentService{
         return paymentMapper.toDTO(payment);
     }
 
+    // 예약 소유자 확인: 다른 회원의 결제 정보 접근 차단
+    private void validateReservationOwner(Reservation reservation, Long memNo) {
+        if (!reservation.getMemNo().equals(memNo)) {
+            throw new PaymentException("해당 결제에 접근할 권한이 없습니다.");
+        }
+    }
+
     // 주문번호 생성
     @Override
     public String createOrderNo() {
@@ -310,7 +328,7 @@ public class PaymentServiceImpl implements PaymentService{
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaymentDTO> getPaymentListByReservation(Long rsvNo) {
+    public List<PaymentDTO> getPaymentListByReservation(Long rsvNo, Long memNo) {
         Reservation reservation = reservationRepository
                 .findById(rsvNo)
                 .orElseThrow(() ->
@@ -318,6 +336,8 @@ public class PaymentServiceImpl implements PaymentService{
                                 "예약 정보를 찾을 수 없습니다."
                         )
                 );
+
+        validateReservationOwner(reservation, memNo);
 
         return paymentRepository
                 .findAllByReservationOrderByPayCreatedAtDesc(reservation)

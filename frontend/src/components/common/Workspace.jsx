@@ -1,10 +1,11 @@
+
 import { NavLink } from "react-router";
 import { useStore } from "../../mocks/data";
 
 const memberMenu = [
   ["/member/mypage", "내 정보"],
-  ["/reservation/member/1", "예약 내역"],
-  ["/payment/member/1", "결제 내역"],
+  ["/member/reservations", "예약 내역"],
+  ["/member/payments", "결제 내역"],
   ["/member/favorites", "내가 찜한 클래스"],
   ["/member/reviews", "내가 작성한 후기"],
   ["/inquiry/list", "문의 및 신고 내역"],
@@ -14,7 +15,7 @@ const instructorMenu = [
   ["/instructor", "강사 대시보드"],
   ["/instructor/classes", "내 클래스 관리"],
   ["/instructor/schedules", "수업 일정 관리"],
-  ["/reservation/instructor/1", "예약 회원 정보"],
+  ["/instructor/reservations", "예약 회원 정보"],
   ["/instructor/reviews", "클래스 후기"],
   ["/instructor/mypage", "내 정보"],
 ];
@@ -32,8 +33,11 @@ const adminMenu = [
 export function Workspace({ kind = "member", children }) {
   const [role] = useStore("role", "PUBLIC");
 
+  // 로그인 역할에 따른 메뉴 구분
   const menuKind =
-    kind === "member" && role === "INSTRUCTOR" ? "instructor" : kind;
+    kind === "member" && ["INS", "INSTRUCTOR"].includes(role)
+      ? "instructor"
+      : kind;
 
   const groups =
     menuKind === "admin"
@@ -53,14 +57,16 @@ export function Workspace({ kind = "member", children }) {
               title: "내 계정",
               items: [
                 ["/instructor/mypage", "내 정보"],
-                ...memberMenu.filter(([to]) => to !== "/member/mypage"),
+                ...memberMenu.filter(
+                  ([to]) => to !== "/member/mypage",
+                ),
               ],
             },
           ]
         : [
             { title: "내 계정", items: memberMenu.slice(0, 1) },
-            { title: "클래스 활동", items: memberMenu.slice(1, 5) },
-            { title: "고객 지원", items: memberMenu.slice(5) },
+            { title: "클래스 활동", items: memberMenu.slice(1, 4) },
+            { title: "고객 지원", items: memberMenu.slice(4) },
           ];
 
   return (

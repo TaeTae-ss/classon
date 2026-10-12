@@ -40,57 +40,57 @@ const classRouter = (
             />
 
             <Route
-                path="reservation/member/:memNo"
+                path="member/reservations"
                 element={<ReservationListPage />}
             />
 
             <Route
-                path="reservation/:rsvNo"
+                path="member/reservations/:rsvNo"
                 element={<ReservationDetailPage />}
             />
 
             <Route
-                path="reservation/:rsvNo/edit"
+                path="member/reservations/:rsvNo/edit"
                 element={<ReservationPage edit />}
             />
 
             <Route
-                path="reservation/:rsvNo/cancel"
+                path="member/reservations/:rsvNo/cancel"
                 element={<ReservationDetailPage cancel />}
             />
 
             <Route
-                path="reservation/:rsvNo/review"
+                path="member/reservations/:rsvNo/review"
                 element={<ReviewAddPage />}
             />
 
             <Route
-                path="payment/member/:memNo"
+                path="member/payments"
                 element={<ReservationListPage payment />}
             />
 
             <Route
-                path="payment/reservation/:rsvNo"
+                path="member/payments/reservation/:rsvNo"
                 element={<PaymentDetailPage />}
             />
 
             <Route
-                path="payment/detail/:payNo"
+                path="member/payments/detail/:payNo"
                 element={<PaymentDetailPage />}
             />
 
             <Route
-                path="payment/success"
+                path="member/payments/success"
                 element={<PaymentDetailPage complete />}
             />
 
             <Route
-                path="payment/fail"
+                path="member/payments/fail"
                 element={<PaymentDetailPage />}
             />
 
             <Route
-                path="payment/:rsvNo"
+                path="member/payments/checkout/:rsvNo"
                 element={<PaymentPage />}
             />
 

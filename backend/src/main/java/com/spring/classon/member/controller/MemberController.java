@@ -60,12 +60,23 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    // 회원 탈퇴 가능 여부 조회
+    @GetMapping("/{memNo}/withdrawal-check")
+    public ResponseEntity<WithdrawalCheckDTO> checkWithdrawal(
+            @PathVariable Long memNo) {
+
+        return ResponseEntity.ok(
+                memberService.checkWithdrawal(memNo)
+        );
+    }
+
     // 회원 탈퇴
     @DeleteMapping("/{memNo}")
     public ResponseEntity<Void> deleteMember(
-            @PathVariable Long memNo) {
+            @PathVariable Long memNo,
+            @RequestBody WithdrawalRequestDTO dto) {
 
-        memberService.deleteMember(memNo);
+        memberService.deleteMember(memNo, dto.isAgreedToTerms());
 
         return ResponseEntity.noContent().build();
     }

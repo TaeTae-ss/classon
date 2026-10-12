@@ -5,8 +5,12 @@ import com.spring.classon.instructor.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/instructor")
@@ -80,6 +84,20 @@ public class InstructorController {
                         reqNo,
                         file
                 )
+        );
+    }
+
+    // 내 강사 신청 증빙자료 목록 조회
+    @GetMapping("/{reqNo}/documents")
+    public ResponseEntity<List<InstructorDocumentResponseDTO>> getMyInstructorDocuments(
+            @PathVariable Long reqNo,
+            @AuthenticationPrincipal Map<String, Object> claims
+    ) {
+        Number memNoValue = (Number) claims.get("memNo");
+        Long memNo = memNoValue.longValue();
+
+        return ResponseEntity.ok(
+                instructorService.getMyInstructorDocuments(reqNo, memNo)
         );
     }
 }

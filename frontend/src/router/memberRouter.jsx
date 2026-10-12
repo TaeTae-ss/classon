@@ -8,34 +8,33 @@ import FavoriteComparePage from "../pages/class/FavoriteComparePage";
 import ReviewListPage from "../pages/class/ReviewListPage";
 
 const memberRouter = (
-    <Route element={<Access roles={["USER", "INS"]} />}>
+    <>
+        <Route element={<Access roles={["USER"]} />}>
+            <Route
+                path="member/mypage"
+                element={<MyPage />}
+            />
+            <Route
+                path="member/mypage/edit"
+                element={<MyPage edit />}
+            />
+        </Route>
 
-        <Route
-            path="member/mypage"
-            element={<MyPage />}
-        />
-
-        <Route
-            path="member/mypage/edit"
-            element={<MyPage edit />}
-        />
-
-        <Route
-            path="member/favorites"
-            element={<FavoritePage />}
-        />
-
-        <Route
-            path="favorites/compare"
-            element={<FavoriteComparePage />}
-        />
-
-        <Route
-            path="member/reviews"
-            element={<ReviewListPage />}
-        />
-
-    </Route>
+        <Route element={<Access roles={["USER", "INS", "INSTRUCTOR"]} />}>
+            <Route
+                path="member/favorites"
+                element={<FavoritePage />}
+            />
+            <Route
+                path="favorites/compare"
+                element={<FavoriteComparePage />}
+            />
+            <Route
+                path="member/reviews"
+                element={<ReviewListPage />}
+            />
+        </Route>
+    </>
 );
 
 export default memberRouter;

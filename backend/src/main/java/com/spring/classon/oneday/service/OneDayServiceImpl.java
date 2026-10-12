@@ -111,7 +111,7 @@ public class OneDayServiceImpl implements OneDayService {
 
         Map<Long, Double> ratingMap = reviewService.getAverageRatings(clsNos);
 
-        return productMapper.toDTOList(oneDays, instructorNameMap, ratingMap);
+        return productMapper.toDTOList(oneDays, new ProductMapper.NameLookup(Map.of(),instructorNameMap), ratingMap);
     }
 
     // 상품 상세 조회
