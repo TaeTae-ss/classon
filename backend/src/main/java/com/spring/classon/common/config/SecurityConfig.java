@@ -70,13 +70,18 @@ public class SecurityConfig {
                                 "/api/auth/check-nickname",
                                 "/api/auth/email/**",
                                 "/api/auth/login",
+                                "/api/auth/logout",
                                 "/uploads/oneday/**",
+                                "/uploads/member/**",
                                 "/api/v1/oneday/**",
+                                "/api/v1/categories",
                                 "/api/auth/password/**",
                                 "/api/auth/refresh",
-                                "/api/reservation/count",
                                 "/api/notices/**"
                         ).permitAll()
+
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
 
                         // 그 외 요청은 인증 필요
                         .anyRequest().authenticated()
