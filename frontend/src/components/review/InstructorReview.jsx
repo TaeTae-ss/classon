@@ -102,10 +102,14 @@ const pagination = usePagination(
                 ) : (
                 <>
                     {pagination.items.map((review) => (
-                        <div key={review.revNo} className="border-b py-3">
-                        <p>
-                            {"★".repeat(review.revRating)}
-                            {"☆".repeat(5 - review.revRating)}
+                      <div key={review.revNo} className="border-b py-3">
+                        <p className="mb-2 text-[14px] font-semibold text-[#333]">
+                          {review.memNickname || "작성자"}
+                        </p>
+
+                        <p className="text-[#eb790b]">
+                          {"★".repeat(review.revRating)}
+                          {"☆".repeat(5 - review.revRating)}
                         </p>
 
                         <p>

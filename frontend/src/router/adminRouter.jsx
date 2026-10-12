@@ -1,11 +1,13 @@
 import { Route } from "react-router";
 import { Access } from "../layouts/Layout";
+import { Workspace } from "../components/common/Workspace";
 
 import ReservationDetailPage from "../pages/class/ReservationDetailPage";
 import PaymentDetailPage from "../pages/class/PaymentDetailPage";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminManagePage from "../pages/admin/AdminManagePage";
+import AdminReview from "../components/review/AdminReview";
 import AdminReservationPage from "../pages/admin/AdminReservationPage";
 
 import BoardListPage from "../pages/board/BoardListPage";
@@ -42,7 +44,11 @@ const adminRouter = (
 
         <Route
             path="admin/reviews"
-            element={<AdminManagePage kind="reviews" />}
+            element={
+                <Workspace kind="admin">
+                    <AdminReview />
+                </Workspace>
+            }
         />
 
         <Route

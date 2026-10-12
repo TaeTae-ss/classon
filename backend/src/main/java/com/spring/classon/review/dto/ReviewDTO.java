@@ -22,6 +22,10 @@ public class ReviewDTO {
     private Long rsvNo;
     private Long clsNo;
 
+    // 추가
+    private String clsName;
+    private String memNickname;
+
     @NotNull //API 요청을 받는 단계에서 먼저 검사
     @Min(1)
     @Max(5) //허용 범위를 1~5로 제한

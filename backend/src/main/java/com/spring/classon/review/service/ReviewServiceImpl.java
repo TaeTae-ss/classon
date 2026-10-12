@@ -22,6 +22,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 // 여기까지 추가
 
+//추가
+import com.spring.classon.oneday.entity.OneDay;
+import com.spring.classon.oneday.repository.OneDayRepository;
+import com.spring.classon.member.entity.Member;
+import com.spring.classon.member.repository.MemberRepository;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -32,6 +38,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReservationRepository reservationRepository;
     private final ScheduleRepository scheduleRepository;
+
+    // 추가
+    private final OneDayRepository oneDayRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public Long register(ReviewDTO reviewDTO) {
@@ -96,9 +106,9 @@ public class ReviewServiceImpl implements ReviewService {
                 break;
         }
 
-        List<ReviewDTO> reviewDTOList = reviewMapper.toDTOList(reviews);
-
-        return reviewDTOList;
+        return reviews.stream()
+                .map(this::toReviewDTO)
+                .toList();
     }
 
     //로그인 회원이 작성한 후기 조회
@@ -123,8 +133,9 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviews =
                 reviewRepository.findByRsvNoInOrderByRevCreatedAtDesc(rsvNos);
 
-        // Entity → DTO
-        return reviewMapper.toDTOList(reviews);
+        return reviews.stream()
+                .map(this::toReviewDTO)
+                .toList();
     }
 
     // 관리자 전체 후기 조회
@@ -135,8 +146,9 @@ public class ReviewServiceImpl implements ReviewService {
         List<Review> reviews =
                 reviewRepository.findAllByOrderByRevCreatedAtDesc();
 
-        // Entity → DTO
-        return reviewMapper.toDTOList(reviews);
+        return reviews.stream()
+                .map(this::toReviewDTO)
+                .toList();
     }
 
     @Override
@@ -198,4 +210,31 @@ public class ReviewServiceImpl implements ReviewService {
                 ));
     }
     // 여기까지 추가
+
+    private ReviewDTO toReviewDTO(Review review) {
+
+        // 후기 Entity → DTO 변환
+        ReviewDTO dto = reviewMapper.toDTO(review);
+
+        // 클래스 번호로 클래스 조회
+        OneDay oneDay = oneDayRepository.findById(review.getClsNo())
+                .orElseThrow(() ->
+                        new ReviewException("클래스를 찾을 수 없습니다."));
+
+        dto.setClsName(oneDay.getClsName());
+
+        // 후기의 예약번호로 예약 조회
+        Reservation reservation = reservationRepository.findById(review.getRsvNo())
+                .orElseThrow(() ->
+                        new ReviewException("예약 정보를 찾을 수 없습니다."));
+
+        // 예약한 회원 조회
+        String nickname = memberRepository.findById(reservation.getMemNo())
+                .map(Member::getMemNickname)
+                .orElse("탈퇴한 회원");
+
+        dto.setMemNickname(nickname);
+
+        return dto;
+    }
 }

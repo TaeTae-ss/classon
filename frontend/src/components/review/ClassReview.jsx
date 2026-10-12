@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../common/Pagination";
 import { getClassReviews, getAverageRating } from "../../api/reviewApi";
@@ -96,6 +95,10 @@ export default function ClassReview({ clsNo }) {
           className="border-t border-[#eee] py-6"
           key={r.revNo}
         >
+          <div className="mb-2 text-[14px] font-semibold text-[#333]">
+            {r.memNickname || "작성자"}
+          </div>
+
           <span className="text-[#eb790b] whitespace-nowrap">
             {"★".repeat(r.revRating)}
             {"☆".repeat(5 - r.revRating)}
@@ -110,21 +113,23 @@ export default function ClassReview({ clsNo }) {
               ? "관리자에 의해 블라인드된 후기입니다."
               : r.revContent}
           </p>
-
-          <Link
-            className="text-[13px] leading-[1.8] text-[#999]"
-            to={`/reports/register?type=후기 신고&target=${r.revNo}`}
-          >
-            후기 신고
-          </Link>
         </article>
       ))}
 
-      {reviews.length === 0 && (
-        <p>아직 작성된 후기가 없습니다.</p>
+      {reviews.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+          <p className="text-[15px] text-[#85888d]">
+            아직 작성된 후기가 없습니다.
+          </p>
+          <p className="mt-2 text-[13px] text-[#a0a0a0]">
+            첫 번째 수강 후기를 기다리고 있어요.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-6">
+          <Pagination {...reviewPagination} />
+        </div>
       )}
-
-      <Pagination {...reviewPagination} />
     </section>
   );
 }
