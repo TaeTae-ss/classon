@@ -104,7 +104,7 @@ export default function ReservationDetailPage({
         : prev
     );
 
-      navigate(`/reservation/${rsvNo}`, {
+      navigate(`/member/reservations/${rsvNo}`, {
         replace: true,
       });
     } catch (error) {
@@ -126,7 +126,7 @@ export default function ReservationDetailPage({
   if (error || !reservation) {
     return (
       <Empty
-        to="/reservation/member/1"
+        to="/member/reservations"
         label="예약 내역"
       >
         {error || "예약 정보를 찾을 수 없습니다."}
@@ -204,7 +204,7 @@ export default function ReservationDetailPage({
                 {/* 취소 화면 버튼 */}
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   <Link
-                    to={`/reservation/${reservation.rsvNo}`}
+                    to={`/member/reservations/${reservation.rsvNo}`}
                     className={secondaryButtonStyle}
                   >
                     돌아가기
@@ -228,14 +228,14 @@ export default function ReservationDetailPage({
             {currentStatus === "CONFIRMED" && (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/reservation/member/1"
+                  to="/member/reservations"
                   className={secondaryButtonStyle}
                 >
                   예약 내역으로
                 </Link>
 
                 <Link
-                  to={`/reservation/${reservation.rsvNo}/cancel`}
+                  to={`/member/reservations/${reservation.rsvNo}/cancel`}
                   className={primaryButtonStyle}
                 >
                   예약 취소
@@ -246,14 +246,14 @@ export default function ReservationDetailPage({
             {currentStatus === "COMPLETED" && (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/reservation/member/1"
+                  to="/member/reservations"
                   className={secondaryButtonStyle}
                 >
                   예약 내역으로
                 </Link>
 
                 <Link
-                  to={`/reservation/${reservation.rsvNo}/review`}
+                  to={`/member/reservations/${reservation.rsvNo}/review`}
                   className={primaryButtonStyle}
                 >
                   후기 작성
@@ -265,7 +265,7 @@ export default function ReservationDetailPage({
               currentStatus === "CANCEL") && (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/reservation/member/1"
+                  to="/member/reservations"
                   className={secondaryButtonStyle}
                 >
                   예약 내역으로

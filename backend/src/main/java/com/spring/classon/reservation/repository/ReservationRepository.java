@@ -2,6 +2,8 @@ package com.spring.classon.reservation.repository;
 
 import com.spring.classon.reservation.entity.Reservation;
 import com.spring.classon.reservation.entity.ReservationStatus;
+import com.spring.classon.oneday.entity.Schedule;
+import com.spring.classon.oneday.entity.OneDay;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +21,34 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 회원 예약 내역 조회
     List<Reservation> findAllByMemNoOrderByRsvCreatedAtDesc(Long memNo);
+
+    // 로그인 강사가 등록한 클래스들의 예약 목록
+    @Query("""
+        SELECT r
+        FROM Reservation r, Schedule s, OneDay c
+        WHERE r.schNo = s.schNo
+          AND s.clsNo = c.clsNo
+          AND c.memNo = :memNo
+        ORDER BY r.rsvCreatedAt DESC
+    """)
+    List<Reservation> findAllByInstructorMemNoOrderByRsvCreatedAtDesc(
+            @Param("memNo") Long memNo
+    );
+
+    // 로그인 강사가 소유한 특정 일정의 예약 목록
+    @Query("""
+        SELECT r
+        FROM Reservation r, Schedule s, OneDay c
+        WHERE r.schNo = s.schNo
+          AND s.clsNo = c.clsNo
+          AND c.memNo = :memNo
+          AND s.schNo = :schNo
+        ORDER BY r.rsvCreatedAt DESC
+    """)
+    List<Reservation> findAllByInstructorAndScheduleOrderByRsvCreatedAtDesc(
+            @Param("memNo") Long memNo,
+            @Param("schNo") Long schNo
+    );
 
     // 일정 삭제 가능 여부 확인 (대기/확정 예약 존재 여부)
     boolean existsBySchNoAndRsvStatusIn(Long schNo, List<ReservationStatus> status);

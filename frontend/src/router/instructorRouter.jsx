@@ -25,12 +25,12 @@ const instructorRouter = (
         />
 
         <Route
-            path="reservation/schedule/:schNo"
+            path="instructor/reservations/schedule/:schNo"
             element={<ReservationListPage instructor schedule />}
         />
 
         <Route
-            path="reservation/instructor/:memNo"
+            path="instructor/reservations"
             element={<ReservationListPage instructor />}
         />
 

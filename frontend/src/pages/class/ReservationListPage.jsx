@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
-import { getReservationListByMember } from "../../api/reservationApi";
+import {
+  getReservationListByMember,
+  getInstructorReservationList,
+  getInstructorReservationListBySchedule,
+} from "../../api/reservationApi";
 
 import { usePagination } from "../../hooks/usePagination";
 
@@ -31,7 +35,7 @@ export default function ReservationListPage({
   schedule = false,
   payment = false,
 }) {
-  const { memNo, schNo } = useParams();
+  const { schNo } = useParams();
 
   const [reservations, setReservations] = useState([]);
   const [filter, setFilter] = useState("전체");
@@ -44,7 +48,14 @@ export default function ReservationListPage({
         setLoading(true);
         setError("");
 
-        const data = await getReservationListByMember(memNo);
+        let data;
+        if (instructor && schedule) {
+          data = await getInstructorReservationListBySchedule(schNo);
+        } else if (instructor) {
+          data = await getInstructorReservationList();
+        } else {
+          data = await getReservationListByMember();
+        }
 
         setReservations(data || []);
       } catch (error) {
@@ -55,10 +66,10 @@ export default function ReservationListPage({
       }
     };
 
-    if (memNo) {
+    if (!instructor || !schedule || schNo) {
       fetchReservations();
     }
-  }, [memNo]);
+  }, [instructor, schedule, schNo]);
 
   const list = reservations.filter(
     (r) =>
@@ -139,8 +150,8 @@ export default function ReservationListPage({
                 secondary
                 to={
                   payment
-                    ? `/payment/reservation/${r.rsvNo}`
-                    : `/reservation/${r.rsvNo}`
+                    ? `/member/payments/reservation/${r.rsvNo}`
+                    : `/member/reservations/${r.rsvNo}`
                 }
               >
                 상세 보기

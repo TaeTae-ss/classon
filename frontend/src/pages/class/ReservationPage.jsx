@@ -17,13 +17,13 @@ export default function ReservationPage({ edit = false }) {
   );
   if (!item || (edit && !existing))
     return (
-      <Empty to="/reservation/member/1" label="예약 내역">
+      <Empty to="/member/reservations" label="예약 내역">
         예약할 클래스를 찾을 수 없습니다.
       </Empty>
     );
   if (edit && ["취소", "수강완료"].includes(existing.status))
     return (
-      <Empty to={`/reservation/${existing.id}`} label="예약 상세">
+      <Empty to={`/member/reservations/${existing.id}`} label="예약 상세">
         현재 상태에서는 예약을 수정할 수 없습니다.
       </Empty>
     );
@@ -36,7 +36,7 @@ export default function ReservationPage({ edit = false }) {
     );
   return (
     <>
-      <Link className="text-[14px] text-[#c47127]!" to={`/reservation/${existing.id}`}>
+      <Link className="text-[14px] text-[#c47127]!" to={`/member/reservations/${existing.id}`}>
         ← 돌아가기
       </Link>
       <Heading title="예약 정보 수정" />
