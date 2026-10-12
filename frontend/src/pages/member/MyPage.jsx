@@ -1178,6 +1178,26 @@ export default function MyPage({ instructor = false, edit = false }) {
         </section>
       )}
 
+y      {/* 강사 신청 반려 사유 */}
+      {!isInstructor &&
+        !edit &&
+        request?.reqStatus === "REJECTED" &&
+        request?.rejReason && (
+          <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
+                신청 반려
+              </span>
+              <h3 className="font-bold text-[#1f2937]">
+                반려 사유
+              </h3>
+            </div>
+            <p className="text-[16px] leading-[1.8] text-[#6b7280] whitespace-pre-wrap break-words">
+              {request.rejReason}
+            </p>
+          </section>
+        )}
+
       {message && (
         <p
           className="px-[17px] py-[13px] my-[18px] rounded-[7px] bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[16px]"
