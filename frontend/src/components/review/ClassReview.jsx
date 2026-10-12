@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../common/Pagination";
 import { getClassReviews, getAverageRating } from "../../api/reviewApi";
@@ -96,6 +95,10 @@ export default function ClassReview({ clsNo }) {
           className="border-t border-[#eee] py-6"
           key={r.revNo}
         >
+          <div className="mb-2 text-[14px] font-semibold text-[#333]">
+            {r.memNickname || "작성자"}
+          </div>
+
           <span className="text-[#eb790b] whitespace-nowrap">
             {"★".repeat(r.revRating)}
             {"☆".repeat(5 - r.revRating)}
@@ -110,13 +113,6 @@ export default function ClassReview({ clsNo }) {
               ? "관리자에 의해 블라인드된 후기입니다."
               : r.revContent}
           </p>
-
-          <Link
-            className="text-[13px] leading-[1.8] text-[#999]"
-            to={`/reports/register?type=후기 신고&target=${r.revNo}`}
-          >
-            후기 신고
-          </Link>
         </article>
       ))}
 

@@ -69,7 +69,7 @@ export default function ReviewListPage({ instructor = false }) {
           key={r.revNo}
           className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]"
         >
-          <h3>클래스 번호: {r.clsNo}</h3>
+          <h3>{r.clsName || `클래스 번호: ${r.clsNo}`}</h3>
 
           <span className="text-[#eb790b] whitespace-nowrap">
             {"★".repeat(r.revRating)}

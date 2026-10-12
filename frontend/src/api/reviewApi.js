@@ -42,3 +42,17 @@ export const getAverageRating = async (clsNo) => {
   return response.data.data;
 };
 
+// 관리자 전체 후기 조회
+export const getAdminReviews = async () => {
+  const response = await api.get("/api/reviews/admin");
+
+  return response.data.data;
+};
+
+// 관리자 후기 블라인드 처리
+export const blindReview = async (revNo) => {
+  const response = await api.patch(`/api/reviews/${revNo}/blind`);
+
+  return response.data;
+};
+
