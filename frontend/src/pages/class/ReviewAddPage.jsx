@@ -6,6 +6,7 @@ import { Field } from "../../components/common/Field";
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { postReview } from "../../api/reviewApi";
 import { getReservation } from "../../api/reservationApi";
+import { ClassSummary } from "../../components/common/ClassSummary";
 
 export default function ReviewAddPage() {
   const { rsvNo } = useParams();
@@ -18,6 +19,7 @@ export default function ReviewAddPage() {
   // 후기 입력값
   const [rating, setRating] = useState(5);
   const [content, setContent] = useState("");
+  const [error, setError] = useState("");
 
   // 실제 예약 상세 조회
   useEffect(() => {
@@ -68,6 +70,8 @@ export default function ReviewAddPage() {
           if (!content.trim()) return;
 
           try {
+            setError("");
+
             await postReview({
               rsvNo: Number(rsvNo),
               revRating: rating,
@@ -75,13 +79,19 @@ export default function ReviewAddPage() {
             });
 
             navigate("/member/reviews");
+
           } catch (error) {
             console.error("후기 등록 실패:", error);
+
+            setError(
+              error?.response?.data?.message ||
+              error?.response?.data?.data?.message ||
+              "후기 등록에 실패했습니다. 다시 시도해주세요."
+            );
           }
         }}
       >
-        {/* ClassSummary는 예약 담당자 수정 후 다시 연결 */}
-
+        <ClassSummary reservation={reservation} />
         <h3 style={{ marginTop: 25 }}>
           이번 클래스는 어떠셨나요?
         </h3>
@@ -114,6 +124,12 @@ export default function ReviewAddPage() {
         <span className="text-right text-[14px] text-[#85888d]">
           {content.length}/1000
         </span>
+
+        {error && (
+          <p role="alert" className="mt-3 text-[14px] text-red-600">
+            {error}
+          </p>
+        )}
 
         <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
           <ButtonLink secondary to="/member/reservations">
