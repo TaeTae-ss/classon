@@ -33,4 +33,13 @@ public class InstructorRequest {
     public void updateStatus(String reqStatus) {
         this.reqStatus = reqStatus;
     }
+
+    // 강사 신청 내용 수정
+    public void updateApplication(
+            String reqIntroduction,
+            String reqCareer
+    ) {
+        this.reqIntroduction = reqIntroduction;
+        this.reqCareer = reqCareer;
+    }
 }

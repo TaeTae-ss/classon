@@ -29,6 +29,9 @@ public interface InstructorService {
             MultipartFile file
     );
 
+    // 반려된 강사 신청의 기존 증빙자료 삭제
+    void deleteMyInstructorDocuments(Long reqNo, Long memNo);
+
     // 전체 강사 신청 목록 조회(관리자)
     List<InstructorResponseDTO> getInstructorRequestList();
 
@@ -46,5 +49,12 @@ public interface InstructorService {
     void updateInstructorStatus(
             Long reqNo,
             InstructorApprovalDTO dto
+    );
+
+    // 반려된 강사 신청 수정
+    void updateInstructorApplication(
+            Long reqNo,
+            Long memNo,
+            InstructorRequestDTO dto
     );
 }

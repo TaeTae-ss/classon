@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -162,7 +163,14 @@ public class InstructorServiceImpl implements InstructorService {
 
             Files.createDirectories(uploadPath);
 
-            String fileName = file.getOriginalFilename();
+            // 파일명 중복 방지
+            String originalFileName = file.getOriginalFilename();
+
+            if (originalFileName == null || originalFileName.isBlank()) {
+                throw new FileException("파일명이 올바르지 않습니다.");
+            }
+
+            String fileName = UUID.randomUUID() + "_" + originalFileName;
 
             Path filePath = uploadPath.resolve(fileName);
 
@@ -309,5 +317,90 @@ public class InstructorServiceImpl implements InstructorService {
 
         // 신청 상태 변경
         request.updateStatus(reqStatus);
+    }
+
+    // 반려된 강사 신청의 기존 증빙자료 삭제
+    @Override
+    public void deleteMyInstructorDocuments(Long reqNo, Long memNo) {
+        // 신청 정보 조회
+        InstructorRequest request = instructorRequestRepository.findById(reqNo)
+                .orElseThrow(() ->
+                        new InstructorException("존재하지 않는 강사 신청입니다."));
+
+        // 본인 신청인지 확인
+        if (!request.getMemNo().equals(memNo)) {
+            throw new InstructorException("본인의 신청 서류만 수정할 수 있습니다.");
+        }
+
+        // 반려된 신청인지 확인
+        if (!"REJECTED".equals(request.getReqStatus())) {
+            throw new InstructorException("반려된 강사 신청만 수정할 수 있습니다.");
+        }
+
+        // 기존 증빙자료 조회
+        List<InstructorDocument> documents =
+                instructorDocumentRepository.findAllByReqNo(reqNo);
+
+        // 실제 파일 삭제
+        for (InstructorDocument document : documents) {
+            try {
+                Files.deleteIfExists(Paths.get(document.getDocUrl()));
+            } catch (IOException e) {
+                throw new FileException("기존 증빙자료 삭제에 실패했습니다.");
+            }
+        }
+
+        // DB 증빙자료 삭제
+        instructorDocumentRepository.deleteAllByReqNo(reqNo);
+    }
+
+    // 반려된 강사 신청 수정
+    @Override
+    public void updateInstructorApplication(
+            Long reqNo,
+            Long memNo,
+            InstructorRequestDTO dto
+    ) {
+        // 신청 정보 조회
+        InstructorRequest request =
+                instructorRequestRepository.findById(reqNo)
+                        .orElseThrow(() ->
+                                new InstructorException(
+                                        "존재하지 않는 강사 신청입니다."
+                                )
+                        );
+
+        // 본인 신청인지 확인
+        if (!request.getMemNo().equals(memNo)) {
+            throw new InstructorException(
+                    "본인의 강사 신청만 수정할 수 있습니다."
+            );
+        }
+
+        // 반려된 신청인지 확인
+        if (!"REJECTED".equals(request.getReqStatus())) {
+            throw new InstructorException(
+                    "반려된 강사 신청만 수정할 수 있습니다."
+            );
+        }
+
+        // 필수 항목 확인
+        if (dto.getReqIntroduction() == null
+                || dto.getReqIntroduction().isBlank()) {
+            throw new InstructorException(
+                    "자기소개를 입력해 주세요."
+            );
+        }
+
+        // 신청 내용 수정
+        request.updateApplication(
+                dto.getReqIntroduction().trim(),
+                dto.getReqCareer() == null
+                        ? null
+                        : dto.getReqCareer().trim()
+        );
+
+        // 재검토 요청
+        request.updateStatus("NEW");
     }
 }
