@@ -40,4 +40,9 @@ public class Member {
     public void updateProfileImage(String memImg) {
         this.memImg = memImg;
     }
+
+    // 회원 권한 변경
+    public void updateMemberRole(String memRole) {
+        this.memRole = memRole;
+    }
 }

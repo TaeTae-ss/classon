@@ -36,6 +36,12 @@ public interface OneDayRepository extends JpaRepository<OneDay, Long> {
     Optional<ClassSummaryDTO> findClassSummaryByClsNo(
             @Param("clsNo") Long clsNo
     );
+    // 모집중인 클래스 중 카테고리 + 클래스명으로 검색
+    Page<OneDay> findByCatNoAndClsStatusAndClsNameContaining(Long catNo, OneDayStatus clsStatus, String clsName, Pageable pageable);
+
+    // 모집중인 클래스 전체에서 클래스명으로 검색
+    Page<OneDay> findByClsStatusAndClsNameContaining(OneDayStatus clsStatus, String clsName, Pageable pageable);
+  
     // 강사 본인 클래스 목록 조회
     List<OneDay> findByMemNo(Long memNo);
 }

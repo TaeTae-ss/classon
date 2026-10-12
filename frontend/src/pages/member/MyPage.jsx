@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-
 import { useLocation, useNavigate } from "react-router";
 
 import { useStore } from "../../mocks/data";
@@ -7,18 +6,35 @@ import { useStore } from "../../mocks/data";
 import {
   getMember,
   updateMember,
+  updatePassword,
   updateProfileImage,
+  checkWithdrawal,
+  deleteMember,
 } from "../../api/memberApi";
 
-import { getCookie } from "../../util/cookieUtil";
+import {
+  applyInstructor,
+  getInstructorRequestByMemNo,
+  uploadInstructorDocument,
+  getInstructorDocuments,
+} from "../../api/instructorApi";
 
+import { getCookie, removeCookie } from "../../util/cookieUtil";
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
 import { Workspace } from "../../components/common/Workspace";
 
 const SERVER_URL = "http://localhost:8080";
+const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,20}$/;
+const NINETY_DAYS = 90 * 24 * 60 * 60 * 1000;
 
+// API 응답 데이터 확인
+const getResponseData = (response) => {
+  return response?.data?.data ?? response?.data ?? response;
+};
+
+// 전화번호 형식 변환
 const formatPhone = (phone) => {
   if (!phone) return "";
 
@@ -33,6 +49,45 @@ const formatPhone = (phone) => {
   }
 
   return phone;
+};
+
+// 회원 정보 응답을 화면에서 사용하는 형태로 변환
+const toMemberProfile = (data) => ({
+  email: data.memEmail || "",
+  nickname: data.memNickname || "",
+  phone: data.memPhone || "",
+  address: data.memAddress || "",
+  detail: data.memAddressDetail || "",
+  img: data.memImg || "",
+  memPwUpdate: data.memPwUpdate || null,
+  memCreatedAt: data.memCreatedAt || null,
+});
+
+// 비밀번호 변경일 기준 90일 경과 여부 확인
+const isPasswordExpired = (profile) => {
+  const passwordDate = profile.memPwUpdate || profile.memCreatedAt;
+
+  if (!passwordDate) return false;
+
+  const updatedAt = new Date(passwordDate);
+
+  if (Number.isNaN(updatedAt.getTime())) return false;
+
+  return Date.now() - updatedAt.getTime() >= NINETY_DAYS;
+};
+
+// 강사 신청 상태 표시
+const getInstructorStatus = (status) => {
+  switch (status) {
+    case "NEW":
+      return "관리자 검토 중";
+    case "APPROVED":
+      return "승인 완료";
+    case "REJECTED":
+      return "신청 반려";
+    default:
+      return status || "상태 확인 중";
+  }
 };
 
 export default function MyPage({ instructor = false, edit = false }) {
@@ -51,6 +106,8 @@ export default function MyPage({ instructor = false, edit = false }) {
     address: "",
     detail: "",
     img: "",
+    memPwUpdate: null,
+    memCreatedAt: null,
   });
 
   const [form, setForm] = useState({
@@ -62,19 +119,38 @@ export default function MyPage({ instructor = false, edit = false }) {
     img: "",
   });
 
+  // 비밀번호 입력 상태
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
   const [message, setMessage] = useState("");
 
-  const [request, setRequest] = useStore(
-    "instructorRequest",
-    null
-  );
+  // 백엔드에서 조회한 강사 신청 정보
+  const [request, setRequest] = useState(null);
 
+  // 강사 신청 증빙자료 목록
+  const [instructorDocuments, setInstructorDocuments] = useState([]);
+
+  // 강사 신청 화면 상태
   const [applying, setApplying] = useState(false);
-  const [bio, setBio] = useState("");
-  const [files, setFiles] = useState([]);
+  const [submittingApplication, setSubmittingApplication] = useState(false);
+  const [introduction, setIntroduction] = useState("");
+  const [career, setCareer] = useState("");
+
+  // 증빙 서류는 각각 한 파일씩 선택
+  const [certificateFile, setCertificateFile] = useState(null);
+  const [careerFile, setCareerFile] = useState(null);
+  const [otherFile, setOtherFile] = useState(null);
+
+  // 회원 탈퇴 상태
+  const [withdrawalOpen, setWithdrawalOpen] = useState(false);
+  const [withdrawalCheck, setWithdrawalCheck] = useState(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [checkingWithdrawal, setCheckingWithdrawal] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -82,44 +158,109 @@ export default function MyPage({ instructor = false, edit = false }) {
     ? "/instructor/mypage"
     : "/member/mypage";
 
+  // 비밀번호 입력 초기화
+  const resetPasswordFields = () => {
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  // 회원 정보 조회
+  const fetchMember = async (memNo) => {
+    const response = await getMember(memNo);
+    const data = getResponseData(response);
+    const memberProfile = toMemberProfile(data);
+
+    setProfile(memberProfile);
+
+    setForm({
+      email: memberProfile.email,
+      nickname: memberProfile.nickname,
+      phone: memberProfile.phone,
+      address: memberProfile.address,
+      detail: memberProfile.detail,
+      img: memberProfile.img,
+    });
+
+    return memberProfile;
+  };
+
+  // 강사 신청 정보 및 증빙자료 조회
+  const fetchInstructorRequest = async (memNo) => {
+    try {
+      const response = await getInstructorRequestByMemNo(memNo);
+      const data = getResponseData(response);
+
+      setRequest(data || null);
+      setInstructorDocuments([]);
+
+      if (data?.reqNo) {
+        try {
+          const documentResponse = await getInstructorDocuments(data.reqNo);
+          const documents = getResponseData(documentResponse);
+
+          console.log("증빙자료 API 응답:", documentResponse);
+
+          // 응답이 배열이거나 data 속성 안에 배열이 있는 경우 처리
+          const documentList = Array.isArray(documents)
+            ? documents
+            : Array.isArray(documents?.data)
+              ? documents.data
+              : Array.isArray(documents?.documents)
+                ? documents.documents
+                : [];
+
+          setInstructorDocuments(documentList);
+        } catch (documentError) {
+          console.error("증빙자료 목록 조회 실패:", documentError);
+        }
+      }
+    } catch (error) {
+      // 신청 내역이 없는 경우에는 신청 버튼 표시
+      if (error.response?.status === 404) {
+        setRequest(null);
+        setInstructorDocuments([]);
+        return;
+      }
+
+      console.error("강사 신청 정보 조회 실패:", error);
+      setRequest(null);
+      setInstructorDocuments([]);
+    }
+  };
+
   // 페이지 이동 시 기존 메시지 제거
   useEffect(() => {
     setMessage("");
   }, [location.pathname]);
 
-  // 회원 정보 조회
+  // 회원 정보 및 강사 신청 정보 최초 조회
   useEffect(() => {
-    const fetchMember = async () => {
+    const loadMember = async () => {
       try {
         const member = getCookie("member");
 
         if (!member?.memNo) {
           console.error("회원 번호가 없습니다.");
+          setMessage("회원 정보를 확인할 수 없습니다. 다시 로그인해 주세요.");
           return;
         }
 
-        const response = await getMember(member.memNo);
-        const data = response.data;
+        await fetchMember(member.memNo);
 
-        const memberProfile = {
-          email: data.memEmail || "",
-          nickname: data.memNickname || "",
-          phone: data.memPhone || "",
-          address: data.memAddress || "",
-          detail: data.memAddressDetail || "",
-          img: data.memImg || "",
-        };
-
-        setProfile(memberProfile);
-        setForm(memberProfile);
+        // 일반 회원 마이페이지에서만 강사 신청 내역 조회
+        if (!isInstructor) {
+          await fetchInstructorRequest(member.memNo);
+        }
       } catch (error) {
         console.error("회원 정보 조회 실패:", error);
+        setMessage("회원 정보를 불러오지 못했습니다.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMember();
+    loadMember();
   }, [isInstructor]);
 
   // 프로필 이미지 주소
@@ -135,7 +276,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
   // 프로필 이미지 선택창
   const handleProfileImageClick = () => {
-    if (!edit) return;
+    if (!edit || saving) return;
 
     fileInputRef.current?.click();
   };
@@ -170,21 +311,7 @@ export default function MyPage({ instructor = false, edit = false }) {
       }
 
       await updateProfileImage(member.memNo, file);
-
-      const response = await getMember(member.memNo);
-      const data = response.data;
-
-      const memberProfile = {
-        email: data.memEmail || "",
-        nickname: data.memNickname || "",
-        phone: data.memPhone || "",
-        address: data.memAddress || "",
-        detail: data.memAddressDetail || "",
-        img: data.memImg || "",
-      };
-
-      setProfile(memberProfile);
-      setForm(memberProfile);
+      await fetchMember(member.memNo);
 
       // 이미지 업로드 성공 시 기존 메시지 제거
       setMessage("");
@@ -196,9 +323,11 @@ export default function MyPage({ instructor = false, edit = false }) {
     }
   };
 
-  // 회원 정보 수정
+  // 회원 정보 및 비밀번호 수정
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (saving) return;
 
     const phone = form.phone.replace(/\D/g, "");
     const address = form.address.trim();
@@ -217,7 +346,52 @@ export default function MyPage({ instructor = false, edit = false }) {
       return;
     }
 
-    // 정상적인 입력이면 기존 에러 메시지 제거
+    // 비밀번호 변경 입력 여부 확인
+    const hasCurrentPassword = currentPassword.length > 0;
+    const hasNewPassword = newPassword.length > 0;
+    const hasConfirmPassword = confirmPassword.length > 0;
+
+    const wantsPasswordChange =
+      hasCurrentPassword || hasNewPassword || hasConfirmPassword;
+
+    // 세 칸 모두 비어 있으면 비밀번호 변경을 생략
+    if (wantsPasswordChange) {
+      if (
+        !hasCurrentPassword ||
+        !hasNewPassword ||
+        !hasConfirmPassword
+      ) {
+        setMessage(
+          "비밀번호를 변경하려면 현재 비밀번호, 새 비밀번호, 비밀번호 확인을 모두 입력해 주세요."
+        );
+        return;
+      }
+
+      // 새 비밀번호 형식 확인
+      if (!PASSWORD_REGEX.test(newPassword)) {
+        setMessage(
+          "새 비밀번호는 영문과 숫자를 포함하여 8~20자로 입력해 주세요."
+        );
+        return;
+      }
+
+      // 새 비밀번호와 확인 값 일치 여부 확인
+      if (newPassword !== confirmPassword) {
+        setMessage(
+          "새 비밀번호와 비밀번호 확인이 일치하지 않습니다."
+        );
+        return;
+      }
+
+      // 기존 비밀번호와 새 비밀번호가 같은지 확인
+      if (currentPassword === newPassword) {
+        setMessage(
+          "현재 비밀번호와 다른 비밀번호를 입력해 주세요."
+        );
+        return;
+      }
+    }
+
     setMessage("");
 
     try {
@@ -226,10 +400,19 @@ export default function MyPage({ instructor = false, edit = false }) {
       const member = getCookie("member");
 
       if (!member?.memNo) {
-        console.error("회원 번호가 없습니다.");
+        setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
         return;
       }
 
+      // 비밀번호를 변경하는 경우에만 비밀번호 변경 API 호출
+      if (wantsPasswordChange) {
+        await updatePassword(member.memNo, {
+          currentPassword,
+          newPassword,
+        });
+      }
+
+      // 회원 정보 수정
       await updateMember(member.memNo, {
         memNickname: form.nickname,
         memPhone: phone,
@@ -238,27 +421,283 @@ export default function MyPage({ instructor = false, edit = false }) {
         memImg: form.img || null,
       });
 
-      setProfile({
-        ...form,
-        phone,
-        address,
-      });
+      // 변경된 회원 정보를 다시 조회
+      await fetchMember(member.memNo);
+
+      // 비밀번호 입력값 초기화
+      resetPasswordFields();
 
       // 저장 후 마이페이지로 이동
       navigate(base);
     } catch (error) {
       console.error("회원 정보 수정 실패:", error);
-      setMessage("회원 정보 수정에 실패했습니다.");
+
+      const status = error.response?.status;
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message;
+
+      if (status === 401 || status === 403) {
+        setMessage(
+          serverMessage ||
+            "현재 비밀번호를 확인하거나 다시 로그인해 주세요."
+        );
+      } else {
+        setMessage(
+          serverMessage ||
+            "회원 정보 수정에 실패했습니다. 입력값을 확인해 주세요."
+        );
+      }
     } finally {
       setSaving(false);
     }
   };
 
+  // 강사 신청 화면 닫기
+  const handleCancelApplication = () => {
+    setApplying(false);
+    setIntroduction("");
+    setCareer("");
+    setCertificateFile(null);
+    setCareerFile(null);
+    setOtherFile(null);
+    setMessage("");
+  };
+
+  // 강사 신청
+  const handleInstructorApplication = async (e) => {
+    e.preventDefault();
+
+    if (submittingApplication) return;
+
+    const trimmedIntroduction = introduction.trim();
+    const trimmedCareer = career.trim();
+
+    // 필수 항목 확인
+    if (!trimmedIntroduction || !certificateFile || !careerFile) {
+      setMessage(
+        "자기소개, 자격증, 경력증명서는 필수 항목입니다. 모두 입력하거나 파일을 첨부해 주세요."
+      );
+      return;
+    }
+
+    const member = getCookie("member");
+
+    if (!member?.memNo) {
+      setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
+      return;
+    }
+
+    setMessage("");
+    setSubmittingApplication(true);
+
+    let reqNo = null;
+
+    try {
+      // 강사 신청 정보 등록
+      const response = await applyInstructor(member.memNo, {
+        reqIntroduction: trimmedIntroduction,
+        reqCareer: trimmedCareer,
+      });
+
+      const result = getResponseData(response);
+
+      // 신청 API는 신청 번호를 반환
+      reqNo =
+        typeof result === "number"
+          ? result
+          : Number(result?.reqNo ?? result);
+
+      if (!Number.isFinite(reqNo) || reqNo <= 0) {
+        throw new Error("강사 신청 번호를 확인할 수 없습니다.");
+      }
+
+      // 신청 번호를 먼저 저장해 중복 신청 방지
+      setRequest({
+        reqNo,
+        memNo: member.memNo,
+        reqIntroduction: trimmedIntroduction,
+        reqCareer: trimmedCareer,
+        reqStatus: "NEW",
+      });
+
+      // 선택한 서류를 각각 한 개씩 업로드
+      await uploadInstructorDocument(reqNo, certificateFile);
+      await uploadInstructorDocument(reqNo, careerFile);
+
+      if (otherFile) {
+        await uploadInstructorDocument(reqNo, otherFile);
+      }
+
+      // 업로드 완료 후 증빙자료 목록 다시 조회
+      try {
+        const documentResponse = await getInstructorDocuments(reqNo);
+        const documents = getResponseData(documentResponse);
+
+        const documentList = Array.isArray(documents)
+          ? documents
+          : Array.isArray(documents?.data)
+            ? documents.data
+            : Array.isArray(documents?.documents)
+              ? documents.documents
+              : [];
+
+        setInstructorDocuments(documentList);
+      } catch (documentError) {
+        console.error("증빙자료 목록 조회 실패:", documentError);
+      }
+
+      setApplying(false);
+      setIntroduction("");
+      setCareer("");
+      setCertificateFile(null);
+      setCareerFile(null);
+      setOtherFile(null);
+      setMessage("");
+    } catch (error) {
+      console.error("강사 신청 실패:", error);
+
+      if (reqNo) {
+        // 신청 정보는 등록됐으나 서류 업로드가 실패한 경우
+        setApplying(false);
+        setMessage(
+          "강사 신청 정보는 등록되었지만 서류 업로드 중 오류가 발생했습니다. 관리자에게 확인해 주세요."
+        );
+      } else {
+        const serverMessage =
+          error.response?.data?.message ||
+          error.response?.data?.data?.message;
+
+        setMessage(
+          serverMessage ||
+            "강사 신청에 실패했습니다. 입력 내용을 확인해 주세요."
+        );
+      }
+    } finally {
+      setSubmittingApplication(false);
+    }
+  };
+
+  // 회원 탈퇴 가능 여부 확인
+  const handleCheckWithdrawal = async () => {
+    if (checkingWithdrawal || withdrawing) return;
+
+    const member = getCookie("member");
+
+    if (!member?.memNo) {
+      setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
+      return;
+    }
+
+    setMessage("");
+    setCheckingWithdrawal(true);
+
+    try {
+      const response = await checkWithdrawal(member.memNo);
+      const result = getResponseData(response);
+
+      setWithdrawalCheck(result);
+
+      if (result?.canWithdraw === false) {
+        setWithdrawalOpen(false);
+        setMessage(
+          result.message ||
+            "현재 진행 중이거나 예정된 예약·클래스가 있어 탈퇴할 수 없습니다."
+        );
+        return;
+      }
+
+      if (result?.canWithdraw === true) {
+        setAgreedToTerms(false);
+        setWithdrawalOpen(true);
+        return;
+      }
+
+      setMessage(
+        result?.message ||
+          "회원 탈퇴 가능 여부를 확인하지 못했습니다. 다시 시도해 주세요."
+      );
+    } catch (error) {
+      console.error("회원 탈퇴 가능 여부 확인 실패:", error);
+
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message;
+
+      setMessage(
+        serverMessage ||
+          "회원 탈퇴 가능 여부를 확인하지 못했습니다. 다시 시도해 주세요."
+      );
+    } finally {
+      setCheckingWithdrawal(false);
+    }
+  };
+
+  // 회원 탈퇴 취소
+  const handleCancelWithdrawal = () => {
+    setWithdrawalOpen(false);
+    setWithdrawalCheck(null);
+    setAgreedToTerms(false);
+  };
+
+  // 회원 탈퇴
+  const handleWithdrawal = async () => {
+    if (withdrawing) return;
+
+    if (!agreedToTerms) {
+      setMessage("회원 탈퇴 약관에 동의해 주세요.");
+      return;
+    }
+
+    const member = getCookie("member");
+
+    if (!member?.memNo) {
+      setMessage("회원 번호가 없습니다. 다시 로그인해 주세요.");
+      return;
+    }
+
+    // 최종 탈퇴 확인
+    const confirmed = window.confirm(
+      "정말로 탈퇴하시겠습니까? 탈퇴 후에는 계정을 복구할 수 없습니다."
+    );
+
+    if (!confirmed) return;
+
+    setMessage("");
+    setWithdrawing(true);
+
+    try {
+      await deleteMember(member.memNo);
+
+      // 탈퇴 성공 시 로그인 쿠키 삭제
+      removeCookie("member");
+
+      setWithdrawalOpen(false);
+      setWithdrawalCheck(null);
+      setAgreedToTerms(false);
+
+      window.alert("회원 탈퇴가 완료되었습니다.");
+
+      navigate("/");
+    } catch (error) {
+      console.error("회원 탈퇴 실패:", error);
+
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message;
+
+      setMessage(
+        serverMessage ||
+          "회원 탈퇴에 실패했습니다. 잠시 후 다시 시도해 주세요."
+      );
+    } finally {
+      setWithdrawing(false);
+    }
+  };
+
   if (loading) {
     return (
-      <Workspace
-        kind={isInstructor ? "instructor" : "member"}
-      >
+      <Workspace kind={isInstructor ? "instructor" : "member"}>
         <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
           회원 정보를 불러오는 중입니다.
         </section>
@@ -267,9 +706,49 @@ export default function MyPage({ instructor = false, edit = false }) {
   }
 
   return (
-    <Workspace
-      kind={isInstructor ? "instructor" : "member"}
-    >
+    <Workspace kind={isInstructor ? "instructor" : "member"}>
+      {!edit && isPasswordExpired(profile) && (
+        <div
+          className="mb-[20px] flex items-start gap-3 rounded-lg border border-red-300 border-l-4 border-l-red-600 bg-red-50 px-[17px] py-[16px] text-red-800"
+          role="alert"
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-6 w-6 text-red-600"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3m0 4h.01M10.3 3.86 2.6 17.2A2 2 0 0 0 4.33 20h15.34a2 2 0 0 0 1.73-2.8L13.7 3.86a2 2 0 0 0-3.4 0Z"
+              />
+            </svg>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <p className="font-bold text-red-800">
+                비밀번호 변경이 필요합니다
+              </p>
+
+              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+                보안 경고
+              </span>
+            </div>
+
+            <p className="text-[14px] leading-[1.7] text-red-700">
+              비밀번호 변경 후 90일이 경과했습니다.
+              계정 보안을 위해 비밀번호를 변경해 주세요.
+            </p>
+          </div>
+        </div>
+      )}
+
       <Heading
         title={
           edit
@@ -319,8 +798,7 @@ export default function MyPage({ instructor = false, edit = false }) {
           <div>
             <h3>{profile.nickname}</h3>
             <p>
-              {isInstructor ? "강사" : "회원"} ·{" "}
-              {profile.email}
+              {isInstructor ? "강사" : "회원"} · {profile.email}
             </p>
           </div>
         </div>
@@ -357,9 +835,7 @@ export default function MyPage({ instructor = false, edit = false }) {
                 onChange={(e) =>
                   setForm({
                     ...form,
-                    phone: e.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 11),
+                    phone: e.target.value.replace(/\D/g, "").slice(0, 11),
                   })
                 }
               />
@@ -390,6 +866,45 @@ export default function MyPage({ instructor = false, edit = false }) {
                   })
                 }
               />
+
+              {/* 비밀번호 변경 */}
+              <div className="mt-[25px] border-t border-[#ebe6e0] pt-[24px]">
+                <h3 className="text-[18px] font-bold text-[#1f2937] mb-2">
+                  비밀번호 변경
+                </h3>
+
+                <p className="text-[13px] text-[#6b7280] mb-[18px]">
+                  비밀번호를 변경하지 않으려면 아래 항목을 모두 비워 두세요.
+                </p>
+
+                <Field
+                  label="현재 비밀번호"
+                  type="password"
+                  value={currentPassword}
+                  autoComplete="current-password"
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+
+                <Field
+                  label="새 비밀번호"
+                  type="password"
+                  value={newPassword}
+                  autoComplete="new-password"
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+
+                <Field
+                  label="새 비밀번호 확인"
+                  type="password"
+                  value={confirmPassword}
+                  autoComplete="new-password"
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+
+                <p className="text-[13px] leading-[1.7] text-[#888]">
+                  영문과 숫자를 포함하여 8~20자로 입력해 주세요.
+                </p>
+              </div>
             </div>
 
             <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
@@ -409,8 +924,16 @@ export default function MyPage({ instructor = false, edit = false }) {
                 secondary
                 to={base}
                 onClick={() => {
-                  // 수정 전 상태로 복구
-                  setForm(profile);
+                  setForm({
+                    email: profile.email,
+                    nickname: profile.nickname,
+                    phone: profile.phone,
+                    address: profile.address,
+                    detail: profile.detail,
+                    img: profile.img,
+                  });
+
+                  resetPasswordFields();
                   setMessage("");
                 }}
               >
@@ -427,19 +950,12 @@ export default function MyPage({ instructor = false, edit = false }) {
                 ["핸드폰", formatPhone(profile.phone)],
                 [
                   "주소",
-                  `${profile.address || ""} ${
-                    profile.detail || ""
-                  }`.trim(),
+                  `${profile.address || ""} ${profile.detail || ""}`.trim(),
                 ],
               ].map(([k, v]) => (
-                <div
-                  key={k}
-                  style={{ display: "contents" }}
-                >
+                <div key={k} style={{ display: "contents" }}>
                   <dt className="text-[#888]">{k}</dt>
-                  <dd className="m-0 font-semibold">
-                    {v}
-                  </dd>
+                  <dd className="m-0 font-semibold">{v}</dd>
                 </div>
               ))}
             </dl>
@@ -454,6 +970,7 @@ export default function MyPage({ instructor = false, edit = false }) {
         )}
       </section>
 
+      {/* 강사 신청 */}
       {!isInstructor && !edit && (
         <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
           <Heading
@@ -464,74 +981,186 @@ export default function MyPage({ instructor = false, edit = false }) {
           {request ? (
             <>
               <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
-                {request.status}
+                {getInstructorStatus(request.reqStatus)}
               </span>
 
-              <p style={{ marginTop: 14 }}>
-                신청일: {request.date}
-              </p>
+              {/* 자기소개 */}
+              <div className="mt-4">
+                <p className="font-bold text-[#1f2937]">
+                  자기소개
+                </p>
 
-              <p>{request.bio}</p>
-              <p>{request.files.join(", ")}</p>
+                <p className="mt-2 leading-[1.8] break-words whitespace-pre-wrap">
+                  {request.reqIntroduction || ""}
+                </p>
+              </div>
 
-              <button
-                className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
-                onClick={() => setRequest(null)}
-              >
-                신청 취소
-              </button>
+              <div className="my-5 border-t border-[#ebe6e0]" />
+
+              {/* 강의 경력 및 활동 이력 */}
+              <div>
+                <p className="font-bold text-[#1f2937]">
+                  강의 경력 및 활동 이력
+                </p>
+
+                <p className="mt-2 leading-[1.8] break-words whitespace-pre-wrap">
+                  {request.reqCareer || ""}
+                </p>
+              </div>
+
+              <div className="my-5 border-t border-[#ebe6e0]" />
+
+              {/* 제출한 증빙자료 */}
+              <div>
+                <p className="font-bold text-[#1f2937]">
+                  제출한 증빙자료
+                </p>
+
+                {instructorDocuments.length > 0 ? (
+                  <ul className="mt-2 space-y-2">
+                    {instructorDocuments.map((document, index) => {
+                      const fileName =
+                        document.docName ??
+                        document.documentName ??
+                        document.originalFileName ??
+                        document.fileName;
+
+                      return (
+                        <li
+                          key={document.docNo ?? index}
+                          className="break-all leading-[1.8]"
+                        >
+                          {fileName || "파일명 확인 불가"}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-[#6b7280]">
+                    증빙자료를 불러오지 못했습니다.
+                  </p>
+                )}
+              </div>
             </>
           ) : applying ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-
-                setRequest({
-                  bio,
-                  files: files.map((f) => f.name),
-                  date: "2026-10-01",
-                  status: "관리자 검토 중",
-                });
-
-                setApplying(false);
-              }}
-            >
-              <Field label="강사 소개 및 경력">
+            <form onSubmit={handleInstructorApplication}>
+              {/* 자기소개 */}
+              <Field
+                label={
+                  <>
+                    자기소개{" "}
+                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                  </>
+                }
+              >
                 <textarea
-                  required
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="경력 및 활동 이력을 적어주세요."
+                  rows={6}
+                  value={introduction}
+                  onChange={(e) => setIntroduction(e.target.value)}
+                  placeholder="강사로서 자신을 소개해 주세요."
+                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[15px] leading-[1.7] outline-none focus:border-[#f97316]"
                 />
               </Field>
 
-              <Field label="자격 및 경력 증명 서류">
+              {/* 강의 경력 및 활동 이력 */}
+              <Field label="강의 경력 및 활동 이력">
+                <textarea
+                  rows={6}
+                  value={career}
+                  onChange={(e) => setCareer(e.target.value)}
+                  placeholder="관련 경력, 강의 경험 및 활동 이력을 작성해 주세요."
+                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[15px] leading-[1.7] outline-none focus:border-[#f97316]"
+                />
+              </Field>
+
+              {/* 자격증 */}
+              <Field
+                label={
+                  <>
+                    자격증{" "}
+                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                  </>
+                }
+              >
                 <input
-                  required
                   type="file"
-                  multiple
                   accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) =>
-                    setFiles(Array.from(e.target.files))
+                    setCertificateFile(e.target.files?.[0] || null)
                   }
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
                 />
+
+                {certificateFile && (
+                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                    {certificateFile.name}
+                  </p>
+                )}
+              </Field>
+
+              {/* 경력증명서 */}
+              <Field
+                label={
+                  <>
+                    경력증명서{" "}
+                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                  </>
+                }
+              >
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) =>
+                    setCareerFile(e.target.files?.[0] || null)
+                  }
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                />
+
+                {careerFile && (
+                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                    {careerFile.name}
+                  </p>
+                )}
+              </Field>
+
+              {/* 기타 서류 */}
+              <Field label="기타 서류">
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) =>
+                    setOtherFile(e.target.files?.[0] || null)
+                  }
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                />
+
+                {otherFile && (
+                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                    {otherFile.name}
+                  </p>
+                )}
               </Field>
 
               <p className="text-[13px] leading-[1.8] text-[#999]">
-                미리보기에는 파일 이름만 보관하며 파일을 업로드하지 않습니다.
+                PDF, JPG, JPEG, PNG 파일을 업로드할 수 있습니다.
+                자기소개, 자격증, 경력증명서는 필수이며 기타 서류는 선택 사항입니다.
               </p>
 
+              {/* 버튼은 오른쪽 끝에 나란히 배치 */}
               <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
                 <button
+                  type="submit"
+                  disabled={submittingApplication}
                   className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
                 >
-                  신청 화면 완료
+                  {submittingApplication ? "신청 중..." : "신청 완료"}
                 </button>
 
                 <button
                   type="button"
+                  disabled={submittingApplication}
                   className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
-                  onClick={() => setApplying(false)}
+                  onClick={handleCancelApplication}
                 >
                   취소
                 </button>
@@ -539,6 +1168,7 @@ export default function MyPage({ instructor = false, edit = false }) {
             </form>
           ) : (
             <button
+              type="button"
               className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
               onClick={() => setApplying(true)}
             >
@@ -557,16 +1187,102 @@ export default function MyPage({ instructor = false, edit = false }) {
         </p>
       )}
 
-      <button
-        className="bg-transparent border-0 p-[7px] text-[#b75b46]!"
-        onClick={() =>
-          setMessage(
-            "회원 탈퇴는 실제 계정과 예약·환불 상태 확인이 필요하므로 미리보기에서 처리하지 않습니다.",
-          )
-        }
-      >
-        회원 탈퇴 안내
-      </button>
+      {/* 회원 탈퇴 버튼 */}
+      {!edit && (
+        <div className="flex justify-end mb-[26px]">
+          <button
+            type="button"
+            disabled={checkingWithdrawal || withdrawing}
+            className="bg-transparent border-0 p-[7px] text-[#b75b46] cursor-pointer disabled:opacity-50"
+            onClick={handleCheckWithdrawal}
+          >
+            {checkingWithdrawal ? "탈퇴 가능 여부 확인 중..." : "회원 탈퇴"}
+          </button>
+        </div>
+      )}
+
+      {/* 회원 탈퇴 모달 */}
+      {withdrawalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="withdrawal-title"
+        >
+          <section className="w-full max-w-[520px] rounded-xl bg-white p-6 shadow-xl max-md:p-[18px]">
+            <h2
+              id="withdrawal-title"
+              className="mb-4 text-xl font-bold text-[#1f2937]"
+            >
+              회원 탈퇴
+            </h2>
+
+            <p className="mb-4 text-[14px] leading-[1.8] text-[#4b5563]">
+              탈퇴하면 계정에 연결된 개인정보가 삭제되며, 탈퇴 후에는
+              계정을 복구할 수 없습니다.
+            </p>
+
+            {withdrawalCheck?.message && (
+              <p className="mb-4 rounded-lg bg-[#fff7ed] p-3 text-[14px] text-[#9a3412]">
+                {withdrawalCheck.message}
+              </p>
+            )}
+
+            {/* 탈퇴 확인 사항 */}
+            <div className="mb-5 rounded-lg border border-[#ebe6e0] bg-[#fffdf9] p-4">
+              <p className="mb-2 font-semibold text-[#1f2937]">
+                탈퇴 전 확인 사항
+              </p>
+
+              <ul className="list-disc space-y-1 pl-5 text-[13px] leading-[1.8] text-[#6b7280]">
+                <li>탈퇴 후에는 계정 복구가 불가능합니다.</li>
+                <li>
+                  진행 중인 예약, 결제, 환불 및 클래스 상태에 따라 탈퇴가 제한될 수 있습니다.
+                </li>
+                <li>
+                  탈퇴 완료 시 예약, 결제, 환불은 불가하며 해당 내역은 즉시 삭제됩니다.
+                </li>
+                <li>탈퇴 완료 시 개인정보는 즉시 삭제됩니다.</li>
+              </ul>
+            </div>
+
+            {/* 약관 동의 */}
+            <label className="mb-6 flex cursor-pointer items-start gap-2 text-[14px] leading-[1.7] text-[#1f2937]">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1"
+              />
+
+              <span>
+                위 내용을 확인했으며 회원 탈퇴 및 개인정보 삭제에 동의합니다.
+              </span>
+            </label>
+
+            {/* 버튼은 기존처럼 오른쪽 정렬 */}
+            <div className="flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                disabled={withdrawing}
+                onClick={handleCancelWithdrawal}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[#edddcf] bg-white px-5 py-2 font-bold text-[#e56b00] disabled:opacity-50"
+              >
+                취소
+              </button>
+
+              <button
+                type="button"
+                disabled={!agreedToTerms || withdrawing}
+                onClick={handleWithdrawal}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-[#b75b46] bg-[#b75b46] px-5 py-2 font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {withdrawing ? "탈퇴 처리 중..." : "탈퇴하기"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </Workspace>
   );
 }

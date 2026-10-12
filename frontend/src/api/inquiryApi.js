@@ -41,3 +41,24 @@ export const modifyInquiryComment = async (repNo, admComment) => {
 
   return response.data.data;
 };
+
+// 회원 문의 등록
+export const registerInquiry = async (requestData) => {
+  const response = await axios.post("/api/inquiry", requestData);
+
+  return response.data;
+};
+
+// 일반 회원의 문의 목록 조회
+export const getMyInquiryList = async (inqMemNo) => {
+  const response = await axios.get("/api/inquiry/my", {
+    params: { inqMemNo },
+  });
+
+  return response.data.data;
+};
+
+export const getInquiry = async (inqNo) => {
+  const response = await axios.get(`/api/inquiry/${inqNo}`);
+  return response.data.data;
+};

@@ -1,10 +1,6 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
-import {
-  useStore,
-  initialInquiries,
-  initialProfile,
-} from "../../mocks/data";
 
 import {
   getNotice,
@@ -12,11 +8,18 @@ import {
   modifyNotice,
 } from "../../api/noticeApi";
 
+import { registerInquiry } from "../../api/inquiryApi";
+
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
 import { Field } from "../../components/common/Field";
 import { Empty } from "../../components/common/Empty";
 import { Workspace } from "../../components/common/Workspace";
+
+import {
+  inquiryTypes,
+  normalizeInquiryType,
+} from "../../util/inquiryUtil";
 
 export default function BoardFormPage({
   inquiry = false,
@@ -26,29 +29,24 @@ export default function BoardFormPage({
   const [params] = useSearchParams();
   const navigate = useNavigate();
 
-  // 문의는 아직 기존 mock/localStorage 사용
-  const [inquiryItems, setInquiryItems] = useStore(
-    "inquiries",
-    initialInquiries,
-  );
-
+  // 공지사항 / 문의 공통 입력값
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
+  // 문의 유형 (현재 백엔드에는 유형 저장 컬럼이 없음)
   const [type, setType] = useState(
-    params.get("type") || "문의",
+    normalizeInquiryType(params.get("type"))
   );
 
-  const [loading, setLoading] = useState(
-    !inquiry && edit,
-  );
+  // 로딩 및 저장 상태
+  const [loading, setLoading] = useState(!inquiry && edit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const base = inquiry
-    ? "/inquiry"
-    : "/admin/notice";
+  // 화면별 기본 경로
+  const base = inquiry ? "/inquiry" : "/admin/notice";
 
-  // 공지사항 수정 화면 진입 시 실제 DB 데이터 조회
+  // 공지사항 수정 시 기존 데이터 조회
   useEffect(() => {
     if (inquiry || !edit || !notNo) {
       return;
@@ -63,15 +61,12 @@ export default function BoardFormPage({
 
         setTitle(data?.notTitle ?? "");
         setContent(data?.notContent ?? "");
-      } catch (err) {
-        console.error(
-          "공지사항 조회 실패:",
-          err,
-        );
 
-        setError(
-          "공지사항을 찾을 수 없습니다.",
-        );
+      } catch (err) {
+        console.error("공지사항 조회 실패:", err);
+
+        setError("공지사항을 찾을 수 없습니다.");
+
       } finally {
         setLoading(false);
       }
@@ -80,33 +75,52 @@ export default function BoardFormPage({
     fetchNotice();
   }, [inquiry, edit, notNo]);
 
-  // 문의 등록은 기존 방식 유지
-  const handleInquirySubmit = () => {
-    const id = Date.now();
+  // 회원 문의 등록 (실제 DB 저장)
+  const handleInquirySubmit = async () => {
+    try {
+      setSaving(true);
+      setError("");
 
-    const record = {
-      id,
-      title: title.trim(),
-      content: content.trim(),
-      date: new Date().toLocaleDateString(
-        "ko-KR",
-      ),
-      type,
-      memberId: initialProfile.id,
-      status: "RECEIVED",
-      answer: "",
-      target: params.get("target"),
-    };
+      const requestData = {
+        inqTitle: title.trim(),
+        inqContent: content.trim(),
+      };
 
-    setInquiryItems((items) => [
-      ...items,
-      record,
-    ]);
+      // Spring Boot POST /api/inquiry
+      const result = await registerInquiry(requestData);
 
-    navigate(`${base}/read/${id}`);
+      // 서버에서 생성한 문의 번호
+      const createdInqNo = result?.inqNo;
+
+      if (createdInqNo == null) {
+        throw new Error("생성된 문의 번호가 없습니다.");
+      }
+
+      // 등록 성공 후 문의 상세 페이지로 이동
+      navigate(`/inquiry/read/${createdInqNo}`);
+
+    } catch (err) {
+      console.error("문의 등록 실패:", err);
+
+      if (err.response?.status === 401) {
+        setError("로그인이 필요합니다.");
+
+      } else if (err.response?.status === 403) {
+        setError("문의 등록 권한이 없습니다.");
+
+      } else if (err.response?.status === 400) {
+        setError("제목과 내용을 확인해주세요.");
+
+      } else {
+        setError("문의 등록에 실패했습니다.");
+      }
+
+    } finally {
+      setSaving(false);
+    }
   };
 
-  // 공지사항 등록/수정
+  // 공지사항 등록 / 수정 (기존 API 유지)
   const handleNoticeSubmit = async () => {
     try {
       setSaving(true);
@@ -117,98 +131,86 @@ export default function BoardFormPage({
         notContent: content.trim(),
       };
 
+      // 공지사항 수정
       if (edit) {
-        await modifyNotice(
-          notNo,
-          requestData,
-        );
+        await modifyNotice(notNo, requestData);
 
-        navigate(
-          `/admin/notice/read/${notNo}`,
-        );
-
+        navigate(`/admin/notice/read/${notNo}`);
         return;
       }
 
-      const result =
-        await registerNotice(requestData);
+      // 공지사항 등록
+      const result = await registerNotice(requestData);
 
       const createdNotNo = result?.notNo;
 
-      if (!createdNotNo) {
-        throw new Error(
-          "생성된 공지사항 번호가 없습니다.",
-        );
+      if (createdNotNo == null) {
+        throw new Error("생성된 공지사항 번호가 없습니다.");
       }
 
-      navigate(
-        `/admin/notice/read/${createdNotNo}`,
-      );
+      navigate(`/admin/notice/read/${createdNotNo}`);
+
     } catch (err) {
       console.error(
-        edit
-          ? "공지사항 수정 실패:"
-          : "공지사항 등록 실패:",
-        err,
+        edit ? "공지사항 수정 실패:" : "공지사항 등록 실패:",
+        err
       );
 
       if (err.response?.status === 401) {
-        setError(
-          "로그인이 필요합니다.",
-        );
-      } else if (
-        err.response?.status === 403
-      ) {
-        setError(
-          "관리자 권한이 필요합니다.",
-        );
+        setError("로그인이 필요합니다.");
+
+      } else if (err.response?.status === 403) {
+        setError("관리자 권한이 필요합니다.");
+
       } else {
         setError(
           edit
             ? "공지사항 수정에 실패했습니다."
-            : "공지사항 등록에 실패했습니다.",
+            : "공지사항 등록에 실패했습니다."
         );
       }
+
     } finally {
       setSaving(false);
     }
   };
 
+  // 폼 제출
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !title.trim() ||
-      !content.trim()
-    ) {
+    // 중복 등록 방지
+    if (saving) {
+      return;
+    }
+
+    if (!title.trim() || !content.trim()) {
+      setError("제목과 내용을 입력해주세요.");
       return;
     }
 
     if (inquiry) {
-      handleInquirySubmit();
+      await handleInquirySubmit();
       return;
     }
 
     await handleNoticeSubmit();
   };
 
+  // 공지사항 수정 로딩 화면
   if (loading) {
     return (
       <Workspace kind="admin">
-        <p className="text-center py-10 text-[#85888d]">
-          공지사항을 불러오는 중입니다.
-        </p>
+        <p>공지사항을 불러오는 중입니다.</p>
       </Workspace>
     );
   }
 
+  // 공지사항 수정 대상이 없는 경우
   if (!inquiry && edit && error) {
     return (
       <Workspace kind="admin">
-        <Empty
-          to={`${base}/list`}
-          label="목록으로"
-        >
+        <Empty to={`${base}/list`} label="목록으로">
           {error}
         </Empty>
       </Workspace>
@@ -216,53 +218,37 @@ export default function BoardFormPage({
   }
 
   return (
-    <Workspace
-      kind={
-        inquiry ? "member" : "admin"
-      }
-    >
+    <Workspace kind={inquiry ? "member" : "admin"}>
       <Heading
         title={
           inquiry
-            ? "문의 및 신고 작성"
+            ? "문의 작성"
             : edit
               ? "공지사항 수정"
               : "공지사항 등록"
         }
       />
 
-      <form
-        className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]"
-        onSubmit={handleSubmit}
-      >
+      <form onSubmit={handleSubmit}>
+        {/* 제목 */}
         <Field
           label="제목"
           required
-          maxLength={200}
+          maxLength={inquiry ? 100 : 200}
           value={title}
-          onChange={(e) =>
-            setTitle(e.target.value)
-          }
+          onChange={(e) => setTitle(e.target.value)}
           placeholder="제목을 입력해주세요."
         />
 
+        {/* 문의 유형 */}
         {inquiry && (
           <Field label="유형">
             <select
               value={type}
-              onChange={(e) =>
-                setType(e.target.value)
-              }
+              onChange={(e) => setType(e.target.value)}
             >
-              {[
-                "문의",
-                "클래스 신고",
-                "후기 신고",
-              ].map((value) => (
-                <option
-                  key={value}
-                  value={value}
-                >
+              {inquiryTypes.map((value) => (
+                <option key={value} value={value}>
                   {value}
                 </option>
               ))}
@@ -270,49 +256,42 @@ export default function BoardFormPage({
           </Field>
         )}
 
+        {/* 내용 */}
         <Field label="내용">
           <textarea
             required
-            maxLength={5000}
+            maxLength={inquiry ? 255 : 5000}
             value={content}
-            onChange={(e) =>
-              setContent(e.target.value)
-            }
+            onChange={(e) => setContent(e.target.value)}
             placeholder={
               inquiry
-                ? "문의 또는 신고 내용을 입력해주세요."
+                ? "문의 내용을 입력해주세요."
                 : "공지사항 내용을 입력해주세요."
             }
           />
         </Field>
 
-        <p className="text-[13px] leading-[1.8] text-[#999]">
-          {content.length}/5000
+        {/* 글자 수 */}
+        <p>
+          {content.length}/{inquiry ? 255 : 5000}
           {inquiry &&
             " · 문의할 대상과 내용을 구체적으로 적어주세요."}
         </p>
 
+        {/* 오류 메시지 */}
         {error && (
-          <p
-            className="px-[17px] py-[13px] my-[18px] rounded-[7px] bg-[#fff0ec] text-[#ac4326] text-[16px]"
-            role="alert"
-          >
+          <p role="alert">
             {error}
           </p>
         )}
 
-        <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
-          <ButtonLink
-            secondary
-            to={`${base}/list`}
-          >
+        {/* 버튼 */}
+        <div>
+          <ButtonLink secondary to={`${base}/list`}>
             취소
           </ButtonLink>
 
-          <button
-            disabled={saving}
-            className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-50"
-          >
+          <button type="submit" disabled={saving}>
             {saving
               ? edit
                 ? "수정 중..."

@@ -15,4 +15,8 @@ public interface FavoriteRepository extends JpaRepository<Favorite , Long > {
 
     // 로그인 회원의 찜인지 확인
     Optional<Favorite> findByFavNoAndMemNo(Long favNo, Long memNo);
+
+    // 추가한 부분
+    // 회원의 찜 목록 삭제
+    void deleteAllByMemNo(Long memNo);
 }

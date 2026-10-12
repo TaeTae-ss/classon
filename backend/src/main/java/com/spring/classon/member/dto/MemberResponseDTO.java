@@ -18,4 +18,5 @@ public class MemberResponseDTO {
     private String memImg;
     private String memRole;
     private LocalDateTime memCreatedAt;
+    private LocalDateTime memPwUpdate;
 }

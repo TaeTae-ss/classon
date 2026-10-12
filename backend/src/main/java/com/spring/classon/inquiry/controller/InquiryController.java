@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.spring.classon.inquiry.dto.InquiryRegisterDTO;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -20,13 +23,17 @@ public class InquiryController {
 
     @PostMapping
     public ResponseEntity<Map<String, Long>> register(
-            @Valid @RequestBody InquiryRegisterDTO inquiryDTO) {
+            @Valid @RequestBody InquiryRegisterDTO inquiryDTO,
+            Authentication authentication
+    ) {
+        Long memNo = getAuthenticatedMemberNo(authentication);
+
+        // 클라이언트가 전달한 회원 번호 대신 JWT 회원 번호 사용
+        inquiryDTO.setInqMemNo(memNo);
 
         Long inqNo = inquiryService.register(inquiryDTO);
 
-        return ResponseEntity.ok(
-                Map.of("inqNo", inqNo)
-        );
+        return ResponseEntity.ok(Map.of("inqNo", inqNo));
     }
 
     // 내 문의 목록
@@ -38,6 +45,28 @@ public class InquiryController {
         return ResponseEntity.ok(
                 inquiryService.getListByMember(inqMemNo)
         );
+    }
+
+    private Long getAuthenticatedMemberNo(Authentication authentication) {
+
+        if (authentication == null
+                || !(authentication.getPrincipal() instanceof Map<?, ?> claims)) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "로그인이 필요합니다."
+            );
+        }
+
+        Object memNo = claims.get("memNo");
+
+        if (!(memNo instanceof Number)) {
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "회원 인증 정보가 올바르지 않습니다."
+            );
+        }
+
+        return ((Number) memNo).longValue();
     }
 
     // 문의 상세 조회

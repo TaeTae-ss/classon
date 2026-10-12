@@ -74,6 +74,7 @@ public class SecurityConfig {
                                 "/uploads/oneday/**",
                                 "/uploads/member/**",
                                 "/api/v1/oneday/**",
+                                "/api/v1/categories",
                                 "/api/auth/password/**",
                                 "/api/auth/refresh",
                                 "/api/reservation",
