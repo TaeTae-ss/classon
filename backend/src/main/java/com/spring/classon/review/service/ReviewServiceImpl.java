@@ -229,11 +229,11 @@ public class ReviewServiceImpl implements ReviewService {
                         new ReviewException("예약 정보를 찾을 수 없습니다."));
 
         // 예약한 회원 조회
-        Member member = memberRepository.findById(reservation.getMemNo())
-                .orElseThrow(() ->
-                        new ReviewException("회원 정보를 찾을 수 없습니다."));
+        String nickname = memberRepository.findById(reservation.getMemNo())
+                .map(Member::getMemNickname)
+                .orElse("탈퇴한 회원");
 
-        dto.setMemNickname(member.getMemNickname());
+        dto.setMemNickname(nickname);
 
         return dto;
     }
