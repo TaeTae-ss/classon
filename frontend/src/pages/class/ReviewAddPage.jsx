@@ -41,7 +41,7 @@ export default function ReviewAddPage() {
   // 예약 정보가 없는 경우
   if (!reservation) {
     return (
-      <Empty to="/reservation/member/1" label="예약 내역">
+      <Empty to="/member/reservations" label="예약 내역">
         예약 정보를 찾을 수 없습니다.
       </Empty>
     );
@@ -50,7 +50,7 @@ export default function ReviewAddPage() {
   // 수강 완료된 예약만 후기 작성 가능
   if (reservation.rsvStatus !== "COMPLETED") {
     return (
-      <Empty to="/reservation/member/1" label="예약 내역">
+      <Empty to="/member/reservations" label="예약 내역">
         수강 완료한 클래스만 후기를 작성할 수 있습니다.
       </Empty>
     );
@@ -116,7 +116,7 @@ export default function ReviewAddPage() {
         </span>
 
         <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
-          <ButtonLink secondary to="/reservation/member/1">
+          <ButtonLink secondary to="/member/reservations">
             취소
           </ButtonLink>
 

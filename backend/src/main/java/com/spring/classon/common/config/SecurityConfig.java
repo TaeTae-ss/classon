@@ -77,11 +77,7 @@ public class SecurityConfig {
                                 "/api/v1/categories",
                                 "/api/auth/password/**",
                                 "/api/auth/refresh",
-                                "/api/reservation",
-                                "/api/reservation/**",
-                                "/api/payment",
-                                "/api/notices/**",
-                                "/api/payment/**"
+                                "/api/notices/**"
                         ).permitAll()
 
                         .requestMatchers("/api/admin/**")
