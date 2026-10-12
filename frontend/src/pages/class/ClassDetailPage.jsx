@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { initialReviews, money, useStore } from "../../mocks/data";
+import useFavorite from "../../hooks/useFavorite";
 import { usePagination } from "../../hooks/usePagination";
 import { getClassDetail } from "../../api/classApi";
 import { Heading } from "../../components/common/Heading";
@@ -13,7 +14,7 @@ export default function ClassDetailPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [favorites, setFavorites] = useStore("favorites", [1, 2]);
+  const { favorites, handleToggleFavorite } = useFavorite();
   const [reviews] = useStore("reviews", initialReviews);
   const reviewPagination = usePagination(reviews.filter((r) => r.classId === item?.id));
 
@@ -55,7 +56,7 @@ export default function ClassDetailPage() {
       </Empty>
     );
 
-  const liked = favorites.includes(item.id);
+  const liked = favorites.some((f) => f.clsNo === item.clsNo);
   const address = [item.clsRoadAddr, item.clsDetailAddr].filter(Boolean).join(" ");
 
   return (
@@ -156,11 +157,7 @@ export default function ClassDetailPage() {
               <button type="button"
               className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
               aria-pressed={liked}
-              onClick={() =>
-                setFavorites((v) =>
-                  liked ? v.filter((id) => id !== item.id) : [...v, item.id],
-                )
-              }
+              onClick={() => handleToggleFavorite(item.clsNo)}
             >
               {liked ? "♥ 찜 해제" : "♡ 찜하기"}
             </button>
