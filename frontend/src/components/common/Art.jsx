@@ -1,4 +1,32 @@
 export function Art({ item, hero = false, className = "" }) {
+  const imagePath = item.clsImgThumb || item.clsImgOrigin;
+
+  const image = imagePath
+    ? imagePath.startsWith("http")
+      ? imagePath
+      : `http://localhost:8080${imagePath}`
+    : null;
+
+    // 실제 클래스 이미지가 있으면 이미지 표시
+    if (image) {
+      return (
+        <div
+          className={`${
+            hero
+              ? "overflow-hidden h-full max-md:h-[252px]"
+              : "overflow-hidden aspect-[400/260]"
+          } ${className}`}
+        >
+          <img
+            src={image}
+            alt={item.clsName || item.title || "클래스 이미지"}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      );
+    }
+
+  // 이미지가 없으면 기존 SVG 표시
   return (
     <div
       className={`${
@@ -6,12 +34,12 @@ export function Art({ item, hero = false, className = "" }) {
           ? "overflow-hidden h-full max-md:h-[252px]"
           : "overflow-hidden aspect-[400/260]"
       } ${className}`}
-      style={{ background: item.color }}
+      style={{ background: item.color || "#f6ede2" }}
     >
       <svg
         viewBox="0 0 400 260"
         role="img"
-        aria-label={item.title}
+        aria-label={item.clsName || item.title || "클래스 이미지"}
         className={
           hero
             ? "w-full h-full block min-h-[372px] max-md:min-h-0"
