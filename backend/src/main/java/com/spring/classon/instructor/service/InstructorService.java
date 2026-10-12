@@ -29,6 +29,9 @@ public interface InstructorService {
             MultipartFile file
     );
 
+    // 전체 강사 신청 목록 조회(관리자)
+    List<InstructorResponseDTO> getInstructorRequestList();
+
     // 강사 신청 증빙자료 목록 조회(관리자)
     List<InstructorDocumentResponseDTO> getInstructorDocuments(
             Long reqNo

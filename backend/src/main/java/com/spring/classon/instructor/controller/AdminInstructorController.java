@@ -3,6 +3,7 @@ package com.spring.classon.instructor.controller;
 
 import com.spring.classon.instructor.dto.InstructorApprovalDTO;
 import com.spring.classon.instructor.dto.InstructorDocumentResponseDTO;
+import com.spring.classon.instructor.dto.InstructorResponseDTO;
 import com.spring.classon.instructor.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,14 @@ import java.util.List;
 public class AdminInstructorController {
 
     private final InstructorService instructorService;
+
+    // 전체 강사 신청 목록 조회(관리자)
+    @GetMapping
+    public ResponseEntity<List<InstructorResponseDTO>> getInstructorRequestList() {
+        return ResponseEntity.ok(
+                instructorService.getInstructorRequestList()
+        );
+    }
 
     // 강사 신청 승인 및 반려
     @PatchMapping("/{reqNo}/status")

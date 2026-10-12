@@ -9,6 +9,8 @@ import com.spring.classon.instructor.mapper.InstructorDocumentMapper;
 import com.spring.classon.instructor.mapper.InstructorMapper;
 import com.spring.classon.instructor.repository.*;
 import com.spring.classon.member.entity.Member;
+import com.spring.classon.member.entity.MemberPrivate;
+import com.spring.classon.member.repository.MemberPrivateRepository;
 import com.spring.classon.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class InstructorServiceImpl implements InstructorService {
     private final InstructorMapper instructorMapper;
     private final InstructorDocumentMapper instructorDocumentMapper;
     private final MemberRepository memberRepository;
+    private final MemberPrivateRepository memberPrivateRepository;
 
     // 강사 신청
     @Override
@@ -69,17 +72,70 @@ public class InstructorServiceImpl implements InstructorService {
         return instructorMapper.toResponseDto(request);
     }
 
+    // 전체 강사 신청 목록 조회(관리자)
+    @Override
+    @Transactional(readOnly = true)
+    public List<InstructorResponseDTO> getInstructorRequestList() {
+        return instructorRequestRepository.findAllByOrderByReqNoDesc()
+                .stream()
+                .map(request -> {
+                    // 신청 회원 조회
+                    Member member = memberRepository.findById(request.getMemNo())
+                            .orElseThrow(() ->
+                                    new InstructorException("신청한 회원을 찾을 수 없습니다.")
+                            );
+
+                    // 회원 이메일 조회
+                    MemberPrivate memberPrivate = memberPrivateRepository.findById(request.getMemNo())
+                            .orElseThrow(() ->
+                                    new InstructorException("회원 이메일 정보를 찾을 수 없습니다.")
+                            );
+
+                    // 신청 정보와 회원 정보 조립
+                    return InstructorResponseDTO.builder()
+                            .reqNo(request.getReqNo())
+                            .memNo(request.getMemNo())
+                            .memNickname(member.getMemNickname())
+                            .memEmail(memberPrivate.getMemEmail())
+                            .reqIntroduction(request.getReqIntroduction())
+                            .reqCareer(request.getReqCareer())
+                            .reqStatus(request.getReqStatus())
+                            .build();
+                })
+                .toList();
+    }
+
     // 회원 번호로 강사 신청 조회
     @Override
     @Transactional(readOnly = true)
-    public InstructorResponseDTO getInstructorRequestByMemNo(
-            Long memNo
-    ) {
+    public InstructorResponseDTO getInstructorRequestByMemNo(Long memNo) {
         return instructorRequestRepository
                 .findByMemNoOrderByReqNoDesc(memNo)
                 .stream()
                 .findFirst()
-                .map(instructorMapper::toResponseDto)
+                .map(request -> {
+                    // 신청 정보 조회
+                    InstructorResponseDTO response =
+                            instructorMapper.toResponseDto(request);
+
+                    // 반려 사유 조회
+                    String rejReason = instructorRejectionRepository
+                            .findByReqNo(request.getReqNo())
+                            .map(InstructorRejection::getRejReason)
+                            .orElse(null);
+
+                    // 반려 사유를 포함한 응답 반환
+                    return InstructorResponseDTO.builder()
+                            .reqNo(response.getReqNo())
+                            .memNo(response.getMemNo())
+                            .reqIntroduction(response.getReqIntroduction())
+                            .reqCareer(response.getReqCareer())
+                            .reqStatus(response.getReqStatus())
+                            .memNickname(response.getMemNickname())
+                            .memEmail(response.getMemEmail())
+                            .rejReason(rejReason)
+                            .build();
+                })
                 .orElse(null);
     }
 

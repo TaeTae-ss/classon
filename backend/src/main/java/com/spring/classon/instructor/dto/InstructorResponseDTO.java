@@ -12,4 +12,7 @@ public class InstructorResponseDTO {
     private String reqIntroduction;
     private String reqCareer;
     private String reqStatus;
+    private String memNickname;
+    private String memEmail;
+    private String rejReason; // 반려 사유
 }
