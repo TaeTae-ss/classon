@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
-import { classes,readStore } from "../../mocks/data";
-
 import { getReservationListByMember } from "../../api/reservationApi";
 
 import { usePagination } from "../../hooks/usePagination";
@@ -126,7 +124,7 @@ export default function ReservationListPage({
             className="flex justify-between items-center gap-6 p-6 bg-white border border-[#e9e4df] rounded-[10px] mb-[17px] max-md:items-start max-md:flex-col max-md:p-[18px]"
             key={r.rsvNo}
           >
-            <ClassSummary reservation={r} list={readStore("classes", classes)} />
+            <ClassSummary reservation={r} />
 
             <div>
               <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
