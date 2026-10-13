@@ -66,16 +66,22 @@ public class InstructorServiceImpl implements InstructorService {
                 .map(request -> {
                     // 신청 회원 조회
                     Member member = memberRepository.findById(request.getMemNo())
-                            .orElseThrow(() ->
-                                    new InstructorException("신청한 회원을 찾을 수 없습니다.")
-                            );
+                            .orElse(null);
+
+                    // 탈퇴한 회원의 신청은 목록에서 제외
+                    if (member == null) {
+                        return null;
+                    }
 
                     // 회원 이메일 조회
                     MemberPrivate memberPrivate =
                             memberPrivateRepository.findById(request.getMemNo())
-                                    .orElseThrow(() ->
-                                            new InstructorException("회원 이메일 정보를 찾을 수 없습니다.")
-                                    );
+                                    .orElse(null);
+
+                    // 개인정보가 없는 회원의 신청도 목록에서 제외
+                    if (memberPrivate == null) {
+                        return null;
+                    }
 
                     // 최신 반려 사유 조회
                     String rejReason = instructorRejectionRepository
@@ -95,6 +101,7 @@ public class InstructorServiceImpl implements InstructorService {
                             .rejReason(rejReason)
                             .build();
                 })
+                .filter(Objects::nonNull)
                 .toList();
     }
 
