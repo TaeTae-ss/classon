@@ -1,5 +1,7 @@
 package com.spring.classon.member.service;
 
+import com.spring.classon.common.dto.PageRequestDTO;
+import com.spring.classon.common.dto.PageResponseDTO;
 import com.spring.classon.common.exception.*;
 import com.spring.classon.instructor.entity.InstructorDocument;
 import com.spring.classon.instructor.entity.InstructorRequest;
@@ -16,17 +18,18 @@ import com.spring.classon.payment.entity.*;
 import com.spring.classon.payment.repository.PaymentRepository;
 import com.spring.classon.reservation.entity.*;
 import com.spring.classon.reservation.repository.ReservationRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.time.*;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -410,5 +413,124 @@ public class MemberServiceImpl implements MemberService {
                 .memNickname(member.getMemNickname())
                 .memRole(member.getMemRole())
                 .build();
+    }
+
+    // 회원 관리(관리자)
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDTO<MemberResponseDTO> getAdminMembers(
+            PageRequestDTO pageRequestDTO) {
+
+        String searchType = pageRequestDTO.getSearchType();
+        String keyword = pageRequestDTO.getKeyword();
+
+        searchType = searchType == null ? "" : searchType.trim();
+        keyword = keyword == null ? "" : keyword.trim();
+
+        // 검색 조건 확인
+        if (!searchType.isEmpty()
+                && !searchType.equals("nickname")
+                && !searchType.equals("email")) {
+            throw new MemberException("잘못된 검색 조건입니다.");
+        }
+
+        int page = pageRequestDTO.getPage();
+        int size = pageRequestDTO.getSize();
+
+        // 페이지 요청 확인
+        if (page < 1 || size < 1 || size > 100) {
+            throw new MemberException("잘못된 페이지 요청입니다.");
+        }
+
+        List<Long> memNos;
+
+        // 전체 회원 조회
+        if (keyword.isEmpty()) {
+            memNos = memberRepository.findAll()
+                    .stream()
+                    .map(Member::getMemNo)
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+
+            // 닉네임 검색
+        } else if (searchType.equals("nickname")) {
+            memNos = memberRepository
+                    .findByMemNicknameContainingIgnoreCase(keyword)
+                    .stream()
+                    .map(Member::getMemNo)
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+
+            // 이메일 검색
+        } else if (searchType.equals("email")) {
+            memNos = memberPrivateRepository
+                    .findByMemEmailContainingIgnoreCase(keyword)
+                    .stream()
+                    .map(MemberPrivate::getMemNo)
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+
+            // 검색 조건이 없으면 닉네임과 이메일 모두 검색
+        } else {
+            List<Long> nicknameNos = memberRepository
+                    .findByMemNicknameContainingIgnoreCase(keyword)
+                    .stream()
+                    .map(Member::getMemNo)
+                    .toList();
+
+            List<Long> emailNos = memberPrivateRepository
+                    .findByMemEmailContainingIgnoreCase(keyword)
+                    .stream()
+                    .map(MemberPrivate::getMemNo)
+                    .toList();
+
+            memNos = Stream.concat(
+                            nicknameNos.stream(),
+                            emailNos.stream()
+                    )
+                    .distinct()
+                    .sorted(Comparator.reverseOrder())
+                    .toList();
+        }
+
+        // 페이지 범위 계산
+        int start = (page - 1) * size;
+        int end = Math.min(start + size, memNos.size());
+
+        List<MemberResponseDTO> dtoList;
+
+        if (start >= memNos.size()) {
+            dtoList = List.of();
+        } else {
+            dtoList = memNos.subList(start, end)
+                    .stream()
+                    .map(memNo -> {
+                        Member member = memberRepository.findById(memNo)
+                                .orElseThrow(() ->
+                                        new MemberException(
+                                                "회원을 찾을 수 없습니다."
+                                        ));
+
+                        MemberPrivate memberPrivate =
+                                memberPrivateRepository.findById(memNo)
+                                        .orElseThrow(() ->
+                                                new MemberException(
+                                                        "회원 개인정보를 찾을 수 없습니다."
+                                                ));
+
+                        // Mapper로 Entity를 DTO로 변환
+                        return memberMapper.toResponseDto(
+                                member,
+                                memberPrivate
+                        );
+                    })
+                    .toList();
+        }
+
+        return new PageResponseDTO<>(
+                dtoList,
+                pageRequestDTO,
+                memNos.size()
+        );
     }
 }

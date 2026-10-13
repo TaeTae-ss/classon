@@ -1,5 +1,6 @@
 package com.spring.classon.member.service;
 
+import com.spring.classon.common.dto.*;
 import com.spring.classon.member.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -32,4 +33,9 @@ public interface MemberService {
     // 회원 공개 정보 요약 일괄 조회
     List<MemberSummaryDTO> getMemberSummaries(List<Long> memNos);
     // 여기까지 추가
+
+    // 관리자 회원 목록 조회
+    PageResponseDTO<MemberResponseDTO> getAdminMembers(
+            PageRequestDTO pageRequestDTO
+    );
 }
