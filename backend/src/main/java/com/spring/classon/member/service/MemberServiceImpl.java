@@ -310,9 +310,21 @@ public class MemberServiceImpl implements MemberService {
                     continue;
                 }
 
-                Path filePath = Paths.get(docUrl)
-                        .toAbsolutePath()
-                        .normalize();
+                // 웹 경로를 실제 업로드 경로로 변환
+                String normalizedDocUrl = docUrl.replace("\\", "/");
+                Path filePath;
+
+                if (normalizedDocUrl.startsWith("/uploads/instructor/")) {
+                    String fileName = Paths.get(normalizedDocUrl)
+                            .getFileName()
+                            .toString();
+
+                    filePath = uploadPath.resolve(fileName).normalize();
+                } else {
+                    filePath = Paths.get(docUrl)
+                            .toAbsolutePath()
+                            .normalize();
+                }
 
                 // 강사 증빙자료 폴더 내부의 파일만 삭제
                 if (!filePath.startsWith(uploadPath)) {
@@ -329,6 +341,7 @@ public class MemberServiceImpl implements MemberService {
                     );
                 }
             }
+
 
             // 증빙자료 DB 데이터 삭제
             instructorDocumentRepository.deleteAllByReqNo(reqNo);
