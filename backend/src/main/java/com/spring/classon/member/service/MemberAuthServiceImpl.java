@@ -112,7 +112,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                         requestDto.getMemEmail()
                 ).orElseThrow(() ->
                         new AuthException(
-                                "이메일 또는 비밀번호가 올바르지 않습니다."
+                                "존재하지 않는 회원입니다."
                         )
                 );
 
