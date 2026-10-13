@@ -112,7 +112,7 @@ export default function ClassDetailPage() {
             </span>
           </p>
           <p>
-            {money(item.clsPrice)} · 최대 정원 {item.maxCapacity ?? "-"}명
+            {money(item.clsPrice)} 
           </p>
           <BookingForm
             key={item.id}
