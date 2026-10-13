@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router";
 import { loginPost } from "../../api/memberApi";
@@ -80,8 +81,8 @@ export default function LoginPage() {
         ? destination
         : role === "ADMIN"
           ? "/admin/members"
-          : role === "INS"
-            ? "/instructor"
+          : role === "INSTRUCTOR"
+            ? "/instructor/mypage"
             : "/member/mypage",
     );
   };
@@ -119,8 +120,8 @@ export default function LoginPage() {
       go(
         result.memRole === "ADMIN"
           ? "ADMIN"
-          : ["INS", "INSTRUCTOR"].includes(result.memRole)
-            ? "INS"
+          : result.memRole === "INSTRUCTOR"
+            ? "INSTRUCTOR"
             : "USER",
       );
     } catch (error) {
