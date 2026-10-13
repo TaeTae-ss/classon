@@ -4,6 +4,7 @@ import { money } from "../../mocks/data";
 import { getClassDetail } from "../../api/classApi";
 import { Heading } from "../../components/common/Heading";
 import { Empty } from "../../components/common/Empty";
+import { KakaoMap } from "../../components/common/KakaoMap";
 import BookingForm from "../../components/booking/BookingForm";
 import useFavorite from "../../hooks/useFavorite";
 import ClassReview from "../../components/review/ClassReview";
@@ -94,17 +95,9 @@ export default function ClassDetailPage() {
         <section id="location" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
           <h2>클래스 장소</h2>
           <p>{address}</p>
-          <div
-            className="overflow-hidden aspect-[400/260]"
-            style={{
-              background: "#f0eee8",
-              display: "grid",
-              placeItems: "center",
-              aspectRatio: "2",
-            }}
-          >
+          <KakaoMap address={item.clsRoadAddr}>
             📍 {item.clsRoadAddr?.split(" ").slice(0, 2).join(" ")}
-          </div>
+          </KakaoMap>
           <p className="text-[13px] leading-[1.8] text-[#999]" style={{ marginTop: 12 }}>
             정확한 방문 안내는 예약 정보를 확인해주세요.
           </p>
