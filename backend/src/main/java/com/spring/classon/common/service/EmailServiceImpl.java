@@ -33,6 +33,14 @@ public class EmailServiceImpl implements EmailService {
         // 인증번호 저장
         saveAuthCode(email, authCode);
 
+        // 개발용: 실제 이메일 발송 대신 콘솔에 인증번호 출력
+        System.out.println("==================================");
+        System.out.println("[ClassOn 회원가입 이메일 인증]");
+        System.out.println("이메일: " + email);
+        System.out.println("인증번호: " + authCode);
+        System.out.println("유효시간: 5분");
+        System.out.println("==================================");
+
         SimpleMailMessage message = new SimpleMailMessage();
 
         message.setTo(email);
