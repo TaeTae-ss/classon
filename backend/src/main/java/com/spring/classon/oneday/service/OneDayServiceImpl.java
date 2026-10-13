@@ -211,4 +211,66 @@ public class OneDayServiceImpl implements OneDayService {
             throw new InstructorPermissionException();
         }
     }
+
+    // 관리자 클래스 목록 조회 (전체 상태)
+    @Override
+    public PageResponseDTO<ProductResponseDTO> findAllForAdmin(
+            PageRequestDTO pageRequestDTO
+    ) {
+        Pageable pageable = pageRequestDTO.getPageable("clsCreatedAt");
+
+        Page<OneDay> result = oneDayRepository.findAllForAdmin(
+                pageRequestDTO.getKeyword(),
+                pageable
+        );
+
+        List<OneDay> oneDays = result.getContent();
+
+        List<Long> catNos = oneDays.stream()
+                .map(OneDay::getCatNo)
+                .distinct()
+                .toList();
+
+        List<Long> memNos = oneDays.stream()
+                .map(OneDay::getMemNo)
+                .distinct()
+                .toList();
+
+        List<Long> clsNos = oneDays.stream()
+                .map(OneDay::getClsNo)
+                .toList();
+
+        Map<Long, String> catNameMap = catNos.isEmpty()
+                ? Map.of()
+                : categoryRepository.findAllById(catNos).stream()
+                  .collect(Collectors.toMap(
+                          Category::getCatNo,
+                          Category::getCatName
+                  ));
+
+        Map<Long, String> instructorNameMap = memNos.isEmpty()
+                ? Map.of()
+                : memberService.getMemberSummaries(memNos).stream()
+                  .collect(Collectors.toMap(
+                          MemberSummaryDTO::getMemNo,
+                          MemberSummaryDTO::getMemNickname
+                  ));
+
+        Map<Long, Double> ratingMap = reviewService.getAverageRatings(clsNos);
+
+        List<ProductResponseDTO> dtoList = productMapper.toDTOList(
+                oneDays,
+                new ProductMapper.NameLookup(
+                        catNameMap,
+                        instructorNameMap
+                ),
+                ratingMap
+        );
+
+        return new PageResponseDTO<>(
+                dtoList,
+                pageRequestDTO,
+                result.getTotalElements()
+        );
+    }
 }

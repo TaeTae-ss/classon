@@ -103,4 +103,25 @@ public class OneDayController {
 
         return ResponseEntity.ok(ApiResponse.success(null));
     }
+
+    // 관리자 클래스 목록 조회
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/api/admin/classes")
+    public ResponseEntity<PageResponseDTO<ProductResponseDTO>> findAllForAdmin(
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        int safePage = Math.max(page, 1);
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+
+        PageRequestDTO pageRequestDTO =
+                new PageRequestDTO(safePage, safeSize);
+
+        pageRequestDTO.setKeyword(keyword);
+
+        return ResponseEntity.ok(
+                oneDayService.findAllForAdmin(pageRequestDTO)
+        );
+    }
 }

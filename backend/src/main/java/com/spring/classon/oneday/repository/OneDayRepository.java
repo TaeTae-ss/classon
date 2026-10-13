@@ -44,4 +44,20 @@ public interface OneDayRepository extends JpaRepository<OneDay, Long> {
   
     // 강사 본인 클래스 목록 조회
     List<OneDay> findByMemNo(Long memNo);
+
+    // 관리자 클래스 목록 조회 및 검색
+    @Query("""
+    SELECT c
+    FROM OneDay c
+    JOIN Member m ON m.memNo = c.memNo
+    JOIN Category cat ON cat.catNo = c.catNo
+    WHERE :keyword IS NULL OR :keyword = ''
+       OR LOWER(c.clsName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+       OR LOWER(m.memNickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+       OR LOWER(cat.catName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+    """)
+    Page<OneDay> findAllForAdmin(
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
 }
