@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { money } from "../../mocks/data";
 import { Art } from "./Art";
 
-export function Card({ item, liked = false, onToggleFavorite, select, selected }) {
+export function Card({ item, liked = false, onToggleFavorite, select, selected, showFavorite = true, }) {
   const clsNo = item.clsNo;
 
   return (
@@ -11,17 +11,33 @@ export function Card({ item, liked = false, onToggleFavorite, select, selected }
         <Art item={item} />
       </Link>
 
-      <button
-        type="button"
-        className={`absolute top-[13px] right-[13px] bg-[#ffffffde] border-0 rounded-full w-[38px] h-[38px] text-[26px] leading-none ${
-          liked ? "text-[#f27822]" : "text-[#666]"
-        }`}
-        aria-label={`${item.clsName} ${liked ? "찜 해제" : "찜하기"}`}
-        aria-pressed={liked}
-        onClick={() => onToggleFavorite?.(clsNo)}
-      >
-        {liked ? "♥" : "♡"}
-      </button>
+      {showFavorite && (
+        <button
+          type="button"
+          className="absolute top-[16px] right-[16px]
+          w-[42px] h-[42px] rounded-full
+          flex items-center justify-center
+          bg-transparent border border-transparent
+          hover:bg-white/90 hover:border-[#f5c9a6]
+          transition-all duration-200 cursor-pointer"
+          aria-label={`${item.clsName} ${liked ? "찜 해제" : "찜하기"}`}
+          aria-pressed={liked}
+          onClick={() => onToggleFavorite?.(clsNo)}
+        >
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 24 24"
+            fill={liked ? "#f27822" : "none"}
+            stroke={liked ? "#f27822" : "#666"}
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
+          </svg>
+        </button>
+      )}
 
       <div className="p-[19px] max-md:p-[13px]">
         <span className="text-[14px] text-[#85888d]">
