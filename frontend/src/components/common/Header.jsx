@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { getCookie, removeCookie } from "../../util/cookieUtil";
@@ -10,23 +11,6 @@ const Header = () => {
     // 로그인 상태 확인
     const [isLogin, setIsLogin] = useState(() => {
         const member = getCookie("member");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
         return !!member?.accessToken;
     });
 
@@ -46,11 +30,24 @@ const Header = () => {
         );
     };
 
-    // 페이지 이동 시 로그인 상태 확인
+    // 로그인 상태 동기화
     useEffect(() => {
-        const member = getCookie("member");
+        const checkLoginStatus = () => {
+            const member = getCookie("member");
+            setIsLogin(!!member?.accessToken);
+        };
 
-        setIsLogin(!!member?.accessToken);
+        // 페이지 이동 시 확인
+        checkLoginStatus();
+
+        // 브라우저 탭이 다시 활성화될 때 확인
+        window.addEventListener("focus", checkLoginStatus);
+        document.addEventListener("visibilitychange", checkLoginStatus);
+
+        return () => {
+            window.removeEventListener("focus", checkLoginStatus);
+            document.removeEventListener("visibilitychange", checkLoginStatus);
+        };
     }, [location.pathname]);
 
     // 현재 로그인 회원의 마이페이지 경로
