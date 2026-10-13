@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +23,19 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     // 회원 예약 내역 조회
     List<Reservation> findAllByMemNoOrderByRsvCreatedAtDesc(Long memNo);
+
+    // 수강 날짜가 지난 확정 예약 조회
+    @Query("""
+    SELECT r
+    FROM Reservation r, Schedule s
+    WHERE r.schNo = s.schNo
+      AND s.schStartDate < :today
+      AND r.rsvStatus = :status
+""")
+    List<Reservation> findReservationsToComplete(
+            @Param("today") LocalDate today,
+            @Param("status") ReservationStatus status
+    );
 
     // 로그인 강사가 등록한 클래스들의 예약 목록
     @Query("""
