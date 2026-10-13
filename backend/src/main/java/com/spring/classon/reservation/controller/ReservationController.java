@@ -68,7 +68,7 @@ public class ReservationController {
     }
 
     // 로그인 강사가 등록한 클래스의 예약 목록
-    @PreAuthorize("hasRole('INS')")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     @GetMapping("/instructor/my")
     public ResponseEntity<List<ReservationDTO>> getInstructorReservationList(
             Authentication authentication) {
@@ -79,7 +79,7 @@ public class ReservationController {
     }
 
     // 로그인 강사가 등록한 특정 일정의 예약 목록
-    @PreAuthorize("hasRole('INS')")
+    @PreAuthorize("hasRole('INSTRUCTOR')")
     @GetMapping("/instructor/schedule/{schNo}")
     public ResponseEntity<List<ReservationDTO>> getInstructorReservationListBySchedule(
             @PathVariable Long schNo,

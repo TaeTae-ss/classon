@@ -26,13 +26,15 @@ export const getReservationListByMember = async () => {
 
 // 로그인 강사가 등록한 클래스의 예약 목록
 export const getInstructorReservationList = async () => {
-  const response = await axios.get("/api/instructor/reservations/my");
+  const response = await axios.get("/api/reservation/instructor/my");
   return response.data.data;
 };
 
 // 로그인 강사가 등록한 특정 일정의 예약 목록
 export const getInstructorReservationListBySchedule = async (schNo) => {
-  const response = await axios.get(`/api/instructor/reservations/schedule/${schNo}`);
+  const response = await axios.get(
+    `/api/reservation/instructor/schedule/${schNo}`
+  );
   return response.data.data;
 };
 
