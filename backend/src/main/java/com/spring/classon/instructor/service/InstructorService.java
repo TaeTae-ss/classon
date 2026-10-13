@@ -1,6 +1,7 @@
 package com.spring.classon.instructor.service;
 
 import com.spring.classon.instructor.dto.*;
+import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -39,6 +40,9 @@ public interface InstructorService {
     List<InstructorDocumentResponseDTO> getInstructorDocuments(
             Long reqNo
     );
+
+    // 강사 신청 증빙자료 파일 조회(관리자)
+    Resource getInstructorDocument(Long reqNo, Long docNo);
 
     // 강사 신청 증빙자료 목록 조회(회원 본인)
     List<InstructorDocumentResponseDTO> getMyInstructorDocuments(

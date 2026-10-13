@@ -1,28 +1,21 @@
-
 package com.spring.classon.instructor.service;
 
-import com.spring.classon.common.exception.FileException;
-import com.spring.classon.common.exception.InstructorException;
+import com.spring.classon.common.exception.*;
 import com.spring.classon.instructor.dto.*;
 import com.spring.classon.instructor.entity.*;
-import com.spring.classon.instructor.mapper.InstructorDocumentMapper;
-import com.spring.classon.instructor.mapper.InstructorMapper;
+import com.spring.classon.instructor.mapper.*;
 import com.spring.classon.instructor.repository.*;
-import com.spring.classon.member.entity.Member;
-import com.spring.classon.member.entity.MemberPrivate;
-import com.spring.classon.member.repository.MemberPrivateRepository;
-import com.spring.classon.member.repository.MemberRepository;
+import com.spring.classon.member.entity.*;
+import com.spring.classon.member.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
+import java.nio.file.*;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,16 +32,9 @@ public class InstructorServiceImpl implements InstructorService {
 
     // 강사 신청
     @Override
-    public Long applyInstructor(
-            Long memNo,
-            InstructorRequestDTO dto
-    ) {
+    public Long applyInstructor(Long memNo, InstructorRequestDTO dto) {
         InstructorRequest request =
-                instructorMapper.toEntity(
-                        memNo,
-                        dto,
-                        "NEW"
-                );
+                instructorMapper.toEntity(memNo, dto, "NEW");
 
         InstructorRequest savedRequest =
                 instructorRequestRepository.save(request);
@@ -59,9 +45,7 @@ public class InstructorServiceImpl implements InstructorService {
     // 강사 신청 상태 조회
     @Override
     @Transactional(readOnly = true)
-    public InstructorResponseDTO getInstructorRequest(
-            Long reqNo
-    ) {
+    public InstructorResponseDTO getInstructorRequest(Long reqNo) {
         InstructorRequest request =
                 instructorRequestRepository.findById(reqNo)
                         .orElseThrow(() ->
@@ -87,10 +71,11 @@ public class InstructorServiceImpl implements InstructorService {
                             );
 
                     // 회원 이메일 조회
-                    MemberPrivate memberPrivate = memberPrivateRepository.findById(request.getMemNo())
-                            .orElseThrow(() ->
-                                    new InstructorException("회원 이메일 정보를 찾을 수 없습니다.")
-                            );
+                    MemberPrivate memberPrivate =
+                            memberPrivateRepository.findById(request.getMemNo())
+                                    .orElseThrow(() ->
+                                            new InstructorException("회원 이메일 정보를 찾을 수 없습니다.")
+                                    );
 
                     // 신청 정보와 회원 정보 조립
                     return InstructorResponseDTO.builder()
@@ -140,6 +125,44 @@ public class InstructorServiceImpl implements InstructorService {
                 .orElse(null);
     }
 
+    // 업로드 디렉터리
+    private Path getInstructorUploadPath() {
+        return Paths.get(
+                System.getProperty("user.dir"),
+                "uploads",
+                "instructor"
+        ).toAbsolutePath().normalize();
+    }
+
+    // 웹에서 접근할 수 있는 파일 경로 생성
+    private String getDocumentWebUrl(String storedPath) {
+        String normalizedPath = storedPath.replace("\\", "/");
+        String fileName = normalizedPath.substring(
+                normalizedPath.lastIndexOf("/") + 1
+        );
+
+        return "/uploads/instructor/" + fileName;
+    }
+
+    // 실제 파일 경로 조회
+    private Path getDocumentFilePath(String storedPath) {
+        String normalizedPath = storedPath.replace("\\", "/");
+
+        // 기존 DB에 절대 경로가 저장된 경우
+        Path storedFilePath = Paths.get(storedPath);
+
+        if (storedFilePath.isAbsolute()) {
+            return storedFilePath.normalize();
+        }
+
+        // 웹 경로 또는 상대 경로로 저장된 경우
+        String fileName = normalizedPath.substring(
+                normalizedPath.lastIndexOf("/") + 1
+        );
+
+        return getInstructorUploadPath().resolve(fileName).normalize();
+    }
+
     // 강사 신청 증빙자료 등록
     @Override
     public InstructorDocumentResponseDTO addDocument(
@@ -149,17 +172,15 @@ public class InstructorServiceImpl implements InstructorService {
         // 강사 신청 확인
         instructorRequestRepository.findById(reqNo)
                 .orElseThrow(() ->
-                        new InstructorException(
-                                "존재하지 않는 강사 신청입니다."
-                        )
+                        new InstructorException("존재하지 않는 강사 신청입니다.")
                 );
 
+        if (file == null || file.isEmpty()) {
+            throw new FileException("업로드할 파일을 선택해 주세요.");
+        }
+
         try {
-            Path uploadPath = Paths.get(
-                    System.getProperty("user.dir"),
-                    "uploads",
-                    "instructor"
-            );
+            Path uploadPath = getInstructorUploadPath();
 
             Files.createDirectories(uploadPath);
 
@@ -170,30 +191,38 @@ public class InstructorServiceImpl implements InstructorService {
                 throw new FileException("파일명이 올바르지 않습니다.");
             }
 
-            String fileName = UUID.randomUUID() + "_" + originalFileName;
+            // 경로 문자가 포함된 파일명 방지
+            originalFileName = Paths.get(originalFileName)
+                    .getFileName()
+                    .toString();
 
-            Path filePath = uploadPath.resolve(fileName);
+            String fileName = UUID.randomUUID() + "_" + originalFileName;
+            Path filePath = uploadPath.resolve(fileName).normalize();
+
+            // 업로드 폴더 바깥으로 저장되지 않도록 확인
+            if (!filePath.startsWith(uploadPath)) {
+                throw new FileException("올바르지 않은 파일 경로입니다.");
+            }
 
             file.transferTo(filePath);
+
+            // DB에는 실제 디스크 경로 대신 웹 경로 저장
+            String documentUrl = "/uploads/instructor/" + fileName;
 
             InstructorDocument document =
                     instructorDocumentMapper.toEntity(
                             reqNo,
                             fileName,
-                            filePath.toString()
+                            documentUrl
                     );
 
             InstructorDocument savedDocument =
                     instructorDocumentRepository.save(document);
 
-            return instructorDocumentMapper.toResponseDto(
-                    savedDocument
-            );
+            return instructorDocumentMapper.toResponseDto(savedDocument);
 
         } catch (IOException e) {
-            throw new FileException(
-                    "파일 저장에 실패했습니다."
-            );
+            throw new FileException("파일 저장에 실패했습니다.");
         }
     }
 
@@ -206,17 +235,55 @@ public class InstructorServiceImpl implements InstructorService {
         // 강사 신청 확인
         instructorRequestRepository.findById(reqNo)
                 .orElseThrow(() ->
-                        new InstructorException(
-                                "존재하지 않는 강사 신청입니다."
-                        )
+                        new InstructorException("존재하지 않는 강사 신청입니다.")
                 );
 
-        // 증빙자료 목록 조회
-        return instructorDocumentRepository
-                .findAllByReqNo(reqNo)
+        // 기존 절대 경로와 신규 웹 경로 모두 웹 URL로 변환
+        return instructorDocumentRepository.findAllByReqNo(reqNo)
                 .stream()
-                .map(instructorDocumentMapper::toResponseDto)
+                .map(document -> {
+                    InstructorDocumentResponseDTO response =
+                            instructorDocumentMapper.toResponseDto(document);
+
+                    return InstructorDocumentResponseDTO.builder()
+                            .docNo(response.getDocNo())
+                            .reqNo(response.getReqNo())
+                            .docName(response.getDocName())
+                            .docUrl(getDocumentWebUrl(document.getDocUrl()))
+                            .build();
+                })
                 .toList();
+    }
+
+    // 강사 신청 증빙자료 파일 조회(관리자)
+    @Override
+    @Transactional(readOnly = true)
+    public Resource getInstructorDocument(Long reqNo, Long docNo) {
+        // 강사 신청 확인
+        instructorRequestRepository.findById(reqNo)
+                .orElseThrow(() ->
+                        new InstructorException("존재하지 않는 강사 신청입니다.")
+                );
+
+        // 증빙자료 확인
+        InstructorDocument document =
+                instructorDocumentRepository.findAllByReqNo(reqNo)
+                        .stream()
+                        .filter(item -> item.getDocNo().equals(docNo))
+                        .findFirst()
+                        .orElseThrow(() ->
+                                new FileException("존재하지 않는 증빙자료입니다.")
+                        );
+
+        // 실제 파일 경로 확인
+        Path filePath = getDocumentFilePath(document.getDocUrl());
+        Resource resource = new FileSystemResource(filePath);
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new FileException("증빙자료 파일을 찾을 수 없습니다.");
+        }
+
+        return resource;
     }
 
     // 강사 신청 증빙자료 목록 조회(회원 본인)
@@ -240,7 +307,17 @@ public class InstructorServiceImpl implements InstructorService {
         // 증빙자료 목록 조회
         return instructorDocumentRepository.findAllByReqNo(reqNo)
                 .stream()
-                .map(instructorDocumentMapper::toResponseDto)
+                .map(document -> {
+                    InstructorDocumentResponseDTO response =
+                            instructorDocumentMapper.toResponseDto(document);
+
+                    return InstructorDocumentResponseDTO.builder()
+                            .docNo(response.getDocNo())
+                            .reqNo(response.getReqNo())
+                            .docName(response.getDocName())
+                            .docUrl(getDocumentWebUrl(document.getDocUrl()))
+                            .build();
+                })
                 .toList();
     }
 
@@ -254,9 +331,7 @@ public class InstructorServiceImpl implements InstructorService {
         InstructorRequest request =
                 instructorRequestRepository.findById(reqNo)
                         .orElseThrow(() ->
-                                new InstructorException(
-                                        "존재하지 않는 강사 신청입니다."
-                                )
+                                new InstructorException("존재하지 않는 강사 신청입니다.")
                         );
 
         // 처리 가능한 상태인지 확인
@@ -264,16 +339,12 @@ public class InstructorServiceImpl implements InstructorService {
 
         if (!"APPROVED".equals(reqStatus)
                 && !"REJECTED".equals(reqStatus)) {
-            throw new InstructorException(
-                    "올바르지 않은 승인 상태입니다."
-            );
+            throw new InstructorException("올바르지 않은 승인 상태입니다.");
         }
 
         // 이미 처리된 신청인지 확인
         if (!"NEW".equals(request.getReqStatus())) {
-            throw new InstructorException(
-                    "이미 처리된 강사 신청입니다."
-            );
+            throw new InstructorException("이미 처리된 강사 신청입니다.");
         }
 
         // 반려 사유 확인
@@ -281,15 +352,11 @@ public class InstructorServiceImpl implements InstructorService {
             String rejReason = dto.getRejReason();
 
             if (rejReason == null || rejReason.isBlank()) {
-                throw new InstructorException(
-                        "반려 사유를 입력해 주세요."
-                );
+                throw new InstructorException("반려 사유를 입력해 주세요.");
             }
 
             if (rejReason.trim().length() > 100) {
-                throw new InstructorException(
-                        "반려 사유는 100자 이내로 입력해 주세요."
-                );
+                throw new InstructorException("반려 사유는 100자 이내로 입력해 주세요.");
             }
 
             // 반려 사유 저장
@@ -304,13 +371,10 @@ public class InstructorServiceImpl implements InstructorService {
 
         // 승인 시 회원 권한 변경
         if ("APPROVED".equals(reqStatus)) {
-            Member member = memberRepository.findById(
-                    request.getMemNo()
-            ).orElseThrow(() ->
-                    new InstructorException(
-                            "신청한 회원을 찾을 수 없습니다."
-                    )
-            );
+            Member member = memberRepository.findById(request.getMemNo())
+                    .orElseThrow(() ->
+                            new InstructorException("신청한 회원을 찾을 수 없습니다.")
+                    );
 
             member.updateMemberRole("INSTRUCTOR");
         }
@@ -325,7 +389,8 @@ public class InstructorServiceImpl implements InstructorService {
         // 신청 정보 조회
         InstructorRequest request = instructorRequestRepository.findById(reqNo)
                 .orElseThrow(() ->
-                        new InstructorException("존재하지 않는 강사 신청입니다."));
+                        new InstructorException("존재하지 않는 강사 신청입니다.")
+                );
 
         // 본인 신청인지 확인
         if (!request.getMemNo().equals(memNo)) {
@@ -344,7 +409,8 @@ public class InstructorServiceImpl implements InstructorService {
         // 실제 파일 삭제
         for (InstructorDocument document : documents) {
             try {
-                Files.deleteIfExists(Paths.get(document.getDocUrl()));
+                Path filePath = getDocumentFilePath(document.getDocUrl());
+                Files.deleteIfExists(filePath);
             } catch (IOException e) {
                 throw new FileException("기존 증빙자료 삭제에 실패했습니다.");
             }
@@ -362,34 +428,25 @@ public class InstructorServiceImpl implements InstructorService {
             InstructorRequestDTO dto
     ) {
         // 신청 정보 조회
-        InstructorRequest request =
-                instructorRequestRepository.findById(reqNo)
-                        .orElseThrow(() ->
-                                new InstructorException(
-                                        "존재하지 않는 강사 신청입니다."
-                                )
-                        );
+        InstructorRequest request = instructorRequestRepository.findById(reqNo)
+                .orElseThrow(() ->
+                        new InstructorException("존재하지 않는 강사 신청입니다.")
+                );
 
         // 본인 신청인지 확인
         if (!request.getMemNo().equals(memNo)) {
-            throw new InstructorException(
-                    "본인의 강사 신청만 수정할 수 있습니다."
-            );
+            throw new InstructorException("본인의 강사 신청만 수정할 수 있습니다.");
         }
 
         // 반려된 신청인지 확인
         if (!"REJECTED".equals(request.getReqStatus())) {
-            throw new InstructorException(
-                    "반려된 강사 신청만 수정할 수 있습니다."
-            );
+            throw new InstructorException("반려된 강사 신청만 수정할 수 있습니다.");
         }
 
         // 필수 항목 확인
         if (dto.getReqIntroduction() == null
                 || dto.getReqIntroduction().isBlank()) {
-            throw new InstructorException(
-                    "자기소개를 입력해 주세요."
-            );
+            throw new InstructorException("자기소개를 입력해 주세요.");
         }
 
         // 신청 내용 수정
