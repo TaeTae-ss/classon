@@ -50,12 +50,15 @@ const Header = () => {
         };
     }, [location.pathname]);
 
-    // 현재 로그인 회원의 마이페이지 경로
-    const member = getCookie("member");
+    
+        // 현재 로그인 회원의 마이페이지 경로
+        const member = getCookie("member");
 
-    const myPagePath = ["INS", "INSTRUCTOR"].includes(member?.memRole)
-        ? "/instructor/mypage"
-        : "/member/mypage";
+        const myPagePath = ["ADMIN"].includes(member?.memRole)
+            ? "/admin/members"
+            : ["INS", "INSTRUCTOR"].includes(member?.memRole)
+                ? "/instructor/mypage"
+                : "/member/mypage";
 
     // 로그아웃
     const handleLogout = async () => {
@@ -139,7 +142,7 @@ const Header = () => {
                                 fontWeight: 700,
                             }}
                         >
-                            마이페이지
+                            {member?.memRole === "ADMIN" ? "관리자페이지" : "마이페이지"}
                         </Link>
                     )}
 
