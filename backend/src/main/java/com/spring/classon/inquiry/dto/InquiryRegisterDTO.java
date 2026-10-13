@@ -23,8 +23,8 @@ public class InquiryRegisterDTO {
 
     @NotBlank(message = "문의 내용을 입력해주세요.")
     @Size(
-            max = 255,
-            message = "문의 내용은 255자 이하로 입력해주세요."
+            max = 500,
+            message = "문의 내용은 500자 이하로 입력해주세요."
     )
     private String inqContent;
 }
