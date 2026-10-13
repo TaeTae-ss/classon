@@ -1,8 +1,15 @@
 
 import { Route } from "react-router";
 import { Access } from "../layouts/Layout";
+import { Workspace } from "../components/common/Workspace";
 
+import ReservationDetailPage from "../pages/class/ReservationDetailPage";
+import PaymentDetailPage from "../pages/class/PaymentDetailPage";
+
+import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminManagePage from "../pages/admin/AdminManagePage";
+import AdminReview from "../components/review/AdminReview";
+import AdminReservationPage from "../pages/admin/AdminReservationPage";
 import AdminInstructorPage from "../pages/admin/AdminInstructorPage";
 
 import BoardListPage from "../pages/board/BoardListPage";
@@ -10,57 +17,136 @@ import BoardReadPage from "../pages/board/BoardReadPage";
 import BoardFormPage from "../pages/board/BoardFormPage";
 
 const adminRouter = (
-  <Route element={<Access roles={["ADMIN"]} />}>
-    {/* 회원 관리 */}
-    <Route
-      path="admin/members"
-      element={<AdminManagePage kind="members" />}
-    />
+    <Route element={<Access roles={["ADMIN"]} />}>
+        <Route
+            path="reservation/:rsvNo/status"
+            element={<ReservationDetailPage status />}
+        />
 
-    {/* 후기 관리 */}
-    <Route
-      path="admin/reviews"
-      element={<AdminManagePage kind="reviews" />}
-    />
+        <Route
+            path="payment/:payNo/status"
+            element={<PaymentDetailPage status />}
+        />
 
-    {/* 강사 신청 관리 */}
-    <Route
-      path="admin/instructor/list"
-      element={<AdminInstructorPage />}
-    />
+        <Route
+            path="admin"
+            element={<AdminDashboard />}
+        />
 
-    {/* 공지사항 관리 */}
-    <Route
-      path="admin/notice/list"
-      element={<BoardListPage admin />}
-    />
+        <Route
+            path="admin/members"
+            element={<AdminManagePage kind="members" />}
+        />
 
-    <Route
-      path="admin/notice/register"
-      element={<BoardFormPage />}
-    />
+        <Route
+            path="admin/classes"
+            element={<AdminManagePage />}
+        />
 
-    <Route
-      path="admin/notice/read/:notNo"
-      element={<BoardReadPage admin />}
-    />
+        <Route
+            path="admin/reviews"
+            element={
+                <Workspace kind="admin">
+                    <AdminReview />
+                </Workspace>
+            }
+        />
 
-    <Route
-      path="admin/notice/modify/:notNo"
-      element={<BoardFormPage edit />}
-    />
+        <Route
+            path="admin/reservations"
+            element={<AdminReservationPage />}
+        />
 
-    {/* 문의 관리 */}
-    <Route
-      path="admin/inquiry/list"
-      element={<BoardListPage inquiry admin />}
-    />
+        <Route
+            path="admin/instructor/list"
+            element={<AdminInstructorPage />}
+        />
 
-    <Route
-      path="admin/inquiry/read/:inqNo"
-      element={<BoardReadPage inquiry admin />}
-    />
-  </Route>
+        <Route
+            path="admin/notice"
+            element={<BoardListPage admin />}
+        />
+
+        <Route
+            path="admin/notice/list"
+            element={<BoardListPage admin />}
+        />
+
+        <Route
+            path="notice/admin"
+            element={<BoardListPage admin />}
+        />
+
+        <Route
+            path="admin/notice/register"
+            element={<BoardFormPage />}
+        />
+
+        <Route
+            path="notice/admin/register"
+            element={<BoardFormPage />}
+        />
+
+        <Route
+            path="admin/notice/read/:notNo"
+            element={<BoardReadPage admin />}
+        />
+
+        <Route
+            path="admin/notice/:notNo"
+            element={<BoardReadPage admin />}
+        />
+
+        <Route
+            path="notice/admin/read/:notNo"
+            element={<BoardReadPage admin />}
+        />
+
+        <Route
+            path="admin/notice/modify/:notNo"
+            element={<BoardFormPage edit />}
+        />
+
+        <Route
+            path="admin/notice/:notNo/edit"
+            element={<BoardFormPage edit />}
+        />
+
+        <Route
+            path="notice/admin/modify/:notNo"
+            element={<BoardFormPage edit />}
+        />
+
+        <Route
+            path="admin/inquiry/list"
+            element={<BoardListPage inquiry admin />}
+        />
+
+        <Route
+            path="admin/reports"
+            element={<BoardListPage inquiry admin />}
+        />
+
+        <Route
+            path="inquiry/admin"
+            element={<BoardListPage inquiry admin />}
+        />
+
+        <Route
+            path="admin/inquiry/read/:inqNo"
+            element={<BoardReadPage inquiry admin />}
+        />
+
+        <Route
+            path="admin/reports/:repNo"
+            element={<BoardReadPage inquiry admin />}
+        />
+
+        <Route
+            path="inquiry/admin/read/:repNo"
+            element={<BoardReadPage inquiry admin />}
+        />
+    </Route>
 );
 
 export default adminRouter;
