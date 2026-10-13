@@ -20,13 +20,10 @@ const instructorMenu = [
 ];
 
 const adminMenu = [
-  ["/admin", "관리자 대시보드"],
   ["/admin/members", "회원 관리"],
-  ["/admin/classes", "클래스 관리"],
   ["/admin/reviews", "후기 관리"],
   ["/admin/notice/list", "공지사항 관리"],
-  ["/admin/inquiry/list", "문의 및 신고 관리"],
-  ["/admin/reservations", "예약·결제 현황"],
+  ["/admin/inquiry/list", "문의 관리"],
 ];
 
 export function Workspace({ kind = "member", children }) {
@@ -38,11 +35,22 @@ export function Workspace({ kind = "member", children }) {
       ? "instructor"
       : kind;
 
+  
   const groups =
     menuKind === "admin"
       ? [
-          { title: "관리", items: adminMenu.slice(0, 4) },
-          { title: "서비스 운영", items: adminMenu.slice(4) },
+          {
+            title: "관리",
+            items: adminMenu.slice(0, 2),
+          },
+          {
+            title: "서비스 운영",
+            items: [
+              ["/admin/notice/list", "공지사항 관리"],
+              ["/admin/instructor/list", "강사 신청 관리"],
+              ["/admin/inquiry/list", "문의 관리"],
+            ],
+          },
         ]
       : menuKind === "instructor"
         ? [
