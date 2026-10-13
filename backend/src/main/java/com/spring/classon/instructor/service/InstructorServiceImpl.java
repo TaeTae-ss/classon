@@ -77,6 +77,12 @@ public class InstructorServiceImpl implements InstructorService {
                                             new InstructorException("회원 이메일 정보를 찾을 수 없습니다.")
                                     );
 
+                    // 최신 반려 사유 조회
+                    String rejReason = instructorRejectionRepository
+                            .findFirstByReqNoOrderByRejNoDesc(request.getReqNo())
+                            .map(InstructorRejection::getRejReason)
+                            .orElse(null);
+
                     // 신청 정보와 회원 정보 조립
                     return InstructorResponseDTO.builder()
                             .reqNo(request.getReqNo())
@@ -86,6 +92,7 @@ public class InstructorServiceImpl implements InstructorService {
                             .reqIntroduction(request.getReqIntroduction())
                             .reqCareer(request.getReqCareer())
                             .reqStatus(request.getReqStatus())
+                            .rejReason(rejReason)
                             .build();
                 })
                 .toList();
@@ -368,6 +375,8 @@ public class InstructorServiceImpl implements InstructorService {
 
             instructorRejectionRepository.save(rejection);
         }
+
+
 
         // 승인 시 회원 권한 변경
         if ("APPROVED".equals(reqStatus)) {
