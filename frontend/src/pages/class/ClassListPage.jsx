@@ -13,7 +13,8 @@ export default function ClassListPage() {
   const [params, setSearchParams] = useSearchParams();
   const keyword = params.get("keyword") || "";
   const [categories, setCategories] = useState([]);
-  const [categoryId, setCategoryId] = useState(null);
+  const categoryParam = params.get("categoryId");
+  const categoryId = categoryParam === null ? null : Number(categoryParam);
   const [keywordInput, setKeywordInput] = useState(keyword);
   const [page, setPage] = useState(1);
   const prevQueryRef = useRef(`${categoryId}|${keyword}`);
@@ -66,7 +67,15 @@ export default function ClassListPage() {
   }, [categoryId, keyword, page]);
 
   const selectCategory = (catNo) => {
-    setCategoryId(catNo);
+    const next = new URLSearchParams(params);
+
+    if (catNo === null) {
+      next.delete("categoryId");
+    } else {
+      next.set("categoryId", String(catNo));
+    }
+
+    setSearchParams(next);
     setPage(1);
   };
 
