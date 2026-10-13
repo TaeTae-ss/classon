@@ -20,7 +20,7 @@ const Footer = () => {
                     </div>
 
                     <nav className="flex items-center gap-[26.4px]">
-                        <Link to="/inquiry" className="p-0 border-0 bg-transparent text-ink-sub text-[15.6px] no-underline hover:text-brand">문의하기</Link>
+                        <Link to="/inquiry/register" className="p-0 border-0 bg-transparent text-ink-sub text-[15.6px] no-underline hover:text-brand">문의하기</Link>
                     </nav>
 
                 </div>
