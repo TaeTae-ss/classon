@@ -40,3 +40,18 @@ export const updateAdminInstructorStatus = async (
 
   return response.data;
 };
+
+// 관리자 회원 목록 조회
+export const getAdminMemberList = async (params = {}) => {
+  const response = await axios.get("/api/admin/members", {
+    params,
+  });
+
+  return response.data;
+};
+
+// 관리자 회원 상세 조회
+export const getAdminMemberDetail = async (memNo) => {
+  const response = await axios.get(`/api/admin/members/${memNo}`);
+  return response.data;
+};

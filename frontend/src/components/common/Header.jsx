@@ -50,12 +50,15 @@ const Header = () => {
         };
     }, [location.pathname]);
 
-    // 현재 로그인 회원의 마이페이지 경로
-    const member = getCookie("member");
+    
+        // 현재 로그인 회원의 마이페이지 경로
+        const member = getCookie("member");
 
-    const myPagePath = ["INS", "INSTRUCTOR"].includes(member?.memRole)
-        ? "/instructor/mypage"
-        : "/member/mypage";
+        const myPagePath = ["ADMIN"].includes(member?.memRole)
+            ? "/admin/members"
+            : ["INS", "INSTRUCTOR"].includes(member?.memRole)
+                ? "/instructor/mypage"
+                : "/member/mypage";
 
     // 로그아웃
     const handleLogout = async () => {
@@ -133,13 +136,18 @@ const Header = () => {
                     {isLogin && (
                         <Link
                             to={myPagePath}
+                            onClick={() => {
+                                if (member?.memRole === "ADMIN") {
+                                    window.dispatchEvent(new Event("admin-members-refresh"));
+                                }
+                            }}
                             className="py-[9.6px] border-0 bg-transparent text-ink text-[15.6px] font-bold no-underline hover:text-brand"
                             style={{
                                 fontFamily: "'NanumBarunGothic', sans-serif",
                                 fontWeight: 700,
                             }}
                         >
-                            마이페이지
+                            {member?.memRole === "ADMIN" ? "관리자페이지" : "마이페이지"}
                         </Link>
                     )}
 

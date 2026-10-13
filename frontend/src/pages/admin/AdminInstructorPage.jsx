@@ -403,33 +403,20 @@ export default function AdminInstructorPage() {
         {/* 신청 상세 모달 */}
         {selectedRequest && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 px-4 pt-36 pb-4"
             onClick={(e) => {
               if (e.target === e.currentTarget && !processing) {
                 setSelectedRequest(null);
               }
             }}
           >
-            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
+            <div className="max-h-[calc(100dvh-10rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-xl">
               <div className="sticky top-0 flex items-center justify-between border-b border-[#ebe6e0] bg-white px-6 py-5">
                 <div>
                   <h2 className="text-xl font-bold">
-                    강사 신청 상세
+                    강사 신청
                   </h2>
-                  <p className="mt-1 text-sm text-[#858b93]">
-                    신청 번호 {selectedRequest.reqNo}
-                  </p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedRequest(null)}
-                  disabled={processing}
-                  className="rounded-lg px-3 py-2 text-xl text-[#858b93] hover:bg-[#f5f5f5] disabled:opacity-50"
-                  aria-label="상세 닫기"
-                >
-                  ×
-                </button>
               </div>
 
               <div className="space-y-6 p-6">
