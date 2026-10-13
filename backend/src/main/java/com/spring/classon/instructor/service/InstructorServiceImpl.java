@@ -119,9 +119,9 @@ public class InstructorServiceImpl implements InstructorService {
                     InstructorResponseDTO response =
                             instructorMapper.toResponseDto(request);
 
-                    // 반려 사유 조회
+                    // 최신 반려 사유 조회
                     String rejReason = instructorRejectionRepository
-                            .findByReqNo(request.getReqNo())
+                            .findFirstByReqNoOrderByRejNoDesc(request.getReqNo())
                             .map(InstructorRejection::getRejReason)
                             .orElse(null);
 
