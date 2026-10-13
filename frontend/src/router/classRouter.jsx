@@ -22,7 +22,7 @@ const classRouter = (
         <Route path="class/:clsNo" element={<ClassDetailPage />} />
 
         {/* 회원용 클래스 기능 */}
-        <Route element={<Access roles={["USER", "INS"]} />}>
+        <Route element={<Access roles={["USER", "INSTRUCTOR"]} />}>
 
             <Route
                 path="reservation"

@@ -11,7 +11,7 @@ import { Stats } from "../../components/common/Stats";
 const initialMembers = [
   { id: 1, name: "김회원", email: "member@classon.com", role: "USER" },
   { id: 2, name: "이회원", email: "user2@classon.com", role: "USER" },
-  { id: 3, name: "홍길동", email: "instructor@classon.com", role: "INS" },
+  { id: 3, name: "홍길동", email: "instructor@classon.com", role: "INSTRUCTOR" },
 ];
 export default function AdminDashboard() {
   const [members] = useStore("members", initialMembers);

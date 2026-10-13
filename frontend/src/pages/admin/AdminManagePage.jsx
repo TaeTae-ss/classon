@@ -20,7 +20,6 @@ const unwrapResponse = (response) => response?.data ?? response;
 
 // 회원 권한 표시
 const getMemberRole = (role) => {
-  if (role === "INSTRUCTOR") return "INS";
   return role || "-";
 };
 

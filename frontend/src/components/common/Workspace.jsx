@@ -11,7 +11,6 @@ const memberMenu = [
 ];
 
 const instructorMenu = [
-  ["/instructor", "강사 대시보드"],
   ["/instructor/classes", "내 클래스 관리"],
   ["/instructor/schedules", "수업 일정 관리"],
   ["/instructor/reservations", "예약 회원 정보"],
@@ -32,7 +31,7 @@ export function Workspace({ kind = "member", children }) {
 
   // 로그인 역할에 따른 메뉴 구분
   const menuKind =
-    kind === "member" && ["INS", "INSTRUCTOR"].includes(role)
+    kind === "member" && role === "INSTRUCTOR"
       ? "instructor"
       : kind;
 
