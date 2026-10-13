@@ -251,13 +251,6 @@ export default function ReservationDetailPage({
                 >
                   예약 내역으로
                 </Link>
-
-                <Link
-                  to={`/member/reservations/${reservation.rsvNo}/review`}
-                  className={primaryButtonStyle}
-                >
-                  후기 작성
-                </Link>
               </div>
             )}
 

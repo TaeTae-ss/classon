@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 
 import {
   getReservationListByMember,
@@ -30,6 +30,37 @@ const statusFilters = [
   { value: "CANCEL", label: "취소" },
 ];
 
+const getReviewDaysLeft = (completedAt) => {
+  if (!completedAt) return null;
+
+  // 수강 완료 날짜만 추출
+  const completedDate = completedAt.slice(0, 10);
+
+  // 오늘 날짜
+  const today = new Date();
+  const todayDate = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
+  // 수강 완료 날짜
+  const [year, month, day] = completedDate.split("-").map(Number);
+
+  const completed = new Date(year, month - 1, day);
+
+  // 날짜 차이 계산 (일 단위)
+  const diffDays = Math.round(
+    (todayDate - completed) / (1000 * 60 * 60 * 24)
+  );
+
+  const daysLeft = 7 - diffDays;
+
+  if (daysLeft <= 0 || daysLeft > 7) return null;
+
+  return daysLeft;
+};
+
 export default function ReservationListPage({
   instructor = false,
   schedule = false,
@@ -41,6 +72,7 @@ export default function ReservationListPage({
   const [filter, setFilter] = useState("전체");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -55,6 +87,7 @@ export default function ReservationListPage({
           data = await getInstructorReservationList();
         } else {
           data = await getReservationListByMember();
+          console.log("예약 목록 데이터:", data);
         }
 
         setReservations(data || []);
@@ -134,6 +167,13 @@ export default function ReservationListPage({
           <article
             className="flex justify-between items-center gap-6 p-6 bg-white border border-[#e9e4df] rounded-[10px] mb-[17px] max-md:items-start max-md:flex-col max-md:p-[18px]"
             key={r.rsvNo}
+            onClick={()=> 
+              navigate(
+                payment
+                        ? `/member/payments/reservation/${r.rsvNo}`
+                        : `/member/reservations/${r.rsvNo}`
+              )
+            }
           >
             <ClassSummary reservation={r} />
 
@@ -146,16 +186,27 @@ export default function ReservationListPage({
                 {r.schStartDate} · {r.rsvCount}명
               </p>
 
-              <ButtonLink
-                secondary
-                to={
-                  payment
-                    ? `/member/payments/reservation/${r.rsvNo}`
-                    : `/member/reservations/${r.rsvNo}`
-                }
-              >
-                상세 보기
-              </ButtonLink>
+              {!instructor &&
+                payment === false &&
+                r.rsvStatus === "COMPLETED" &&
+                getReviewDaysLeft(r.rsvCompletedAt) !== null ? (
+                  <ButtonLink
+                    to={`/member/reservations/${r.rsvNo}/review`}
+                  >
+                    후기 작성 D-{getReviewDaysLeft(r.rsvCompletedAt)}
+                  </ButtonLink>
+                ) : (
+                  <ButtonLink
+                    secondary
+                    to={
+                      payment
+                        ? `/member/payments/reservation/${r.rsvNo}`
+                        : `/member/reservations/${r.rsvNo}`
+                    }
+                  >
+                    상세 보기
+                  </ButtonLink>
+                )}
 
               {instructor && (
                 <p className="text-[13px] leading-[1.8] text-[#999]">
