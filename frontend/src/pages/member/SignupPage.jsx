@@ -93,7 +93,7 @@ export default function SignupPage() {
     <Field
       label={label}
       type={type}
-      required
+      required={key !== "detail"}
       value={form[key]}
       onChange={(e) => {
         const value = e.target.value;
@@ -156,7 +156,7 @@ export default function SignupPage() {
           });
         }
 
-        // 상세 주소 수정 시 오류 메시지 초기화
+        // 상세 주소는 선택 입력
         if (key === "detail") {
           setDetailMessage({
             text: "",
@@ -303,16 +303,6 @@ export default function SignupPage() {
       hasError = true;
     }
 
-    // 상세 주소
-    if (!form.detail.trim()) {
-      setDetailMessage({
-        text: "상세 주소를 입력해주세요.",
-        type: "error",
-      });
-
-      hasError = true;
-    }
-
     // 약관 동의
     if (!serviceAgree || !privacyAgree) {
       setFormMessage({
@@ -334,7 +324,9 @@ export default function SignupPage() {
       memPassword: form.password,
       memNickname: form.nickname,
       memPhone: form.phone,
-      memAddress: `${form.address} ${form.detail}`.trim(),
+      memAddress: [form.address, form.detail]
+        .filter((value) => value.trim())
+        .join(" "),
     };
 
     try {
@@ -737,16 +729,6 @@ export default function SignupPage() {
 
             {/* 상세 주소 */}
             {field("detail", "상세 주소")}
-
-            {/* 상세 주소 오류 메시지 */}
-            {detailMessage.text && (
-              <p
-                className="px-[17px] py-[13px] mt-[-10px] mb-[12px] rounded-[7px] text-[16px] bg-[#fff1f1] text-[#c94a4a]"
-                role="status"
-              >
-                {detailMessage.text}
-              </p>
-            )}
           </div>
 
           {/* 약관 동의 */}
