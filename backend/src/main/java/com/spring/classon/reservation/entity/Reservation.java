@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "RESERVATION")
@@ -13,6 +14,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class Reservation {
+
+    private static final ZoneId KOREA_ZONE = ZoneId.of("Asia/Seoul");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,7 +63,7 @@ public class Reservation {
         }
 
         this.rsvStatus = ReservationStatus.CONFIRMED;
-        this.rsvConfirmedAt = LocalDateTime.now();
+        this.rsvConfirmedAt = LocalDateTime.now(KOREA_ZONE);
     }
 
     // 예약 취소
@@ -73,7 +76,7 @@ public class Reservation {
 
         this.rsvStatus = ReservationStatus.CANCEL;
         this.rsvCancelReason = cancelReason;
-        this.rsvCanceledAt = LocalDateTime.now();
+        this.rsvCanceledAt = LocalDateTime.now(KOREA_ZONE);
     }
 
     // 수강 완료
@@ -85,6 +88,6 @@ public class Reservation {
         }
 
         this.rsvStatus = ReservationStatus.COMPLETED;
-        this.rsvCompletedAt = LocalDateTime.now();
+        this.rsvCompletedAt = LocalDateTime.now(KOREA_ZONE);
     }
 }
