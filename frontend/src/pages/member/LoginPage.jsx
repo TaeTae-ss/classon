@@ -14,15 +14,45 @@ const getMemberNoFromToken = (accessToken) => {
       .replace(/-/g, "+")
       .replace(/_/g, "/");
 
-    const decoded = JSON.parse(
-      atob(base64)
-    );
+    const decoded = JSON.parse(atob(base64));
 
     return decoded.memNo;
   } catch (error) {
     console.error("JWT 회원 번호 확인 실패:", error);
     return null;
   }
+};
+
+// 서버 오류 메시지 확인
+const getLoginErrorMessage = (error) => {
+  const responseData = error.response?.data;
+
+  // 공통 응답 구조의 data.message 우선 확인
+  const serverMessage =
+    responseData?.data?.message ||
+    responseData?.message ||
+    responseData?.msg ||
+    responseData?.errorMessage ||
+    responseData?.detail;
+
+  if (typeof serverMessage === "string" && serverMessage.trim()) {
+    if (
+      serverMessage.includes("존재하지 않는 회원입니다.") ||
+      serverMessage.includes("가입된 회원이 아닙니다.")
+    ) {
+      return "존재하지 않는 회원입니다.";
+    }
+
+    if (
+      serverMessage.includes("이메일 또는 비밀번호가 올바르지 않습니다.")
+    ) {
+      return "이메일 또는 비밀번호가 올바르지 않습니다.";
+    }
+
+    return serverMessage;
+  }
+
+  return "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.";
 };
 
 export default function LoginPage() {
@@ -68,18 +98,24 @@ export default function LoginPage() {
         memEmail: email,
         memPassword: password,
       });
+
       const memNo = getMemberNoFromToken(result.accessToken);
+
       if (memNo == null) {
-        throw new Error("로그인 토큰에서 회원 번호를 확인할 수 없습니다.");
+        throw new Error(
+          "로그인 토큰에서 회원 번호를 확인할 수 없습니다.",
+        );
       }
+
       setCookie(
         "member",
         {
           ...result,
           memNo,
         },
-        1
+        1,
       );
+
       go(
         result.memRole === "ADMIN"
           ? "ADMIN"
@@ -87,14 +123,18 @@ export default function LoginPage() {
             ? "INS"
             : "USER",
       );
-    } catch {
-      setError(
-        "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.",
+    } catch (error) {
+      console.error(
+        "로그인 실패:",
+        error.response?.data || error,
       );
+
+      setError(getLoginErrorMessage(error));
     } finally {
       setBusy(false);
     }
   };
+
   return (
     <div className="w-full max-w-[560px] mx-auto my-[60px] px-[20px] max-md:my-[40px]">
       <section className="bg-white border border-[#ebe6e0] rounded-xl px-[48px] py-[40px] shadow-sm max-md:px-[26px] max-md:py-[32px]">
