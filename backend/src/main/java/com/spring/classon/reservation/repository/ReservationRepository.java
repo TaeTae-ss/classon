@@ -94,4 +94,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             Long schNo,
             ReservationStatus rsvStatus
     );
+
+    // 수강일이 오늘보다 이전인 확정 예약 조회
+    // 날짜 조건으로 조회하므로 서버 중단 중 놓친 예약도 다음 실행 때 처리 가능
+    @Query("""
+        SELECT r
+        FROM Reservation r, Schedule s
+        WHERE r.schNo = s.schNo
+          AND r.rsvStatus = :status
+          AND s.schStartDate < :today
+    """)
+    List<Reservation> findConfirmedReservationsBeforeDate(
+            @Param("status") ReservationStatus status,
+            @Param("today") LocalDate today
+    );
 }
