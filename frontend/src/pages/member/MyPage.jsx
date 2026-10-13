@@ -155,6 +155,10 @@ export default function MyPage({ instructor = false, edit = false }) {
   const [checkingWithdrawal, setCheckingWithdrawal] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
 
+  // 선택한 프로필 사진 임시 저장
+  const [selectedProfileImage, setSelectedProfileImage] = useState(null);
+  const [profileImagePreview, setProfileImagePreview] = useState("");
+
   const fileInputRef = useRef(null);
 
   const base = isInstructor
@@ -306,15 +310,9 @@ export default function MyPage({ instructor = false, edit = false }) {
     }
 
     try {
-      const member = getCookie("member");
 
-      if (!member?.memNo) {
-        setMessage("회원 번호가 없습니다.");
-        return;
-      }
-
-      await updateProfileImage(member.memNo, file);
-      await fetchMember(member.memNo);
+      setSelectedProfileImage(file);
+      setProfileImagePreview(URL.createObjectURL(file));
 
       // 이미지 업로드 성공 시 기존 메시지 제거
       setMessage("");
@@ -424,8 +422,24 @@ export default function MyPage({ instructor = false, edit = false }) {
         memImg: form.img || null,
       });
 
+      // 선택한 사진이 있을 때만 업로드
+      if (selectedProfileImage) {
+        await updateProfileImage(
+          member.memNo,
+          selectedProfileImage,
+        );
+      }
+
       // 변경된 회원 정보를 다시 조회
       await fetchMember(member.memNo);
+
+      // 사진 선택 상태 초기화
+      if (profileImagePreview) {
+        URL.revokeObjectURL(profileImagePreview);
+      }
+
+      setSelectedProfileImage(null);
+      setProfileImagePreview("");
 
       // 비밀번호 입력값 초기화
       resetPasswordFields();
@@ -857,15 +871,19 @@ export default function MyPage({ instructor = false, edit = false }) {
             title={edit ? "프로필 사진 변경" : "프로필 사진"}
             onClick={handleProfileImageClick}
           >
-            {profile.img ? (
-              <img
-                src={getProfileImageUrl(profile.img)}
-                alt="프로필 사진"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span>{profile.nickname?.[0] || ""}</span>
-            )}
+            
+          {profileImagePreview || profile.img ? (
+            <img
+              src={
+                profileImagePreview ||
+                getProfileImageUrl(profile.img)
+              }
+              alt="프로필 사진"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span>{profile.nickname?.[0] || ""}</span>
+          )}
 
             {edit && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-white text-[12px] font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -1022,6 +1040,18 @@ export default function MyPage({ instructor = false, edit = false }) {
 
                   resetPasswordFields();
                   setMessage("");
+
+                  // 선택한 사진 취소
+                  if (profileImagePreview) {
+                    URL.revokeObjectURL(profileImagePreview);
+                  }
+
+                  setSelectedProfileImage(null);
+                  setProfileImagePreview("");
+
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
                 }}
               >
                 취소
