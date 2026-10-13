@@ -144,6 +144,7 @@ public class OneDayServiceImpl implements OneDayService {
                 .clsDesc(oneDay.getClsDesc())
                 .clsRoadAddr(oneDay.getClsRoadAddr())
                 .clsDetailAddr(oneDay.getClsDetailAddr())
+                .clsImgOrigin(oneDay.getClsImgOrigin())
                 .build();
     }
 
