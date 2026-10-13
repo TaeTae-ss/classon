@@ -48,14 +48,15 @@ class ReservationCompletionSchedulerTest {
         ReservationCompletionScheduler scheduler =
                 new ReservationCompletionScheduler(repository);
 
+        LocalDate today = LocalDate.now(KOREA_ZONE);
         when(repository.findConfirmedReservationsBeforeDate(
-                ReservationStatus.CONFIRMED, LocalDate.now(KOREA_ZONE)
+                ReservationStatus.CONFIRMED, today
         )).thenReturn(List.of());
 
         scheduler.completeExpiredReservations();
 
         verify(repository).findConfirmedReservationsBeforeDate(
-                ReservationStatus.CONFIRMED, LocalDate.now(KOREA_ZONE)
+                ReservationStatus.CONFIRMED, today
         );
     }
 }
