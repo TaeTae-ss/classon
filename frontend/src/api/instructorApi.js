@@ -40,3 +40,22 @@ export const getInstructorDocuments = async (reqNo) => {
 
   return response.data;
 };
+
+// 반려된 강사 신청 수정
+export const updateInstructorApplication = async (reqNo, instructorData) => {
+  const response = await axios.patch(
+    `/api/instructor/${reqNo}`,
+    instructorData
+  );
+
+  return response.data;
+};
+
+// 반려된 강사 신청의 기존 증빙자료 삭제
+export const deleteInstructorDocuments = async (reqNo) => {
+  const response = await axios.delete(
+    `/api/instructor/${reqNo}/documents`
+  );
+
+  return response.data;
+};

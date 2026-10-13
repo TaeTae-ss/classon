@@ -49,7 +49,7 @@ export default function LoginPage() {
       destination?.startsWith("/") && !destination.startsWith("//")
         ? destination
         : role === "ADMIN"
-          ? "/admin"
+          ? "/admin/members"
           : role === "INS"
             ? "/instructor"
             : "/member/mypage",

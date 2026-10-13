@@ -8,6 +8,9 @@ import java.util.List;
 public interface InstructorRequestRepository
         extends JpaRepository<InstructorRequest, Long> {
 
+    // 전체 강사 신청 목록 조회
+    List<InstructorRequest> findAllByOrderByReqNoDesc();
+
     // 회원 번호로 강사 신청 조회
     List<InstructorRequest> findByMemNoOrderByReqNoDesc(Long memNo);
 }

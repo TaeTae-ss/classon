@@ -17,6 +17,8 @@ import {
   getInstructorRequestByMemNo,
   uploadInstructorDocument,
   getInstructorDocuments,
+  updateInstructorApplication,
+  deleteInstructorDocuments,
 } from "../../api/instructorApi";
 
 import { getCookie, removeCookie } from "../../util/cookieUtil";
@@ -136,6 +138,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
   // 강사 신청 화면 상태
   const [applying, setApplying] = useState(false);
+  const [editingInstructorApplication, setEditingInstructorApplication] = useState(false);
   const [submittingApplication, setSubmittingApplication] = useState(false);
   const [introduction, setIntroduction] = useState("");
   const [career, setCareer] = useState("");
@@ -462,6 +465,90 @@ export default function MyPage({ instructor = false, edit = false }) {
     setCareerFile(null);
     setOtherFile(null);
     setMessage("");
+  };
+
+  // 반려된 강사 신청 수정 화면 열기
+  const handleEditInstructorApplication = () => {
+    setIntroduction(request?.reqIntroduction || "");
+    setCareer(request?.reqCareer || "");
+    setCertificateFile(null);
+    setCareerFile(null);
+    setOtherFile(null);
+    setMessage("");
+    setEditingInstructorApplication(true);
+  };
+
+  // 반려된 강사 신청 재제출
+  const handleUpdateInstructorApplication = async (e) => {
+    e.preventDefault();
+
+    if (submittingApplication) return;
+
+    const trimmedIntroduction = introduction.trim();
+    const trimmedCareer = career.trim();
+
+    // 필수 항목 확인
+    if (!trimmedIntroduction || !certificateFile || !careerFile) {
+      setMessage(
+        "자기소개, 자격증, 경력증명서는 필수 항목입니다. 모두 입력하거나 파일을 첨부해 주세요."
+      );
+      return;
+    }
+
+    const member = getCookie("member");
+
+    if (!member?.memNo || !request?.reqNo) {
+      setMessage("회원 또는 강사 신청 정보를 확인할 수 없습니다.");
+      return;
+    }
+
+    setMessage("");
+    setSubmittingApplication(true);
+
+    try {
+      // 기존 증빙자료 삭제
+      await deleteInstructorDocuments(request.reqNo);
+
+      // 신청 내용 수정 및 재검토 요청
+      await updateInstructorApplication(request.reqNo, {
+        reqIntroduction: trimmedIntroduction,
+        reqCareer: trimmedCareer,
+      });
+
+      // 새 증빙자료 업로드
+      await uploadInstructorDocument(request.reqNo, certificateFile);
+      await uploadInstructorDocument(request.reqNo, careerFile);
+
+      if (otherFile) {
+        await uploadInstructorDocument(request.reqNo, otherFile);
+      }
+
+      // 수정된 신청 정보와 증빙자료 다시 조회
+      await fetchInstructorRequest(member.memNo);
+
+      // 수정 화면 초기화
+      setEditingInstructorApplication(false);
+      setApplying(false);
+      setIntroduction("");
+      setCareer("");
+      setCertificateFile(null);
+      setCareerFile(null);
+      setOtherFile(null);
+      setMessage("");
+    } catch (error) {
+      console.error("강사 신청 수정 실패:", error);
+
+      const serverMessage =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message;
+
+      setMessage(
+        serverMessage ||
+          "강사 신청 수정 중 오류가 발생했습니다. 신청 상태와 증빙자료를 확인해 주세요."
+      );
+    } finally {
+      setSubmittingApplication(false);
+    }
   };
 
   // 강사 신청
@@ -970,6 +1057,7 @@ export default function MyPage({ instructor = false, edit = false }) {
         )}
       </section>
 
+      
       {/* 강사 신청 */}
       {!isInstructor && !edit && (
         <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
@@ -978,7 +1066,7 @@ export default function MyPage({ instructor = false, edit = false }) {
             description="당신의 경험을 새로운 배움으로 나눠주세요."
           />
 
-          {request ? (
+          {request && !editingInstructorApplication ? (
             <>
               <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
                 {getInstructorStatus(request.reqStatus)}
@@ -986,10 +1074,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
               {/* 자기소개 */}
               <div className="mt-4">
-                <p className="font-bold text-[#1f2937]">
-                  자기소개
-                </p>
-
+                <p className="font-bold text-[#1f2937]">자기소개</p>
                 <p className="mt-2 leading-[1.8] break-words whitespace-pre-wrap">
                   {request.reqIntroduction || ""}
                 </p>
@@ -1002,7 +1087,6 @@ export default function MyPage({ instructor = false, edit = false }) {
                 <p className="font-bold text-[#1f2937]">
                   강의 경력 및 활동 이력
                 </p>
-
                 <p className="mt-2 leading-[1.8] break-words whitespace-pre-wrap">
                   {request.reqCareer || ""}
                 </p>
@@ -1012,9 +1096,7 @@ export default function MyPage({ instructor = false, edit = false }) {
 
               {/* 제출한 증빙자료 */}
               <div>
-                <p className="font-bold text-[#1f2937]">
-                  제출한 증빙자료
-                </p>
+                <p className="font-bold text-[#1f2937]">제출한 증빙자료</p>
 
                 {instructorDocuments.length > 0 ? (
                   <ul className="mt-2 space-y-2">
@@ -1041,15 +1123,36 @@ export default function MyPage({ instructor = false, edit = false }) {
                   </p>
                 )}
               </div>
+
+              {/* 반려된 신청 수정 버튼 */}
+              {request.reqStatus === "REJECTED" && (
+                <div className="flex justify-end mt-6">
+                  <button
+                    type="button"
+                    onClick={handleEditInstructorApplication}
+                    className="inline-flex justify-center items-center min-h-[46px] px-6 py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[16px] cursor-pointer"
+                  >
+                    수정
+                  </button>
+                </div>
+              )}
             </>
-          ) : applying ? (
-            <form onSubmit={handleInstructorApplication}>
+          ) : applying || editingInstructorApplication ? (
+            <form
+              onSubmit={
+                editingInstructorApplication
+                  ? handleUpdateInstructorApplication
+                  : handleInstructorApplication
+              }
+            >
               {/* 자기소개 */}
               <Field
                 label={
                   <>
                     자기소개{" "}
-                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                    <span className="font-bold text-[#DF700E]">
+                      (*필수)
+                    </span>
                   </>
                 }
               >
@@ -1078,7 +1181,9 @@ export default function MyPage({ instructor = false, edit = false }) {
                 label={
                   <>
                     자격증{" "}
-                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                    <span className="font-bold text-[#DF700E]">
+                      (*필수)
+                    </span>
                   </>
                 }
               >
@@ -1103,7 +1208,9 @@ export default function MyPage({ instructor = false, edit = false }) {
                 label={
                   <>
                     경력증명서{" "}
-                    <span className="font-bold text-[#DF700E]">(*필수)</span>
+                    <span className="font-bold text-[#DF700E]">
+                      (*필수)
+                    </span>
                   </>
                 }
               >
@@ -1146,21 +1253,39 @@ export default function MyPage({ instructor = false, edit = false }) {
                 자기소개, 자격증, 경력증명서는 필수이며 기타 서류는 선택 사항입니다.
               </p>
 
-              {/* 버튼은 오른쪽 끝에 나란히 배치 */}
+              {/* 버튼 */}
               <div className="flex gap-3 items-center flex-wrap mt-[29px] justify-end">
                 <button
                   type="submit"
                   disabled={submittingApplication}
                   className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
                 >
-                  {submittingApplication ? "신청 중..." : "신청 완료"}
+                  {submittingApplication
+                    ? editingInstructorApplication
+                      ? "수정 중..."
+                      : "신청 중..."
+                    : editingInstructorApplication
+                      ? "재신청"
+                      : "신청 완료"}
                 </button>
 
                 <button
                   type="button"
                   disabled={submittingApplication}
                   className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
-                  onClick={handleCancelApplication}
+                  onClick={() => {
+                    if (editingInstructorApplication) {
+                      setEditingInstructorApplication(false);
+                      setIntroduction("");
+                      setCareer("");
+                      setCertificateFile(null);
+                      setCareerFile(null);
+                      setOtherFile(null);
+                      setMessage("");
+                    } else {
+                      handleCancelApplication();
+                    }
+                  }}
                 >
                   취소
                 </button>
@@ -1177,6 +1302,26 @@ export default function MyPage({ instructor = false, edit = false }) {
           )}
         </section>
       )}
+
+      {/* 강사 신청 반려 사유 */}
+      {!isInstructor &&
+        !edit &&
+        request?.reqStatus === "REJECTED" &&
+        request?.rejReason && (
+          <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
+                신청 반려
+              </span>
+              <h3 className="font-bold text-[#1f2937]">
+                반려 사유
+              </h3>
+            </div>
+            <p className="text-[16px] leading-[1.8] text-[#6b7280] whitespace-pre-wrap break-words">
+              {request.rejReason}
+            </p>
+          </section>
+        )}
 
       {message && (
         <p

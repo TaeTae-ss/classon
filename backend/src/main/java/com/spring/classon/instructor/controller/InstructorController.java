@@ -100,4 +100,37 @@ public class InstructorController {
                 instructorService.getMyInstructorDocuments(reqNo, memNo)
         );
     }
+
+    // 반려된 강사 신청의 기존 증빙자료 삭제
+    @DeleteMapping("/{reqNo}/documents")
+    public ResponseEntity<Void> deleteMyInstructorDocuments(
+            @PathVariable Long reqNo,
+            @AuthenticationPrincipal Map<String, Object> claims
+    ) {
+        Number memNoValue = (Number) claims.get("memNo");
+        Long memNo = memNoValue.longValue();
+
+        instructorService.deleteMyInstructorDocuments(reqNo, memNo);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    // 반려된 강사 신청 수정
+    @PatchMapping("/{reqNo}")
+    public ResponseEntity<Void> updateInstructorApplication(
+            @PathVariable Long reqNo,
+            @AuthenticationPrincipal Map<String, Object> claims,
+            @RequestBody InstructorRequestDTO dto
+    ) {
+        Number memNoValue = (Number) claims.get("memNo");
+        Long memNo = memNoValue.longValue();
+
+        instructorService.updateInstructorApplication(
+                reqNo,
+                memNo,
+                dto
+        );
+
+        return ResponseEntity.noContent().build();
+    }
 }

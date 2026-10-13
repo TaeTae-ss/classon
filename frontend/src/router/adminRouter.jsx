@@ -1,3 +1,4 @@
+
 import { Route } from "react-router";
 import { Access } from "../layouts/Layout";
 import { Workspace } from "../components/common/Workspace";
@@ -9,6 +10,7 @@ import AdminDashboard from "../pages/admin/AdminDashboard";
 import AdminManagePage from "../pages/admin/AdminManagePage";
 import AdminReview from "../components/review/AdminReview";
 import AdminReservationPage from "../pages/admin/AdminReservationPage";
+import AdminInstructorPage from "../pages/admin/AdminInstructorPage";
 
 import BoardListPage from "../pages/board/BoardListPage";
 import BoardReadPage from "../pages/board/BoardReadPage";
@@ -16,7 +18,6 @@ import BoardFormPage from "../pages/board/BoardFormPage";
 
 const adminRouter = (
     <Route element={<Access roles={["ADMIN"]} />}>
-
         <Route
             path="reservation/:rsvNo/status"
             element={<ReservationDetailPage status />}
@@ -56,7 +57,11 @@ const adminRouter = (
             element={<AdminReservationPage />}
         />
 
-        {/* 관리자 공지 */}
+        <Route
+            path="admin/instructor/list"
+            element={<AdminInstructorPage />}
+        />
+
         <Route
             path="admin/notice"
             element={<BoardListPage admin />}
@@ -112,7 +117,6 @@ const adminRouter = (
             element={<BoardFormPage edit />}
         />
 
-        {/* 관리자 문의 */}
         <Route
             path="admin/inquiry/list"
             element={<BoardListPage inquiry admin />}
@@ -142,7 +146,6 @@ const adminRouter = (
             path="inquiry/admin/read/:repNo"
             element={<BoardReadPage inquiry admin />}
         />
-
     </Route>
 );
 

@@ -2,6 +2,7 @@ import {
     createBrowserRouter,
     createRoutesFromElements,
     Route,
+    Navigate,
 } from "react-router";
 
 import { Shell } from "../layouts/Layout";
@@ -53,6 +54,12 @@ const root = createBrowserRouter(
 
             {/* 관리자 */}
             {adminRouter}
+
+            {/* 관리자 기본 경로 → 회원 관리 */}
+            <Route
+                path="admin"
+                element={<Navigate to="/admin/members" replace />}
+            />
 
             {/* 404 */}
             <Route path="*" element={notFound} />
