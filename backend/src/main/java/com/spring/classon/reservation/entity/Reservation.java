@@ -63,7 +63,7 @@ public class Reservation {
         }
 
         this.rsvStatus = ReservationStatus.CONFIRMED;
-        this.rsvConfirmedAt = LocalDateTime.now(KOREA_ZONE);
+        this.rsvConfirmedAt = LocalDateTime.now();
     }
 
     // 예약 취소
@@ -76,7 +76,7 @@ public class Reservation {
 
         this.rsvStatus = ReservationStatus.CANCEL;
         this.rsvCancelReason = cancelReason;
-        this.rsvCanceledAt = LocalDateTime.now(KOREA_ZONE);
+        this.rsvCanceledAt = LocalDateTime.now();
     }
 
     // 수강 완료
