@@ -4,12 +4,7 @@ import { useNavigate, useParams } from "react-router";
 
 import { getNotice, deleteNotice } from "../../api/noticeApi";
 
-import {
-  getInquiry,
-  getAdminInquiry,
-  modifyInquiryStatus,
-  modifyInquiryComment,
-} from "../../api/inquiryApi";
+import { getInquiry, getAdminInquiry, modifyInquiryComment, } from "../../api/inquiryApi";
 
 import { ButtonLink } from "../../components/common/ButtonLink";
 import { Heading } from "../../components/common/Heading";
@@ -52,7 +47,6 @@ export default function BoardReadPage({
   const [error, setError] = useState("");
 
   // 관리자 문의 처리 상태 및 답변
-  const [status, setStatus] = useState("접수");
   const [answer, setAnswer] = useState("");
 
   const [message, setMessage] = useState("");
@@ -86,6 +80,7 @@ export default function BoardReadPage({
         const data = await getNotice(id);
 
         setNotice(data);
+
       } catch (err) {
         console.error("공지사항 상세조회 실패:", err);
         setError("공지사항을 찾을 수 없습니다.");
@@ -110,7 +105,10 @@ export default function BoardReadPage({
 
         const data = await getInquiry(id);
 
-        setInquiryDetail(data);
+        console.log("회원 문의 상세 API 응답:", data);
+
+        setInquiryDetail(data.data);
+
       } catch (err) {
         console.error("회원 문의 상세조회 실패:", err);
         setError("문의 내용을 불러오지 못했습니다.");
@@ -135,11 +133,12 @@ export default function BoardReadPage({
 
         const data = await getAdminInquiry(id);
 
-        setInquiryDetail(data);
+        console.log("회원 문의 상세 API 응답:", data);
 
-        // DB 상태값 사용
-        setStatus(data.inqStatus || "접수");
-        setAnswer(data.admComment || "");
+        const inquiryData = data.data;
+
+        setInquiryDetail(inquiryData);
+        setAnswer(inquiryData.admComment || "");
       } catch (err) {
         console.error("관리자 문의 상세조회 실패:", err);
         setError("관리자 문의 내용을 불러오지 못했습니다.");
@@ -181,25 +180,19 @@ export default function BoardReadPage({
       setError("");
       setMessage("");
 
-      // 1. 처리 상태 변경
-      await modifyInquiryStatus(id, status);
-
       // 2. 관리자 답변 등록/수정
       await modifyInquiryComment(id, answer);
 
       // 3. 저장 후 실제 DB 데이터 재조회
       const updated = await getAdminInquiry(id);
 
-      setInquiryDetail(updated);
-      setStatus(updated.inqStatus || "접수");
-      setAnswer(updated.admComment || "");
+      setInquiryDetail(updated.data);
+      setAnswer(updated.data.admComment || "");
 
-      setMessage("처리 상태와 답변을 저장했습니다.");
+      setMessage("관리자 답변을 저장했습니다.");
     } catch (err) {
-      console.error("관리자 문의 저장 실패:", err);
-      setError(
-        "처리 상태 또는 관리자 답변 저장에 실패했습니다."
-      );
+      console.error("관리자 문의 답변 저장 실패:", err);
+      setError( "관리자 답변 저장에 실패했습니다.");
     } finally {
       setSaving(false);
     }
@@ -262,74 +255,60 @@ export default function BoardReadPage({
           {inquiry && ` · ${inquiryStatus}`}
         </p>
 
+        <div className="border-t border-[#eee] mt-5" />
+
         <div className="min-h-[264px] whitespace-pre-wrap py-[29px] leading-[2]">
           {content}
         </div>
 
         {/* 문의 관리자 답변 */}
-        {inquiry && (
-          <section
-            style={{
-              borderTop: "1px solid #eee",
-              paddingTop: 20,
-            }}
-          >
-            <h3>관리자 답변</h3>
+          {inquiry && (
+            <section
+              style={{
+                borderTop: "1px solid #eee",
+                paddingTop: 20,
+              }}
+            >
+              {/* 회원 화면이거나 관리자 답변이 있을 때만 표시 */}
+              {(!admin || item.admComment) && (
+                <>
+                  <h3>관리자 답변</h3>
 
-            <p style={{ whiteSpace: "pre-wrap" }}>
-              {item.admComment ||
-                "아직 답변이 등록되지 않았습니다."}
-            </p>
-
-            {/* 관리자만 상태 및 답변 수정 가능 */}
-            {admin && (
-              <form onSubmit={handleSaveInquiry}>
-                <Field label="처리 상태">
-                  <select
-                    value={status}
-                    onChange={(e) =>
-                      setStatus(e.target.value)
-                    }
-                  >
-                    <option value="접수">접수</option>
-                    <option value="처리중">처리 중</option>
-                    <option value="완료">처리 완료</option>
-                  </select>
-                </Field>
-
-                <Field label="관리자 코멘트">
-                  <textarea
-                    required={status === "완료"}
-                    value={answer}
-                    onChange={(e) =>
-                      setAnswer(e.target.value)
-                    }
-                    placeholder="답변을 입력해주세요."
-                  />
-                </Field>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="flex w-fit max-w-full ml-auto justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-50"
-                >
-                  {saving
-                    ? "저장 중..."
-                    : "처리 상태 저장"}
-                </button>
-
-                {message && (
-                  <p
-                    className="px-[17px] py-[13px] my-[18px] rounded-[7px] bg-[#f3f7f2] text-[#477754] text-[16px]"
-                    role="status"
-                  >
-                    {message}
+                  <p style={{ whiteSpace: "pre-wrap" }}>
+                    {item.admComment ||
+                      "아직 답변이 등록되지 않았습니다."}
                   </p>
-                )}
-              </form>
-            )}
-          </section>
-        )}
+                </>
+              )}
+
+              {/* 관리자만 답변 등록 가능 */}
+              {admin && item.inqStatus !== "완료" && (
+                <form id="inquiry-answer-form" onSubmit={handleSaveInquiry}>
+                  
+                  <h3 className="text-[18px] font-bold mb-3">관리자 답변</h3>
+                  
+                  <Field label="">
+                    <textarea
+                      required
+                      maxLength={1000}
+                      value={answer}
+                      onChange={(e) => setAnswer(e.target.value)}
+                      placeholder="답변을 입력해주세요."
+                    />
+                  </Field>
+                </form>
+              )}
+
+              {message && (
+                <p
+                  className="px-[17px] py-[13px] my-[18px] rounded-[7px] bg-[#f3f7f2] text-[#477754] text-[16px]"
+                  role="status"
+                >
+                  {message}
+                </p>
+              )}
+            </section>
+          )}
 
         {/* 오류 메시지 */}
         {error && (
@@ -348,6 +327,17 @@ export default function BoardReadPage({
           >
             목록으로
           </ButtonLink>
+
+           {inquiry && admin && item.inqStatus !== "완료" && (
+            <button
+              type="submit"
+              form="inquiry-answer-form"
+              disabled={saving}
+              className="flex w-fit max-w-full justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-50"
+            >
+              {saving ? "저장 중..." : "답변 저장"}
+            </button>
+          )}
 
           {/* 관리자 공지사항 수정 및 삭제 */}
           {admin && !inquiry && (

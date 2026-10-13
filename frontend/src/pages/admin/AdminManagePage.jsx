@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { useStore, classes, initialReviews, money } from "../../mocks/data";
+import { useStore, classes, money } from "../../mocks/data";
 import AdminReview from "../../components/review/AdminReview";
 import { usePagination } from "../../hooks/usePagination";
 import { Workspace } from "../../components/common/Workspace";
@@ -22,15 +22,12 @@ export default function AdminManagePage({ kind = "classes" }) {
   }
 
   const key =
-    kind === "members" ? "members" : kind === "reviews" ? "reviews" : "classes";
+    kind === "members" ? "members" : "classes";
   const [items, setItems] = useStore(
     key,
-    kind === "members"
-      ? initialMembers
-      : kind === "reviews"
-        ? initialReviews
-        : classes,
+    kind === "members" ? initialMembers : classes
   );
+  
   const [classList] = useStore("classes", classes);
   const [keyword, setKeyword] = useState("");
   const [search, setSearch] = useState("");

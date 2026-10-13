@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Pagination from "../../components/common/Pagination";
 import { getNoticeList } from "../../api/noticeApi";
 import { getAdminInquiryList, getMyInquiryList } from "../../api/inquiryApi";
@@ -12,11 +12,8 @@ import { Workspace } from "../../components/common/Workspace";
 const PAGE_SIZE = 8;
 const statusNames = {
   RECEIVED: "접수",
-  PROCESSING: "처리 중",
   COMPLETED: "처리 완료",
   접수: "접수",
-  처리중: "처리 중",
-  "처리 중": "처리 중",
   완료: "처리 완료",
   "처리 완료": "처리 완료",
 };
@@ -39,6 +36,7 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const base = admin
     ? inquiry ? "/admin/inquiry" : "/admin/notice"
@@ -83,10 +81,16 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
           keyword: search,
           status: status === "ALL" ? "" : status,
         });
+
+        console.log("관리자 문의 목록 API 응답:", data);
+
         if (!active) return;
-        setAdminInquiryItems(data?.dtoList ?? []);
-        setTotalCount(data?.totalCount ?? 0);
-        setTotalPage(data?.totalPage ?? 1);
+
+        const inquiryPage = data?.data ?? data;
+
+        setAdminInquiryItems(inquiryPage?.dtoList ?? []);
+        setTotalCount(inquiryPage?.totalCount ?? 0);
+        setTotalPage(inquiryPage?.totalPage ?? 1);
       } catch (err) {
         if (!active) return;
         console.error("관리자 문의 목록 조회 실패:", err);
@@ -112,9 +116,21 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
         const member = getCookie("member");
         const memNo = member?.memNo;
         if (!memNo) throw new Error("로그인 회원 번호가 없습니다.");
-        const data = await getMyInquiryList(memNo);
+
+       const data = await getMyInquiryList(memNo);
+
+        console.log("내 문의 목록 API 응답:", data);
+
         if (!active) return;
-        setInquiryItems(Array.isArray(data) ? data : data?.dtoList ?? []);
+
+        const inquiryList = data?.data ?? data;
+
+        setInquiryItems(
+          Array.isArray(inquiryList)
+            ? inquiryList
+            : inquiryList?.dtoList ?? []
+        );
+
       } catch (err) {
         if (!active) return;
         console.error("내 문의 목록 조회 실패:", err);
@@ -189,13 +205,17 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
                   const date = formatDate(inquiry ? item.inqCreatedAt : item.notCreatedAt);
                   const inquiryStatus = inquiry ? item.inqStatus : undefined;
                   return (
-                    <tr key={id}>
+                    <tr
+                      key={id}
+                      className="cursor-pointer hover:bg-[#fff8f1]"
+                      onClick={() => navigate(`${base}/read/${id}`)}
+                    >
                       <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">{id}</td>
                       {inquiry && admin && (
                         <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">회원 {item.inqMemNo}</td>
                       )}
                       <td className="text-left py-[18px] px-[17px] border-b border-[#f0ebe6]">
-                        <Link className="text-[#d97215]" to={`${base}/read/${id}`}>{title}</Link>
+                        {title}
                       </td>
                       <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">{date}</td>
                       {inquiry && (
@@ -230,7 +250,6 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
                 >
                   <option value="ALL">전체 상태</option>
                   <option value="접수">접수</option>
-                  <option value="처리중">처리 중</option>
                   <option value="완료">처리 완료</option>
                 </select>
               )}

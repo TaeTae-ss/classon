@@ -31,10 +31,10 @@ public class Inquiry {
     @Column(name = "INQ_TITLE", nullable = false, length = 100)
     private String inqTitle;
 
-    @Column(name = "INQ_CONTENT", nullable = false, length = 255)
+    @Column(name = "INQ_CONTENT", nullable = false, length = 500)
     private String inqContent;
 
-    @Column(name = "ADM_COMMENT", length = 255)
+    @Column(name = "ADM_COMMENT", length = 1000)
     private String admComment;
 
     @Column(name = "PRO_CREATED_AT")

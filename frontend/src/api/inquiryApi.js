@@ -6,7 +6,7 @@ export const getAdminInquiryList = async (params = {}) => {
     params,
   });
 
-  return response.data.data;
+  return response.data;
 };
 
 // 관리자 문의 상세
@@ -15,7 +15,7 @@ export const getAdminInquiry = async (repNo) => {
     `/api/admin/inquiry/${repNo}`
   );
 
-  return response.data.data;
+  return response.data;
 };
 
 // 문의 상태 변경
@@ -27,7 +27,7 @@ export const modifyInquiryStatus = async (repNo, inqStatus) => {
     }
   );
 
-  return response.data.data;
+  return response.data;
 };
 
 // 관리자 답변 등록/수정
@@ -39,7 +39,7 @@ export const modifyInquiryComment = async (repNo, admComment) => {
     }
   );
 
-  return response.data.data;
+  return response.data;
 };
 
 // 회원 문의 등록
@@ -55,10 +55,10 @@ export const getMyInquiryList = async (inqMemNo) => {
     params: { inqMemNo },
   });
 
-  return response.data.data;
+  return response.data;
 };
 
 export const getInquiry = async (inqNo) => {
   const response = await axios.get(`/api/inquiry/${inqNo}`);
-  return response.data.data;
+  return response.data;
 };

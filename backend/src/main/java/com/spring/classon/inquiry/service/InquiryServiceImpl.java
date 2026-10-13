@@ -126,9 +126,7 @@ public class InquiryServiceImpl implements InquiryService {
 
     // 관리자 문의 답변 등록/수정
     @Override
-    public void modifyComment(
-            Long inqNo,
-            String admComment) {
+    public void modifyComment(Long inqNo, String admComment) {
 
         Inquiry inquiry = inquiryRepository.findById(inqNo)
                 .orElseThrow(() ->
@@ -136,7 +134,16 @@ public class InquiryServiceImpl implements InquiryService {
                                 "문의사항을 찾을 수 없습니다."
                         ));
 
+        // 관리자 답변 저장
         inquiry.setAdmComment(admComment);
+
+        // 처리 상태 자동 변경
+        inquiry.setInqStatus("완료");
+
+        // 최초 처리 완료일 기록
+        if (inquiry.getProCreatedAt() == null) {
+            inquiry.setProCreatedAt(LocalDateTime.now());
+        }
     }
 
     // Entity -> DTO 변환

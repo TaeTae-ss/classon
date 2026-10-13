@@ -2,11 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 
-import {
-  getNotice,
-  registerNotice,
-  modifyNotice,
-} from "../../api/noticeApi";
+import { getNotice, registerNotice, modifyNotice,} from "../../api/noticeApi";
 
 import { registerInquiry } from "../../api/inquiryApi";
 
@@ -16,10 +12,7 @@ import { Field } from "../../components/common/Field";
 import { Empty } from "../../components/common/Empty";
 import { Workspace } from "../../components/common/Workspace";
 
-import {
-  inquiryTypes,
-  normalizeInquiryType,
-} from "../../util/inquiryUtil";
+import { inquiryTypes, normalizeInquiryType, } from "../../util/inquiryUtil";
 
 export default function BoardFormPage({
   inquiry = false,
@@ -89,8 +82,10 @@ export default function BoardFormPage({
       // Spring Boot POST /api/inquiry
       const result = await registerInquiry(requestData);
 
+      console.log("문의 등록 API 응답:", result);
+
       // 서버에서 생성한 문의 번호
-      const createdInqNo = result?.inqNo;
+      const createdInqNo = result?.data?.inqNo;
 
       if (createdInqNo == null) {
         throw new Error("생성된 문의 번호가 없습니다.");
@@ -260,7 +255,7 @@ export default function BoardFormPage({
         <Field label="내용">
           <textarea
             required
-            maxLength={inquiry ? 255 : 5000}
+            maxLength={inquiry ? 500 : 5000}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder={
@@ -273,7 +268,7 @@ export default function BoardFormPage({
 
         {/* 글자 수 */}
         <p>
-          {content.length}/{inquiry ? 255 : 5000}
+          {content.length}/{inquiry ? 500 : 5000}
           {inquiry &&
             " · 문의할 대상과 내용을 구체적으로 적어주세요."}
         </p>
@@ -286,21 +281,23 @@ export default function BoardFormPage({
         )}
 
         {/* 버튼 */}
-        <div>
-          <ButtonLink secondary to={`${base}/list`}>
-            취소
-          </ButtonLink>
+          <div className="flex gap-3 items-center justify-end mt-6">
+            <ButtonLink secondary to={`${base}/list`}>
+              취소
+            </ButtonLink>
 
-          <button type="submit" disabled={saving}>
-            {saving
-              ? edit
-                ? "수정 중..."
-                : "등록 중..."
-              : edit
-                ? "수정 저장"
-                : "등록"}
-          </button>
-        </div>
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex w-fit max-w-full justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-50"
+            >
+              {saving
+                ? edit
+                  ? "수정 중..." : "등록 중..."
+                : edit
+                  ? "수정 저장" : "등록"}
+            </button>
+          </div>
       </form>
     </Workspace>
   );
