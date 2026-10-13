@@ -1,5 +1,5 @@
 
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 import { useStore } from "../../mocks/data";
 
 const memberMenu = [
@@ -28,6 +28,7 @@ const adminMenu = [
 
 export function Workspace({ kind = "member", children }) {
   const [role] = useStore("role", "PUBLIC");
+  const location = useLocation();
 
   // 로그인 역할에 따른 메뉴 구분
   const menuKind =
@@ -102,6 +103,14 @@ export function Workspace({ kind = "member", children }) {
                 end
                 key={to}
                 to={to}
+                onClick={() => {
+                  if (
+                    to === "/admin/members" &&
+                    location.pathname === "/admin/members"
+                  ) {
+                    window.dispatchEvent(new Event("admin-members-refresh"));
+                  }
+                }}
                 className="block rounded-[7px] px-[14px] py-3 mb-1 text-[14px] text-[#555b63] max-md:whitespace-nowrap max-md:mb-0 [&.active]:bg-[#fff0e1] [&.active]:text-[#f4770b] [&.active]:font-bold"
               >
                 {label}

@@ -136,6 +136,11 @@ const Header = () => {
                     {isLogin && (
                         <Link
                             to={myPagePath}
+                            onClick={() => {
+                                if (member?.memRole === "ADMIN") {
+                                    window.dispatchEvent(new Event("admin-members-refresh"));
+                                }
+                            }}
                             className="py-[9.6px] border-0 bg-transparent text-ink text-[15.6px] font-bold no-underline hover:text-brand"
                             style={{
                                 fontFamily: "'NanumBarunGothic', sans-serif",
