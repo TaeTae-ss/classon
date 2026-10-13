@@ -8,6 +8,8 @@ import BookingForm from "../../components/booking/BookingForm";
 import useFavorite from "../../hooks/useFavorite";
 import ClassReview from "../../components/review/ClassReview";
 
+const IMAGE_BASE = "http://localhost:8080";
+
 export default function ClassDetailPage() {
   const { clsNo } = useParams();
   const [item, setItem] = useState(null);
@@ -61,6 +63,15 @@ export default function ClassDetailPage() {
       <Heading title="클래스 상세" />
       <div className="grid grid-cols-[minmax(0,7fr)_minmax(0,3fr)] gap-[34px] max-[900px]:gap-[22px] max-md:grid-cols-1 [&>*]:min-w-0">
         <div className="flex flex-col min-w-0">
+          {item.clsImgOrigin && (
+            <div className="overflow-hidden aspect-[400/260] rounded-xl bg-[#f0eee8] mb-6">
+              <img
+                src={`${IMAGE_BASE}${item.clsImgOrigin}`}
+                alt={item.clsName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
       <nav className="flex gap-6 border-b border-[#eee] mt-0 mb-6 pb-[14px]">
         <a className="text-[#8b725a]" href="#introduction">클래스 소개</a>
         <a className="text-[#8b725a]" href="#instructor">강사 소개</a>

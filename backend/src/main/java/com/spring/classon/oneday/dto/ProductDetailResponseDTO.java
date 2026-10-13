@@ -30,4 +30,6 @@ public class ProductDetailResponseDTO {
     private String clsRoadAddr;
 
     private String clsDetailAddr;
+
+    private String clsImgOrigin;
 }
