@@ -25,4 +25,9 @@ public interface OneDayService {
 
     // 상품 수정 (본인 클래스에 한해 강사 / 관리자, 이미지는 보낸 경우에만 교체)
     void updateProduct(Long memNo, Long clsNo, ProductRequestDTO dto, MultipartFile image);
+
+    // 관리자 클래스 목록 조회
+    PageResponseDTO<ProductResponseDTO> findAllForAdmin(
+            PageRequestDTO pageRequestDTO
+    );
 }

@@ -20,7 +20,7 @@ export function DemoBar() {
         >
           <option value="PUBLIC">비회원</option>
           <option value="USER">회원</option>
-          <option value="INS">강사</option>
+          <option value="INSTRUCTOR">강사</option>
           <option value="ADMIN">관리자</option>
         </select>
       </label>
@@ -29,8 +29,8 @@ export function DemoBar() {
         to={
           role === "ADMIN"
             ? "/admin"
-            : role === "INS"
-              ? "/instructor"
+            : role === "INSTRUCTOR"
+              ? "/instructor/mypage"
               : "/member/mypage"
         }
       >

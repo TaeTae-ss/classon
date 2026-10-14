@@ -55,3 +55,12 @@ export const getAdminMemberDetail = async (memNo) => {
   const response = await axios.get(`/api/admin/members/${memNo}`);
   return response.data;
 };
+
+// 관리자 클래스 목록 조회 및 검색
+export const getAdminClassList = async (params = {}) => {
+  const response = await axios.get("/api/admin/classes", {
+    params,
+  });
+
+  return response.data;
+};
