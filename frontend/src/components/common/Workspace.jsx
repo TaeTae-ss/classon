@@ -7,7 +7,7 @@ const memberMenu = [
   ["/member/reservations", "예약 및 결제 내역"],
   ["/member/favorites", "내가 찜한 클래스"],
   ["/member/reviews", "내가 작성한 후기"],
-  ["/inquiry/list", "문의 및 신고 내역"],
+  ["/inquiry/list", "내가 작성한 문의"],
 ];
 
 const instructorMenu = [
