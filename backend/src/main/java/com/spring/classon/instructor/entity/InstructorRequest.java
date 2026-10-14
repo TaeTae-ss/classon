@@ -23,7 +23,7 @@ public class InstructorRequest {
     @Column(name = "req_introduction", nullable = false, length = 255)
     private String reqIntroduction;
 
-    @Column(name = "req_career", length = 500)
+    @Column(name = "req_career",nullable = false, length = 500)
     private String reqCareer;
 
     @Column(name = "req_status", nullable = false, length = 20)

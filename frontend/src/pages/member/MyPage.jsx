@@ -1196,7 +1196,16 @@ export default function MyPage({ instructor = false, edit = false }) {
               </Field>
 
               {/* 강의 경력 및 활동 이력 */}
-              <Field label="강의 경력 및 활동 이력">
+              <Field
+                label={
+                  <>
+                    강의 경력 및 활동 이력{" "}
+                    <span className="font-bold text-[#DF700E]">
+                      (*필수)
+                    </span>
+                  </>
+                }
+              > 
                 <textarea
                   rows={6}
                   value={career}

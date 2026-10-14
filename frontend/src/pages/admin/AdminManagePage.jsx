@@ -32,7 +32,7 @@ const maskEmail = (email) => {
 const maskPhone = (phone) => {
   if (!phone) return "-";
 
-  const digits = String(phone).replace(/\\D/g, "");
+  const digits = String(phone).replace(/\D/g, "");
 
   if (digits.length === 11) {
     return `${digits.slice(0, 3)}-****-${digits.slice(-4)}`;
