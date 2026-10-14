@@ -15,7 +15,7 @@ export default function ClassListPage() {
   const [categories, setCategories] = useState([]);
   const categoryParam = params.get("categoryId");
   const categoryId = categoryParam === null ? null : Number(categoryParam);
-  const [keywordInput, setKeywordInput] = useState(keyword);
+  
   const [page, setPage] = useState(1);
   const prevQueryRef = useRef(`${categoryId}|${keyword}`);
   const [list, setList] = useState([]);
@@ -79,17 +79,7 @@ export default function ClassListPage() {
     setPage(1);
   };
 
-  const submitKeyword = (e) => {
-    e.preventDefault();
-
-    const trimmed = keywordInput.trim();
-    const next = new URLSearchParams(params);
-
-    if (trimmed) next.set("keyword", trimmed);
-    else next.delete("keyword");
-
-    setSearchParams(next);
-  };
+  
 
   return (
     <>
@@ -97,21 +87,7 @@ export default function ClassListPage() {
         title="클래스 탐색"
         description="새로운 취미, 새로운 배움. 당신에게 맞는 클래스를 찾아보세요."
       />
-      <form onSubmit={submitKeyword} className="flex gap-2 mb-4">
-        <input
-          type="text"
-          value={keywordInput}
-          onChange={(e) => setKeywordInput(e.target.value)}
-          placeholder="클래스명으로 검색"
-          className="flex-1 h-11 px-4 rounded-[22px] border border-[#ebe6e0] text-[15px] outline-none focus-visible:border-[#ea6500]"
-        />
-        <button
-          type="submit"
-          className="h-11 px-5 rounded-[22px] bg-accent text-white text-[14px] font-bold cursor-pointer"
-        >
-          검색
-        </button>
-      </form>
+      
       <div className="flex items-center justify-between flex-wrap gap-3 my-6">
         <ul className="list-none flex gap-[10px] flex-wrap p-0 m-0">
           <li

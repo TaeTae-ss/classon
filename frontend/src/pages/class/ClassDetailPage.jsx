@@ -73,35 +73,47 @@ export default function ClassDetailPage() {
               />
             </div>
           )}
-      <nav className="flex gap-6 border-b border-[#eee] mt-0 mb-6 pb-[14px]">
-        <a className="text-[#8b725a]" href="#introduction">클래스 소개</a>
-        <a className="text-[#8b725a]" href="#instructor">강사 소개</a>
-        <a className="text-[#8b725a]" href="#reviews">수강 후기</a>
-      </nav>
+          <nav className="flex gap-6 border-b border-[#eee] mt-0 mb-6 pb-[14px]">
+            <a className="text-[#8b725a]" href="#introduction">클래스 소개</a>
+            <a className="text-[#8b725a]" href="#instructor">강사 소개</a>
+            <a className="text-[#8b725a]" href="#reviews">수강 후기</a>
+          </nav>
           <section id="introduction" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
             <h2>클래스 소개</h2>
             <p>{item.clsDesc}</p>
           </section>
-          <section id="instructor" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
+          <section
+            id="instructor" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
             <h2>강사 소개</h2>
+
             <div className="flex items-center gap-[22px] mb-[29px]">
-              <div className="w-[84px] h-[84px] rounded-full bg-[#ffead5] text-[#ee7c1e] grid place-items-center text-[31px]">{item.instructorName?.[0]}</div>
-              <div>
+              <div className="w-[84px] h-[84px] shrink-0 rounded-full bg-[#ffead5] text-[#ee7c1e] grid place-items-center text-[31px]">
+                {item.instructorName?.[0]}
+              </div>
+
+              <div className="min-w-0">
                 <h3>{item.instructorName}</h3>
-                <p>처음 시작하는 분들도 즐겁게 배울 수 있도록 함께합니다.</p>
+                <p className="whitespace-pre-wrap break-words">
+                  {item.reqIntroduction || "등록된 강사 소개가 없습니다."}
+                </p>
+
+                <h4 className="mt-4 mb-2 font-semibold">강사 경력</h4>
+                <p className="whitespace-pre-wrap break-words">
+                  {item.reqCareer || "등록된 강사 경력이 없습니다."}
+                </p>
               </div>
             </div>
           </section>
-        <section id="location" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
-          <h2>클래스 장소</h2>
-          <p>{address}</p>
-          <KakaoMap address={item.clsRoadAddr}>
-            📍 {item.clsRoadAddr?.split(" ").slice(0, 2).join(" ")}
-          </KakaoMap>
-          <p className="text-[13px] leading-[1.8] text-[#999]" style={{ marginTop: 12 }}>
-            정확한 방문 안내는 예약 정보를 확인해주세요.
-          </p>
-        </section>
+          <section id="location" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
+            <h2>클래스 장소</h2>
+            <p>{address}</p>
+            <KakaoMap address={item.clsRoadAddr}>
+              📍 {item.clsRoadAddr?.split(" ").slice(0, 2).join(" ")}
+            </KakaoMap>
+            <p className="text-[13px] leading-[1.8] text-[#999]" style={{ marginTop: 12 }}>
+              정확한 방문 안내는 예약 정보를 확인해주세요.
+            </p>
+          </section>
           <ClassReview clsNo={item.clsNo} />
         </div>
         <div className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] sticky top-[124px] self-start max-md:static min-[769px]:max-[1024px]:top-[220px]">
@@ -116,19 +128,19 @@ export default function ClassDetailPage() {
             </span>
           </p>
           <p>
-            {money(item.clsPrice)} 
+            {money(item.clsPrice)}
           </p>
           <BookingForm
             key={item.id}
             item={item}
             secondaryAction={
               <button type="button"
-              className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
-              aria-pressed={liked}
-              onClick={() => handleToggleFavorite(item.clsNo)}
-            >
-              {liked ? "♥ 찜 해제" : "♡ 찜하기"}
-            </button>
+                className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-white text-[#e56b00] border border-[#edddcf] font-bold text-[17px] leading-[1.3] cursor-pointer disabled:opacity-45 disabled:cursor-not-allowed"
+                aria-pressed={liked}
+                onClick={() => handleToggleFavorite(item.clsNo)}
+              >
+                {liked ? "♥ 찜 해제" : "♡ 찜하기"}
+              </button>
             }
           />
         </div>
