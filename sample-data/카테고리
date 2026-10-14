@@ -1,0 +1,26 @@
+--카테고리 먼저 실행
+
+INSERT INTO CATEGORY (cat_name, cat_created_at, cat_updated_at)
+VALUES ('음악', LOCALTIMESTAMP, LOCALTIMESTAMP);
+
+INSERT INTO CATEGORY (cat_name, cat_created_at, cat_updated_at)
+VALUES ('피트니스', LOCALTIMESTAMP, LOCALTIMESTAMP);
+
+INSERT INTO CATEGORY (cat_name, cat_created_at, cat_updated_at)
+VALUES ('공예', LOCALTIMESTAMP, LOCALTIMESTAMP);
+
+INSERT INTO CATEGORY (cat_name, cat_created_at, cat_updated_at)
+VALUES ('요리', LOCALTIMESTAMP, LOCALTIMESTAMP);
+
+INSERT INTO CATEGORY (cat_name, cat_created_at, cat_updated_at)
+VALUES ('미술', LOCALTIMESTAMP, LOCALTIMESTAMP);
+
+INSERT INTO CATEGORY (cat_name, cat_created_at, cat_updated_at)
+VALUES ('아웃도어', LOCALTIMESTAMP, LOCALTIMESTAMP);
+
+--카테고리 번호가 1-6까지 6개 나오면 정상
+SELECT cat_no, cat_name
+FROM CATEGORY
+ORDER BY cat_no;
+
+COMMIT;
