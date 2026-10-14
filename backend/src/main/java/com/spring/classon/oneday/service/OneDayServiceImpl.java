@@ -108,13 +108,36 @@ public class OneDayServiceImpl implements OneDayService {
 
         List<OneDay> oneDays = oneDayRepository.findByMemNo(memNo);
 
-        List<Long> clsNos = oneDays.stream().map(OneDay::getClsNo).toList();
+        List<Long> catNos = oneDays.stream()
+                .map(OneDay::getCatNo)
+                .distinct()
+                .toList();
 
-        Map<Long, String> instructorNameMap = Map.of(memNo, memberService.getMemberSummary(memNo).getMemNickname());
+        List<Long> clsNos = oneDays.stream()
+                .map(OneDay::getClsNo)
+                .toList();
 
+        // 카테고리 이름 조회
+        Map<Long, String> catNameMap = catNos.isEmpty()
+                ? Map.of()
+                : categoryRepository.findAllById(catNos).stream()
+                  .collect(Collectors.toMap(
+                          Category::getCatNo,
+                          Category::getCatName
+                  ));
+
+        // 강사 닉네임 조회
+        Map<Long, String> instructorNameMap =
+                Map.of(memNo, memberService.getMemberSummary(memNo).getMemNickname());
+
+        // 클래스 평점 조회
         Map<Long, Double> ratingMap = reviewService.getAverageRatings(clsNos);
 
-        return productMapper.toDTOList(oneDays, new ProductMapper.NameLookup(Map.of(),instructorNameMap), ratingMap);
+        return productMapper.toDTOList(
+                oneDays,
+                new ProductMapper.NameLookup(catNameMap, instructorNameMap),
+                ratingMap
+        );
     }
 
     // 상품 상세 조회
