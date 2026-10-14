@@ -23,13 +23,13 @@ export default function BookingForm({
 
   const [scheduleId, setScheduleId] = useState(
     existing?.scheduleId ||
-      Number(params.get("schNo")) ||
-      "",
+    Number(params.get("schNo")) ||
+    "",
   );
 
   const [count, setCount] = useState(
     existing?.count ||
-      Math.max(1, Number(params.get("people")) || 1),
+    Math.max(1, Number(params.get("people")) || 1),
   );
 
   const [error, setError] = useState("");
@@ -43,7 +43,20 @@ export default function BookingForm({
 
         const data = await getSchedules(item.id);
 
-        setSchedules(data);
+        // 브라우저의 현지 날짜를 YYYY-MM-DD 형식으로 생성
+        const now = new Date();
+        const today = [
+          now.getFullYear(),
+          String(now.getMonth() + 1).padStart(2, "0"),
+          String(now.getDate()).padStart(2, "0"),
+        ].join("-");
+
+        // 오늘 및 과거 일정을 제외하고 내일 이후 일정만 표시
+        const availableSchedules = data.filter(
+          (schedule) => schedule.schStartDate > today
+        );
+
+        setSchedules(availableSchedules);
       } catch (error) {
         console.error("일정 조회 실패:", error);
         setError("수업 일정을 불러오지 못했습니다.");
@@ -75,75 +88,75 @@ export default function BookingForm({
     effectiveCount !== existing.count;
 
   // 예약 처리
-const submit = async (e) => {
-  e.preventDefault();
+  const submit = async (e) => {
+    e.preventDefault();
 
-  if (!selected || max === 0) {
-    setError("예약 가능한 일정을 선택해주세요.");
-    return;
-  }
-
-  if (paidCountChanged) {
-    setError(
-      "결제 완료한 예약은 인원을 변경할 수 없습니다. 예약 취소 후 다시 예약해주세요."
-    );
-    return;
-  }
-
-  try {
-    setError("");
-
-    // 1. 예약 가능 인원 확인
-    const countResult = await countReservation(
-      selected.schNo,
-      effectiveCount
-    );
-
-    console.log("예약 가능 여부:", countResult);
-
-    if (countResult.remainingCount < effectiveCount) {
-      setError("예약 가능한 인원이 부족합니다.");
+    if (!selected || max === 0) {
+      setError("예약 가능한 일정을 선택해주세요.");
       return;
     }
 
-    // 2. 예약 생성: 회원번호는 백엔드가 JWT에서 확인
-    const reservation = await createReservation({
-      schNo: selected.schNo,
-      rsvCount: effectiveCount,
-    });
-
-    console.log("예약 생성 성공:", reservation);
-
-    // 4. 생성된 예약번호로 결제 페이지 이동
-    navigate(`/member/payments/checkout/${reservation.rsvNo}`);
-  } catch (error) {
-    console.error("예약 처리 실패:", error);
-    console.error(
-      "서버 응답 전체:",
-      error.response?.data
-    );
-
-    // 로그인하지 않은 경우
-    if (error.response?.status === 401) {
-      setError("로그인이 필요한 기능입니다.");
+    if (paidCountChanged) {
+      setError(
+        "결제 완료한 예약은 인원을 변경할 수 없습니다. 예약 취소 후 다시 예약해주세요."
+      );
       return;
     }
 
-    // 로그인은 했지만 권한이 없는 경우
-    if (error.response?.status === 403) {
-      setError("로그인이 필요한 기능입니다.");
-      return;
+    try {
+      setError("");
+
+      // 1. 예약 가능 인원 확인
+      const countResult = await countReservation(
+        selected.schNo,
+        effectiveCount
+      );
+
+      console.log("예약 가능 여부:", countResult);
+
+      if (countResult.remainingCount < effectiveCount) {
+        setError("예약 가능한 인원이 부족합니다.");
+        return;
+      }
+
+      // 2. 예약 생성: 회원번호는 백엔드가 JWT에서 확인
+      const reservation = await createReservation({
+        schNo: selected.schNo,
+        rsvCount: effectiveCount,
+      });
+
+      console.log("예약 생성 성공:", reservation);
+
+      // 4. 생성된 예약번호로 결제 페이지 이동
+      navigate(`/member/payments/checkout/${reservation.rsvNo}`);
+    } catch (error) {
+      console.error("예약 처리 실패:", error);
+      console.error(
+        "서버 응답 전체:",
+        error.response?.data
+      );
+
+      // 로그인하지 않은 경우
+      if (error.response?.status === 401) {
+        setError("로그인이 필요한 기능입니다.");
+        return;
+      }
+
+      // 로그인은 했지만 권한이 없는 경우
+      if (error.response?.status === 403) {
+        setError("로그인이 필요한 기능입니다.");
+        return;
+      }
+
+      // 그 외의 오류는 기존 메시지 처리 유지
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.data?.message ||
+        "예약 처리 중 오류가 발생했습니다.";
+
+      setError(message);
     }
-
-    // 그 외의 오류는 기존 메시지 처리 유지
-    const message =
-      error.response?.data?.message ||
-      error.response?.data?.data?.message ||
-      "예약 처리 중 오류가 발생했습니다.";
-
-    setError(message);
-  }
-};
+  };
 
   return (
     <form
