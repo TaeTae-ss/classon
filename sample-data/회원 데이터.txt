@@ -1,3 +1,5 @@
+--drop table member_private;
+
 DECLARE
     TYPE t_text_list IS TABLE OF VARCHAR2(100);
 

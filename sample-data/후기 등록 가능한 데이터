@@ -1,0 +1,116 @@
+DECLARE
+    v_sch_no SCHEDULE.sch_no%TYPE;
+    v_price ONEDAY.cls_price%TYPE;
+    v_capacity NUMBER;
+    v_count NUMBER;
+
+    v_class_name ONEDAY.cls_name%TYPE;
+    v_member_name MEMBER.mem_nickname%TYPE;
+
+BEGIN
+    SAVEPOINT before_review_reservations;
+
+    -- 먼저 회원과 클래스가 모두 있는지 확인
+    FOR i IN 1..20 LOOP
+        SELECT cls_name
+        INTO v_class_name
+        FROM ONEDAY
+        WHERE cls_no = i;
+
+        SELECT mem_nickname
+        INTO v_member_name
+        FROM MEMBER
+        WHERE mem_no = i + 1
+          AND mem_role = 'USER';
+    END LOOP;
+
+    FOR i IN 1..20 LOOP
+        -- 같은 회원·클래스에 최근 완료 예약이 있으면 중복 생성 생략
+        SELECT COUNT(*)
+        INTO v_count
+        FROM RESERVATION r
+        JOIN SCHEDULE s ON s.sch_no = r.sch_no
+        WHERE r.mem_no = i + 1
+          AND s.cls_no = i
+          AND r.rsv_status = 'COMPLETED'
+          AND r.rsv_completed_at >= LOCALTIMESTAMP - INTERVAL '7' DAY;
+
+        IF v_count = 0 THEN
+            SELECT cls_price
+            INTO v_price
+            FROM ONEDAY
+            WHERE cls_no = i;
+
+            -- 기존 클래스별 정원 기준
+            v_capacity := CASE
+                WHEN i IN (2, 4, 8, 9, 17, 19) THEN 6
+                WHEN i IN (3, 14, 20) THEN 10
+                WHEN i = 6 THEN 7
+                WHEN i = 12 THEN 5
+                ELSE 8
+            END;
+
+            -- 후기용 과거 일정 추가
+            INSERT INTO SCHEDULE (
+                cls_no,
+                sch_start_date,
+                sch_capacity,
+                sch_created_at,
+                sch_updated_at
+            ) VALUES (
+                i,
+                TRUNC(SYSDATE) - 1,
+                v_capacity,
+                LOCALTIMESTAMP - INTERVAL '10' DAY,
+                LOCALTIMESTAMP - INTERVAL '10' DAY
+            )
+            RETURNING sch_no INTO v_sch_no;
+
+            -- 회원 한 명당 완료 예약 한 개 추가
+            INSERT INTO RESERVATION (
+                mem_no,
+                sch_no,
+                rsv_count,
+                rsv_amount,
+                rsv_status,
+                rsv_created_at,
+                rsv_confirmed_at,
+                rsv_completed_at
+            ) VALUES (
+                i + 1,
+                v_sch_no,
+                1,
+                v_price,
+                'COMPLETED',
+                LOCALTIMESTAMP - INTERVAL '7' DAY,
+                LOCALTIMESTAMP - INTERVAL '6' DAY,
+                LOCALTIMESTAMP - INTERVAL '1' DAY
+            );
+        END IF;
+    END LOOP;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK TO before_review_reservations;
+        RAISE;
+END;
+/
+
+SELECT
+    r.rsv_no,
+    m.mem_nickname,
+    p.mem_email,
+    o.cls_name,
+    s.sch_start_date,
+    r.rsv_status,
+    r.rsv_completed_at,
+    r.rsv_completed_at + INTERVAL '7' DAY AS review_deadline
+FROM RESERVATION r
+JOIN MEMBER m ON m.mem_no = r.mem_no
+JOIN MEMBER_PRIVATE p ON p.mem_no = m.mem_no
+JOIN SCHEDULE s ON s.sch_no = r.sch_no
+JOIN ONEDAY o ON o.cls_no = s.cls_no
+WHERE r.mem_no BETWEEN 2 AND 21
+  AND o.cls_no BETWEEN 1 AND 20
+  AND r.rsv_status = 'COMPLETED'
+ORDER BY r.mem_no, r.rsv_no;
