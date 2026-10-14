@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     // 클래스별 일정 목록 조회
-    List<Schedule> findByClsNo(Long clsNo);
+    List<Schedule> findByClsNoOrderBySchStartDateAsc(Long clsNo);
 
     // 예약의 일정 조회 및 락
     @Lock(LockModeType.PESSIMISTIC_WRITE)
