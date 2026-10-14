@@ -67,7 +67,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         oneDayRepository.findById(clsNo)
                 .orElseThrow(OneDayNotFoundException::new);
 
-        return scheduleRepository.findByClsNo(clsNo).stream()
+        return scheduleRepository.findByClsNoOrderBySchStartDateAsc(clsNo).stream()
                 .map(schedule -> {
                     int reservedCount = reservationService.countActiveReservations(schedule.getSchNo());
 

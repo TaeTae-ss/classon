@@ -199,7 +199,7 @@ public class MemberServiceImpl implements MemberService {
             for (OneDay oneDay : classes) {
 
                 List<Schedule> schedules =
-                        scheduleRepository.findByClsNo(oneDay.getClsNo());
+                        scheduleRepository.findByClsNoOrderBySchStartDateAsc(oneDay.getClsNo());
 
                 boolean hasUpcomingSchedule = schedules.stream()
                         .anyMatch(schedule ->

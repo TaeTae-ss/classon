@@ -137,7 +137,7 @@ public class FavoriteServiceImpl implements FavoriteService{
 
                 // 클래스 일정 중 최대 정원
                 Integer maxCapacity = scheduleRepository
-                        .findByClsNo(oneDay.getClsNo())
+                        .findByClsNoOrderBySchStartDateAsc(oneDay.getClsNo())
                         .stream()
                         .map(Schedule::getSchCapacity)
                         .max(Integer::compareTo)

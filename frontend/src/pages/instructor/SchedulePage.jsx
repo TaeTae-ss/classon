@@ -103,7 +103,11 @@ export default function SchedulePage() {
         schCapacity: Number(capacity),
       });
 
-      setSchedules((v) => [...v, created]);
+      setSchedules((v) =>
+        [...v, created].sort((a, b) =>
+          a.schStartDate.localeCompare(b.schStartDate)
+        )
+      );
     } catch (err) {
       console.error("일정 등록 실패:", err);
 

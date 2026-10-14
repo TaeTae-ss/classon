@@ -162,7 +162,7 @@ public class OneDayServiceImpl implements OneDayService {
                         .map(InstructorRequest::getReqIntroduction)
                         .orElse(null);
 
-        Integer maxCapacity = scheduleRepository.findByClsNo(clsNo).stream()
+        Integer maxCapacity = scheduleRepository.findByClsNoOrderBySchStartDateAsc(clsNo).stream()
                 .map(schedule -> schedule.getSchCapacity())
                 .max(Integer::compareTo)
                 .orElse(null);
