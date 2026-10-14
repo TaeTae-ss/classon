@@ -1,7 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router";
 import BasicLayout from "./BasicLayout";
 import { readStore } from "../mocks/data";
-import { DemoBar } from "../components/common/DemoBar";
 import { ButtonLink } from "../components/common/ButtonLink";
 import { Heading } from "../components/common/Heading";
 
@@ -9,7 +8,7 @@ export function Shell() {
   return (
     <BasicLayout>
       <div className="co-page">
-        <DemoBar />
+      
         <Outlet />
       </div>
     </BasicLayout>

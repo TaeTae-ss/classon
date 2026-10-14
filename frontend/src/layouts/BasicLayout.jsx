@@ -10,7 +10,7 @@ const BasicLayout = ({
 
                 <Header/>
 
-                <main className="flex-1 px-[10px] py-[35px]">
+                <main className="flex-1 px-[10px]">
                     {children}
                 </main>
 
