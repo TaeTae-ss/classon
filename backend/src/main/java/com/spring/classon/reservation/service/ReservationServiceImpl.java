@@ -132,7 +132,7 @@ public class ReservationServiceImpl implements ReservationService{
 
         // 강사는 본인이 등록한 클래스의 예약 상세만 조회 가능
         boolean isClassInstructor = false;
-        if ("INS".equals(memRole)) {
+        if ("INSTRUCTOR".equals(memRole)) {
             Schedule schedule = scheduleRepository.findById(reservation.getSchNo())
                     .orElseThrow(() -> new ReservationException("일정 정보를 찾을 수 없습니다."));
             OneDay oneDay = oneDayRepository.findById(schedule.getClsNo())
