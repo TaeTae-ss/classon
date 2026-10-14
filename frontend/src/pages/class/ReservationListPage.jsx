@@ -6,6 +6,7 @@ import {
   getInstructorReservationList,
   getInstructorReservationListBySchedule,
 } from "../../api/reservationApi";
+import { getMemberReviews } from "../../api/reviewApi";
 
 import { usePagination } from "../../hooks/usePagination";
 
@@ -69,6 +70,7 @@ export default function ReservationListPage({
   const { schNo } = useParams();
 
   const [reservations, setReservations] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [filter, setFilter] = useState("전체");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -87,7 +89,11 @@ export default function ReservationListPage({
           data = await getInstructorReservationList();
         } else {
           data = await getReservationListByMember();
-          console.log("예약 목록 데이터:", data);
+
+          if (!payment) {
+            const reviewData = await getMemberReviews();
+            setReviews(reviewData || []);
+          }
         }
 
         setReservations(data || []);
@@ -107,9 +113,9 @@ export default function ReservationListPage({
   const list = reservations.filter(
     (r) =>
       r.rsvStatus !== "WAIT" &&
-    (!schedule || Number(r.schNo) === Number(schNo)) &&
-    (!payment || r.payStatus === "paid") &&
-    (filter === "전체" || r.rsvStatus === filter),
+      (!schedule || Number(r.schNo) === Number(schNo)) &&
+      (!payment || r.payStatus === "paid") &&
+      (filter === "전체" || r.rsvStatus === filter),
   );
 
   const pagination = usePagination(list);
@@ -132,9 +138,8 @@ export default function ReservationListPage({
           <li
             role="button"
             tabIndex={0}
-            className={`text-2xl cursor-pointer p-0 text-[#777] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${
-              filter === status.value ? "text-accent font-semibold" : ""
-            }`}
+            className={`text-2xl cursor-pointer p-0 text-[#777] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${filter === status.value ? "text-accent font-semibold" : ""
+              }`}
             key={status.value}
             onClick={() => setFilter(status.value)}
             onKeyDown={(event) => {
@@ -167,13 +172,15 @@ export default function ReservationListPage({
           <article
             className="flex justify-between items-center gap-6 p-6 bg-white border border-[#e9e4df] rounded-[10px] mb-[17px] max-md:items-start max-md:flex-col max-md:p-[18px]"
             key={r.rsvNo}
-            onClick={()=> 
+            onClick={(e) => {
+              if (e.target.closest("a, button")) return;
+
               navigate(
                 payment
-                        ? `/member/payments/reservation/${r.rsvNo}`
-                        : `/member/reservations/${r.rsvNo}`
-              )
-            }
+                  ? `/member/payments/reservation/${r.rsvNo}`
+                  : `/member/reservations/${r.rsvNo}`
+              );
+            }}
           >
             <ClassSummary reservation={r} />
 
@@ -189,24 +196,25 @@ export default function ReservationListPage({
               {!instructor &&
                 payment === false &&
                 r.rsvStatus === "COMPLETED" &&
-                getReviewDaysLeft(r.rsvCompletedAt) !== null ? (
-                  <ButtonLink
-                    to={`/member/reservations/${r.rsvNo}/review`}
-                  >
-                    후기 작성 D-{getReviewDaysLeft(r.rsvCompletedAt)}
-                  </ButtonLink>
-                ) : (
-                  <ButtonLink
-                    secondary
-                    to={
-                      payment
-                        ? `/member/payments/reservation/${r.rsvNo}`
-                        : `/member/reservations/${r.rsvNo}`
-                    }
-                  >
-                    상세 보기
-                  </ButtonLink>
-                )}
+                getReviewDaysLeft(r.rsvCompletedAt) !== null &&
+                !reviews.some((review) => Number(review.rsvNo) === Number(r.rsvNo)) ? (
+                <ButtonLink
+                  to={`/member/reservations/${r.rsvNo}/review`}
+                >
+                  후기 작성 D-{getReviewDaysLeft(r.rsvCompletedAt)}
+                </ButtonLink>
+              ) : (
+                <ButtonLink
+                  secondary
+                  to={
+                    payment
+                      ? `/member/payments/reservation/${r.rsvNo}`
+                      : `/member/reservations/${r.rsvNo}`
+                  }
+                >
+                  상세 보기
+                </ButtonLink>
+              )}
 
               {instructor && (
                 <p className="text-[13px] leading-[1.8] text-[#999]">
