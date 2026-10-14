@@ -3,6 +3,8 @@ package com.spring.classon.oneday.service;
 import com.spring.classon.common.dto.PageRequestDTO;
 import com.spring.classon.common.dto.PageResponseDTO;
 import com.spring.classon.common.exception.InstructorPermissionException;
+import com.spring.classon.instructor.entity.InstructorRequest;
+import com.spring.classon.instructor.repository.InstructorRequestRepository;
 import com.spring.classon.member.dto.MemberSummaryDTO;
 import com.spring.classon.member.service.MemberService;
 import com.spring.classon.oneday.dto.ProductDetailResponseDTO;
@@ -45,6 +47,7 @@ public class OneDayServiceImpl implements OneDayService {
     private final ScheduleRepository scheduleRepository;
     private final ProductMapper productMapper;
     private final ProductImageStorage productImageStorage;
+    private final InstructorRequestRepository instructorRequestRepository;
 
     // 상품 목록 조회 (categoryId 없으면 전체 조회)
     @Override
@@ -126,6 +129,16 @@ public class OneDayServiceImpl implements OneDayService {
 
         MemberSummaryDTO instructor = memberService.getMemberSummary(oneDay.getMemNo());
 
+        // 승인된 강사 신청 정보 조회
+        String instructorIntroduction =
+                instructorRequestRepository
+                        .findFirstByMemNoAndReqStatusOrderByReqNoDesc(
+                                oneDay.getMemNo(),
+                                "APPROVED"
+                        )
+                        .map(InstructorRequest::getReqIntroduction)
+                        .orElse(null);
+
         Integer maxCapacity = scheduleRepository.findByClsNo(clsNo).stream()
                 .map(schedule -> schedule.getSchCapacity())
                 .max(Integer::compareTo)
@@ -138,6 +151,8 @@ public class OneDayServiceImpl implements OneDayService {
                 .clsName(oneDay.getClsName())
                 .catName(category.getCatName())
                 .instructorName(instructor.getMemNickname())
+                .reqIntroduction(instructorIntroduction)
+                .reqCareer(instructorIntroduction)
                 .maxCapacity(maxCapacity)
                 .rating(rating)
                 .clsPrice(oneDay.getClsPrice())

@@ -32,4 +32,8 @@ public class ProductDetailResponseDTO {
     private String clsDetailAddr;
 
     private String clsImgOrigin;
+
+    private String reqIntroduction;
+
+    private String reqCareer;
 }

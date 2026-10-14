@@ -20,7 +20,14 @@ const unwrapResponse = (response) => response?.data ?? response;
 
 // 회원 권한 표시
 const getMemberRole = (role) => {
-  return role || "-";
+  const roleNames = {
+    USER: "회원",
+    ADMIN: "관리자",
+    INSTRUCTOR: "강사",
+    INS: "강사",
+  };
+
+  return roleNames[role] || role || "-";
 };
 
 // 날짜 표시
@@ -155,7 +162,7 @@ function AdminMemberManagement() {
     memAddress: "주소",
     memAddressDetail: "상세 주소",
     memImg: "프로필 이미지",
-    memRole: "권한",
+    memRole: "회원정보",
     memCreatedAt: "가입일",
     memPwUpdate: "비밀번호 변경일",
   };
@@ -228,7 +235,7 @@ function AdminMemberManagement() {
         <table className="w-full border-collapse text-[14px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
           <thead>
             <tr>
-              {["번호", "이름", "이메일", "권한", "관리"].map((label) => (
+              {["번호", "이름", "이메일", "회원정보", "관리"].map((label) => (
                 <th
                   key={label}
                   className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
