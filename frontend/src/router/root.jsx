@@ -1,3 +1,4 @@
+
 import {
     createBrowserRouter,
     createRoutesFromElements,
@@ -30,21 +31,9 @@ const notFound = (
     </section>
 );
 
-// 500 서버 오류
-const serverError = (
-    <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] max-w-[648px] mx-auto my-[46px] [&>a]:flex [&>a]:w-fit [&>a]:max-w-full [&>a]:ml-auto">
-        <Heading
-            title="서버에 문제가 발생했습니다."
-            description="잠시 후 다시 시도해 주세요."
-        />
-        <ButtonLink to="/">메인으로</ButtonLink>
-    </section>
-);
-
 const root = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<Shell />}>
-
             {/* 기본 */}
             <Route index element={<MainPage />} />
             <Route path="auth/login" element={<LoginPage />} />
@@ -72,14 +61,10 @@ const root = createBrowserRouter(
                 element={<Navigate to="/admin/members" replace />}
             />
 
-            {/* 500 서버 오류 */}
-            <Route path="error/500" element={serverError} />
-
             {/* 404 */}
             <Route path="*" element={notFound} />
-
         </Route>
-    ),
+    )
 );
 
 export default root;
