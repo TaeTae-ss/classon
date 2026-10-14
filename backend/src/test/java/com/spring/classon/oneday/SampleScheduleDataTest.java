@@ -117,7 +117,7 @@ class SampleScheduleDataTest {
 
             for (LocalDate date : dates) {
                 boolean exists = scheduleRepository
-                        .findByClsNo(sample.clsNo())
+                        .findByClsNoOrderBySchStartDateAsc(sample.clsNo())
                         .stream()
                         .anyMatch(schedule ->
                                 date.equals(schedule.getSchStartDate())
