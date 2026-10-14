@@ -1,3 +1,4 @@
+
 import {
     createBrowserRouter,
     createRoutesFromElements,
@@ -33,7 +34,6 @@ const notFound = (
 const root = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<Shell />}>
-
             {/* 기본 */}
             <Route index element={<MainPage />} />
             <Route path="auth/login" element={<LoginPage />} />
@@ -63,9 +63,8 @@ const root = createBrowserRouter(
 
             {/* 404 */}
             <Route path="*" element={notFound} />
-
         </Route>
-    ),
+    )
 );
 
 export default root;
