@@ -18,6 +18,33 @@ import { getClassDetail } from "../../api/classApi";
 // API 응답 데이터 추출
 const unwrapResponse = (response) => response?.data ?? response;
 
+// 이메일은 앞 두 글자만 표시하고 나머지는 마스킹
+const maskEmail = (email) => {
+  if (!email) return "-";
+
+  const [localPart, domain] = String(email).split("@");
+  if (!domain) return "***";
+
+  return `${localPart.slice(0, 2)}${"*".repeat(Math.max(3, localPart.length - 2))}@${domain}`;
+};
+
+// 휴대폰 번호 가운데 자리를 마스킹
+const maskPhone = (phone) => {
+  if (!phone) return "-";
+
+  const digits = String(phone).replace(/\\D/g, "");
+
+  if (digits.length === 11) {
+    return `${digits.slice(0, 3)}-****-${digits.slice(-4)}`;
+  }
+
+  if (digits.length === 10) {
+    return `${digits.slice(0, 3)}-***-${digits.slice(-4)}`;
+  }
+
+  return String(phone);
+};
+
 // 회원 권한 표시
 const getMemberRole = (role) => {
   const roleNames = {
@@ -205,6 +232,10 @@ function AdminMemberManagement() {
                 ) : (
                   "-"
                 )
+              ) : key === "memEmail" ? (
+                maskEmail(value)
+              ) : key === "memPhone" ? (
+                maskPhone(value)
               ) : key === "memCreatedAt" || key === "memPwUpdate" ? (
                 formatMemberDate(value)
               ) : value == null || value === "" ? (
@@ -235,7 +266,7 @@ function AdminMemberManagement() {
         <table className="w-full border-collapse text-[14px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
           <thead>
             <tr>
-              {["번호", "이름", "이메일", "회원정보", "관리"].map((label) => (
+              {["번호", "닉네임", "이메일", "회원정보", "관리"].map((label) => (
                 <th
                   key={label}
                   className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
@@ -257,7 +288,7 @@ function AdminMemberManagement() {
                     {member.memNickname || "-"}
                   </td>
                   <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
-                    {member.memEmail || "-"}
+                    {maskEmail(member.memEmail)}
                   </td>
                   <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
                     {getMemberRole(member.memRole)}
@@ -295,7 +326,7 @@ function AdminMemberManagement() {
           aria-label="회원 관리 검색"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="회원명 / 이메일 검색"
+          placeholder="닉네임 / 이메일 검색"
         />
         <button className="inline-flex justify-center items-center gap-[7px] min-h-[50px] px-[26px] py-3 rounded-lg bg-accent text-white border border-accent font-bold text-[17px] leading-[1.3]">
           검색
