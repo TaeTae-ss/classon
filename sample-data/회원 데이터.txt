@@ -1,0 +1,406 @@
+DECLARE
+    TYPE t_text_list IS TABLE OF VARCHAR2(100);
+
+    v_names t_text_list := t_text_list(
+        '김민서', '이지우', '박도윤', '최하은', '정서준',
+        '강수빈', '조지호', '윤예린', '장현우', '임채원',
+        '한유진', '오준서', '서다은', '신태민', '권소윤',
+        '황건우', '안나연', '송시우', '류지안', '홍예준'
+    );
+
+    v_emails t_text_list := t_text_list(
+        'minseo.kim@maver.com.kr',
+        'jiwoo.lee@maver.com.kr',
+        'doyun.park@maver.com.kr',
+        'haeun.choi@maver.com.kr',
+        'seojun.jung@maver.com.kr',
+        'subin.kang@maver.com.kr',
+        'jiho.cho@maver.com.kr',
+        'yerin.yoon@maver.com.kr',
+        'hyunwoo.jang@maver.com.kr',
+        'chaewon.lim@maver.com.kr',
+        'yujin.han@maver.com.kr',
+        'junseo.oh@maver.com.kr',
+        'daeun.seo@maver.com.kr',
+        'taemin.shin@maver.com.kr',
+        'soyun.kwon@maver.com.kr',
+        'geonwoo.hwang@maver.com.kr',
+        'nayeon.ahn@maver.com.kr',
+        'siwoo.song@maver.com.kr',
+        'jian.ryu@maver.com.kr',
+        'yejun.hong@maver.com.kr'
+    );
+
+    v_addresses t_text_list := t_text_list(
+        '서울특별시 마포구 가상로 12',
+        '서울특별시 서대문구 가상로 24',
+        '서울특별시 은평구 가상로 36',
+        '서울특별시 강서구 가상로 48',
+        '서울특별시 영등포구 가상로 60',
+        '서울특별시 동작구 가상로 72',
+        '서울특별시 관악구 가상로 84',
+        '서울특별시 구로구 가상로 96',
+        '서울특별시 금천구 가상로 108',
+        '서울특별시 용산구 가상로 120',
+        '서울특별시 성동구 가상로 132',
+        '서울특별시 광진구 가상로 144',
+        '서울특별시 동대문구 가상로 156',
+        '서울특별시 중랑구 가상로 168',
+        '서울특별시 성북구 가상로 180',
+        '서울특별시 강북구 가상로 192',
+        '서울특별시 도봉구 가상로 204',
+        '서울특별시 노원구 가상로 216',
+        '서울특별시 강동구 가상로 228',
+        '서울특별시 송파구 가상로 240'
+    );
+
+    v_mem_no MEMBER.mem_no%TYPE;
+
+    -- 공통 로그인 비밀번호: Test1234!
+    v_password VARCHAR2(255) :=
+        '$2b$12$vX7pq03jl0M3Zvl9SeMteeXRb08f8olY8ewJNqRIhRodHzW5LhvGG';
+
+BEGIN
+    SAVEPOINT before_sample_members;
+
+    FOR i IN 1..20 LOOP
+        -- 회원 기본 정보 저장 후 자동 생성된 번호 받기
+        INSERT INTO MEMBER (
+            mem_nickname,
+            mem_created_at,
+            mem_role
+        ) VALUES (
+            v_names(i),
+            LOCALTIMESTAMP,
+            'USER'
+        )
+        RETURNING mem_no INTO v_mem_no;
+
+        -- 같은 회원 번호로 개인정보·로그인 정보 저장
+        INSERT INTO MEMBER_PRIVATE (
+            mem_no,
+            mem_email,
+            mem_password,
+            mem_phone,
+            mem_address,
+            mem_address_detail
+        ) VALUES (
+            v_mem_no,
+            v_emails(i),
+            v_password,
+            '0100000' || TO_CHAR(i, 'FM0000'),
+            v_addresses(i),
+            TO_CHAR(100 + i) || '호'
+        );
+    END LOOP;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK TO before_sample_members;
+        RAISE;
+END;
+/
+
+--회원이 총 20명 나오면 됨
+SELECT
+    m.mem_no,
+    m.mem_nickname,
+    m.mem_role,
+    p.mem_email,
+    p.mem_address,
+    p.mem_address_detail
+FROM MEMBER m
+JOIN MEMBER_PRIVATE p ON p.mem_no = m.mem_no
+WHERE p.mem_email IN (
+    'minseo.kim@maver.com.kr', 'jiwoo.lee@maver.com.kr',
+    'doyun.park@maver.com.kr', 'haeun.choi@maver.com.kr',
+    'seojun.jung@maver.com.kr', 'subin.kang@maver.com.kr',
+    'jiho.cho@maver.com.kr', 'yerin.yoon@maver.com.kr',
+    'hyunwoo.jang@maver.com.kr', 'chaewon.lim@maver.com.kr',
+    'yujin.han@maver.com.kr', 'junseo.oh@maver.com.kr',
+    'daeun.seo@maver.com.kr', 'taemin.shin@maver.com.kr',
+    'soyun.kwon@maver.com.kr', 'geonwoo.hwang@maver.com.kr',
+    'nayeon.ahn@maver.com.kr', 'siwoo.song@maver.com.kr',
+    'jian.ryu@maver.com.kr', 'yejun.hong@maver.com.kr'
+)
+ORDER BY m.mem_no;
+
+
+-- 강사
+DECLARE
+    TYPE t_text_list IS TABLE OF VARCHAR2(100 CHAR);
+    TYPE t_long_text_list IS TABLE OF VARCHAR2(500 CHAR);
+
+    v_names t_text_list := t_text_list(
+        '박서연', '정민준', '이수아', '김도현', '최예은',
+        '강지훈', '윤하린', '한서진', '오수현', '임지민'
+    );
+
+    v_emails t_text_list := t_text_list(
+        'seoyeon.park@maver.com.kr',
+        'minjun.jung@maver.com.kr',
+        'sua.lee@maver.com.kr',
+        'dohyun.kim@maver.com.kr',
+        'yeeun.choi@maver.com.kr',
+        'jihun.kang@maver.com.kr',
+        'harin.yoon@maver.com.kr',
+        'seojin.han@maver.com.kr',
+        'suhyun.oh@maver.com.kr',
+        'jimin.lim@maver.com.kr'
+    );
+
+    v_addresses t_text_list := t_text_list(
+        '서울특별시 마포구 가상로 15',
+        '서울특별시 서대문구 가상로 27',
+        '서울특별시 성동구 가상로 39',
+        '서울특별시 광진구 가상로 51',
+        '서울특별시 강서구 가상로 63',
+        '서울특별시 영등포구 가상로 75',
+        '서울특별시 은평구 가상로 87',
+        '서울특별시 동작구 가상로 99',
+        '서울특별시 강동구 가상로 111',
+        '서울특별시 송파구 가상로 123'
+    );
+
+    v_introductions t_long_text_list := t_long_text_list(
+        '초보자도 즐길 수 있는 베이킹 수업을 진행합니다.',
+        '일상을 사진으로 기록하는 방법을 알려드립니다.',
+        '꽃으로 나만의 분위기를 표현하는 수업을 진행합니다.',
+        '직접 만드는 가죽 소품의 매력을 전합니다.',
+        '다양한 색으로 자신만의 그림을 그리도록 돕습니다.',
+        '집에서도 즐길 수 있는 커피 추출법을 알려드립니다.',
+        '흙을 빚어 나만의 도자기를 만드는 수업을 진행합니다.',
+        '편안한 움직임으로 몸을 돌보는 요가 수업을 진행합니다.',
+        '좋아하는 향을 조합해 나만의 향수를 만들도록 돕습니다.',
+        '제철 재료를 활용한 요리를 알려드립니다.'
+    );
+
+    v_careers t_long_text_list := t_long_text_list(
+        -- 박서연
+        '현 베이킹 공방 대표' || CHR(10) ||
+        '전 베이커리 파티시에' || CHR(10) ||
+        '제과제빵 실무 및 강의 경력 5년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '문화센터 성인 베이킹 정규 강의' || CHR(10) ||
+        '기업 임직원 대상 베이킹 출강' || CHR(10) ||
+        '케이크·구움과자 원데이 클래스 운영' || CHR(10) ||
+        CHR(10) ||
+        '☆자격' || CHR(10) ||
+        '제과기능사' || CHR(10) ||
+        '제빵기능사',
+
+        -- 정민준
+        '현 프리랜서 포토그래퍼' || CHR(10) ||
+        '전 사진 스튜디오 촬영 작가' || CHR(10) ||
+        '사진 촬영 및 교육 경력 4년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '문화센터 카메라 입문 강의' || CHR(10) ||
+        '스마트폰 사진 촬영 원데이 클래스' || CHR(10) ||
+        '인물 사진 촬영 및 보정 워크숍' || CHR(10) ||
+        CHR(10) ||
+        '☆활동' || CHR(10) ||
+        '지역 문화행사 기록 사진 촬영' || CHR(10) ||
+        '독립 사진전 참여',
+
+        -- 이수아
+        '현 플라워 스튜디오 대표' || CHR(10) ||
+        '전 플라워숍 플로리스트' || CHR(10) ||
+        '플라워 디자인 및 강의 경력 3년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '꽃다발·꽃바구니 원데이 클래스' || CHR(10) ||
+        '기업 임직원 대상 플라워 출강' || CHR(10) ||
+        '계절별 리스·센터피스 제작 수업' || CHR(10) ||
+        CHR(10) ||
+        '☆자격 및 활동' || CHR(10) ||
+        '화훼장식기능사' || CHR(10) ||
+        '웨딩 및 행사 공간 꽃 장식',
+
+        -- 김도현
+        '현 가죽 공예 공방 대표' || CHR(10) ||
+        '전 가죽 소품 브랜드 제작 담당' || CHR(10) ||
+        '가죽 공예 제작 및 강의 경력 6년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '카드지갑·키링 제작 입문 수업' || CHR(10) ||
+        '문화센터 가죽 공예 정규 강의' || CHR(10) ||
+        '기업 단체 가죽 소품 제작 출강' || CHR(10) ||
+        CHR(10) ||
+        '☆활동' || CHR(10) ||
+        '수공예 박람회 참가' || CHR(10) ||
+        '주문 제작 가방 및 소품 디자인',
+
+        -- 최예은
+        '현 취미 미술 작업실 운영' || CHR(10) ||
+        '전 성인 미술학원 강사' || CHR(10) ||
+        '드로잉 및 회화 강의 경력 4년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '성인 기초 드로잉 정규 강의' || CHR(10) ||
+        '수채화·아크릴화 원데이 클래스' || CHR(10) ||
+        '문화센터 취미 미술 강의' || CHR(10) ||
+        CHR(10) ||
+        '☆전시' || CHR(10) ||
+        '지역 청년 작가 단체전 참여' || CHR(10) ||
+        '개인 작품 전시 개최',
+
+        -- 강지훈
+        '현 커피 교육 스튜디오 운영' || CHR(10) ||
+        '전 스페셜티 카페 바리스타' || CHR(10) ||
+        '바리스타 실무 및 교육 경력 5년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '핸드드립 기초 및 원두 비교 수업' || CHR(10) ||
+        '에스프레소 추출·라테아트 클래스' || CHR(10) ||
+        '카페 신규 직원 실무 교육' || CHR(10) ||
+        CHR(10) ||
+        '☆활동' || CHR(10) ||
+        '홈카페 입문 워크숍 운영' || CHR(10) ||
+        '카페 음료 메뉴 개발 참여',
+
+        -- 윤하린
+        '현 도예 공방 대표' || CHR(10) ||
+        '전 생활 도자기 제작 스튜디오 근무' || CHR(10) ||
+        '도자기 제작 및 강의 경력 7년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '물레 성형 기초 정규 강의' || CHR(10) ||
+        '손으로 빚는 생활 도자기 클래스' || CHR(10) ||
+        '기업·기관 단체 도예 출강' || CHR(10) ||
+        CHR(10) ||
+        '☆전시 및 활동' || CHR(10) ||
+        '생활 도자기 단체전 참여' || CHR(10) ||
+        '공예 마켓 및 박람회 참가',
+
+        -- 한서진
+        '현 요가 스튜디오 강사' || CHR(10) ||
+        '전 문화센터 요가 강사' || CHR(10) ||
+        '성인 요가 수업 지도 경력 4년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '초보자를 위한 기초 요가 수업' || CHR(10) ||
+        '직장인 대상 저녁 요가 클래스' || CHR(10) ||
+        '호흡·스트레칭 워크숍 운영' || CHR(10) ||
+        CHR(10) ||
+        '☆교육 이수' || CHR(10) ||
+        '요가 지도자 교육과정 수료' || CHR(10) ||
+        '명상 및 호흡 지도 워크숍 수료',
+
+        -- 오수현
+        '현 향수 공방 대표' || CHR(10) ||
+        '전 향 제품 제작 스튜디오 근무' || CHR(10) ||
+        '향수 제작 및 강의 경력 3년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '나만의 향수 만들기 원데이 클래스' || CHR(10) ||
+        '기업 임직원 대상 조향 체험 출강' || CHR(10) ||
+        '향료 이해 및 향 조합 입문 수업' || CHR(10) ||
+        CHR(10) ||
+        '☆활동' || CHR(10) ||
+        '공간용 향 제품 개발 참여' || CHR(10) ||
+        '계절별 향수 제작 워크숍 운영',
+
+        -- 임지민
+        '현 쿠킹 스튜디오 강사' || CHR(10) ||
+        '전 외식업체 조리 및 메뉴 개발 담당' || CHR(10) ||
+        '조리 실무 및 요리 강의 경력 6년' || CHR(10) ||
+        CHR(10) ||
+        '☆강의' || CHR(10) ||
+        '제철 재료를 활용한 집밥 수업' || CHR(10) ||
+        '손님 초대 요리 원데이 클래스' || CHR(10) ||
+        '요리 입문자를 위한 기초 조리 강의' || CHR(10) ||
+        CHR(10) ||
+        '☆자격' || CHR(10) ||
+        '한식조리기능사' || CHR(10) ||
+        '양식조리기능사'
+    );
+
+    v_mem_no MEMBER.mem_no%TYPE;
+
+    -- 공통 로그인 비밀번호: Test1234!
+    v_password VARCHAR2(255) :=
+        '$2b$12$vX7pq03jl0M3Zvl9SeMteeXRb08f8olY8ewJNqRIhRodHzW5LhvGG';
+
+BEGIN
+    SAVEPOINT before_sample_instructors;
+
+    FOR i IN 1..10 LOOP
+        -- 1. 회원 기본 정보 저장
+        INSERT INTO MEMBER (
+            mem_nickname,
+            mem_created_at,
+            mem_role
+        ) VALUES (
+            v_names(i),
+            LOCALTIMESTAMP,
+            'INSTRUCTOR'
+        )
+        RETURNING mem_no INTO v_mem_no;
+
+        -- 2. 같은 회원 번호로 로그인 정보 저장
+        INSERT INTO MEMBER_PRIVATE (
+            mem_no,
+            mem_email,
+            mem_password,
+            mem_phone,
+            mem_address,
+            mem_address_detail
+        ) VALUES (
+            v_mem_no,
+            v_emails(i),
+            v_password,
+            '0100000' || TO_CHAR(20 + i, 'FM0000'),
+            v_addresses(i),
+            TO_CHAR(200 + i) || '호'
+        );
+
+        -- 3. 승인된 강사 신청 정보 저장
+        INSERT INTO INSTRUCTOR_REQUEST (
+            mem_no,
+            req_introduction,
+            req_career,
+            req_status
+        ) VALUES (
+            v_mem_no,
+            v_introductions(i),
+            v_careers(i),
+            'APPROVED'
+        );
+    END LOOP;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        ROLLBACK TO before_sample_instructors;
+        RAISE;
+END;
+/
+
+--실행했을때 강사 10명이랑 경력 나오면됨
+
+SELECT
+    m.mem_no,
+    m.mem_nickname,
+    p.mem_email,
+    m.mem_role,
+    r.req_status,
+    r.req_career
+FROM MEMBER m
+JOIN MEMBER_PRIVATE p ON p.mem_no = m.mem_no
+JOIN INSTRUCTOR_REQUEST r ON r.mem_no = m.mem_no
+WHERE p.mem_email IN (
+    'seoyeon.park@maver.com.kr',
+    'minjun.jung@maver.com.kr',
+    'sua.lee@maver.com.kr',
+    'dohyun.kim@maver.com.kr',
+    'yeeun.choi@maver.com.kr',
+    'jihun.kang@maver.com.kr',
+    'harin.yoon@maver.com.kr',
+    'seojin.han@maver.com.kr',
+    'suhyun.oh@maver.com.kr',
+    'jimin.lim@maver.com.kr'
+)
+ORDER BY m.mem_no;
+
+
