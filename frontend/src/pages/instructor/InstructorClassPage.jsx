@@ -45,9 +45,9 @@ export default function InstructorClassPage() {
               <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
                 수강료
               </th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
+              {/* <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
                 관리
-              </th>
+              </th> */}
             </tr>
           </thead>
           <tbody>
@@ -56,7 +56,7 @@ export default function InstructorClassPage() {
                 <td className="text-left py-[18px] px-[17px] border-b border-[#f0ebe6]">
                   <Link
                     className="text-black"
-                    to={`/class/${c.clsNo}`}
+                    to={`/instructor/schedules?clsNo=${c.clsNo}`}
                   >
                     {c.clsName}
                   </Link>
@@ -67,14 +67,14 @@ export default function InstructorClassPage() {
                 <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
                   {Number(c.clsPrice).toLocaleString("ko-KR")}원
                 </td>
-                <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
+                {/* <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
                   <Link
                     className="text-[#d97215]"
                     to={`/instructor/classes/${c.clsNo}/edit`}
                   >
                     수정
                   </Link>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
