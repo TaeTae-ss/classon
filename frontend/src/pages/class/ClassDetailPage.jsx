@@ -80,7 +80,9 @@ export default function ClassDetailPage() {
           </nav>
           <section id="introduction" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
             <h2>클래스 소개</h2>
-            <p>{item.clsDesc}</p>
+            <p className="whitespace-pre-wrap break-words">
+              {item.clsDesc}
+            </p>
           </section>
           <section
             id="instructor" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
