@@ -38,10 +38,10 @@ const getLoginErrorMessage = (error) => {
 
   if (typeof serverMessage === "string" && serverMessage.trim()) {
     if (
-      serverMessage.includes("존재하지 않는 회원입니다.") ||
-      serverMessage.includes("가입된 회원이 아닙니다.")
+      serverMessage.includes("이메일 또는 비밀번호가 올바르지 않습니다.") ||
+      serverMessage.includes("이메일 또는 비밀번호가 올바르지 않습니다.")
     ) {
-      return "존재하지 않는 회원입니다.";
+      return "이메일 또는 비밀번호가 올바르지 않습니다.";
     }
 
     if (

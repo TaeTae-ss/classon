@@ -112,7 +112,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                         requestDto.getMemEmail()
                 ).orElseThrow(() ->
                         new AuthException(
-                                "존재하지 않는 회원입니다."
+                                "이메일 또는 비밀번호가 올바르지 않습니다."
                         )
                 );
 
@@ -194,7 +194,7 @@ public class MemberAuthServiceImpl implements MemberAuthService {
                 memberPrivateRepository.findByMemEmail(memEmail)
                         .orElseThrow(() ->
                                 new MemberException(
-                                        "가입된 이메일이 없습니다."
+                                        "입력한 이메일로 비밀번호를 재설정할 수 없습니다."
                                 )
                         );
 
