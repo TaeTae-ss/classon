@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class ReservationCompletionScheduler {
+public class ReservationMaintenanceScheduler {
 
-    private final ReservationCompletionService
-            reservationCompletionService;
+    private final ReservationMaintenanceService
+            reservationMaintenanceService;
 
     // 서버 시작 완료 후 미처리 예약 확인
     @EventListener(ApplicationReadyEvent.class)
@@ -22,13 +22,20 @@ public class ReservationCompletionScheduler {
 
         log.info("서버 시작 후 수강 완료 대상 예약 확인");
 
-        reservationCompletionService.completeReservations();
+        reservationMaintenanceService.completeReservations();
     }
 
     // 매일 한국 시간 00:00에 실행
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void completeReservations() {
 
-        reservationCompletionService.completeReservations();
+        reservationMaintenanceService.completeReservations();
+    }
+
+    // 1분마다 미결제 예약 만료 검사
+    @Scheduled(fixedDelay = 60_000)
+    public void expireWaitingReservations() {
+
+        reservationMaintenanceService.expireWaitingReservations();
     }
 }

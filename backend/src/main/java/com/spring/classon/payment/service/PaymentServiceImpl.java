@@ -13,7 +13,9 @@ import com.spring.classon.payment.repository.PaymentRepository;
 import com.spring.classon.reservation.entity.Reservation;
 import com.spring.classon.reservation.entity.ReservationStatus;
 import com.spring.classon.reservation.repository.ReservationRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,6 +40,8 @@ public class PaymentServiceImpl implements PaymentService{
     private final ScheduleRepository scheduleRepository;
 
     private final PaymentMapper paymentMapper;
+
+    private final EntityManager entityManager;
 
     @Value("${toss.secret-key}")
     private String tossSecretKey;
@@ -118,80 +122,111 @@ public class PaymentServiceImpl implements PaymentService{
     // 결제 승인
     @Override
     @Transactional
-    public PaymentDTO confirmPayment(PaymentConfirmDTO paymentConfirmDTO, Long memNo) {
+    public PaymentDTO confirmPayment(
+            PaymentConfirmDTO paymentConfirmDTO,
+            Long memNo
+    ) {
 
+        // 1. 결제 정보 조회
         Payment payment = paymentRepository
                 .findByOrderNo(paymentConfirmDTO.getOrderNo())
-                .orElseThrow(() -> new PaymentException("결제 정보를 찾을 수 없습니다."));
+                .orElseThrow(() ->
+                        new PaymentException("결제 정보를 찾을 수 없습니다.")
+                );
 
-        // 로그인 회원 본인의 예약에 대한 결제인지 확인
-        validateReservationOwner(payment.getReservation(), memNo);
-
-        // 이미 결제 완료된 경우
-        if (payment.getPayStatus() == PaymentStatus.PAID) {
-            throw new PaymentException(
-                    "이미 완료된 결제입니다."
-            );
-        }
-
-        // 금액 검증
-        if (!payment.getPayAmount().equals(paymentConfirmDTO.getPayAmount())) {
-            throw new PaymentException(
-                    "결제 금액이 일치하지 않습니다."
-            );
-        }
-
-        // 연결된 예약 조회
+        // 2. 로그인 회원 본인의 결제인지 확인
         Reservation reservation = payment.getReservation();
+        validateReservationOwner(reservation, memNo);
 
-        // 결제 대기 상태의 예약만 결제 가능
+        // 3. 이미 결제 완료된 경우 차단
+        if (payment.getPayStatus() == PaymentStatus.PAID) {
+            throw new PaymentException("이미 완료된 결제입니다.");
+        }
+
+        // 4. 최초 금액 검증
+        if (!payment.getPayAmount().equals(paymentConfirmDTO.getPayAmount())) {
+            throw new PaymentException("결제 금액이 일치하지 않습니다.");
+        }
+
+        // 5. 결제 대기 상태인지 확인
+        if (reservation.getRsvStatus() != ReservationStatus.WAIT) {
+            throw new PaymentException("결제 가능한 예약 상태가 아닙니다.");
+        }
+
+        // 6. 일정 조회 및 비관적 Lock 획득
+        Schedule schedule = scheduleRepository
+                .findByIdForUpdate(reservation.getSchNo())
+                .orElseThrow(() ->
+                        new PaymentException("해당 일정을 찾을 수 없습니다.")
+                );
+
+        /*
+         * 7. Lock 획득 후 최신 상태 재확인
+         *
+         * 만료 작업이나 다른 결제 요청이 먼저 처리되었을 수 있으므로
+         * DB의 최신 상태를 다시 확인한다.
+         */
+        try {
+            entityManager.refresh(payment);
+            entityManager.refresh(reservation);
+        } catch (jakarta.persistence.EntityNotFoundException e) {
+            throw new PaymentException(
+                    "예약 또는 결제 정보가 만료되었거나 존재하지 않습니다."
+            );
+        }
+
+        // 8. 최신 결제 상태 확인
+        if (payment.getPayStatus() != PaymentStatus.WAIT) {
+            throw new PaymentException(
+                    "결제 대기 상태가 아닙니다. 다시 결제를 진행해주세요."
+            );
+        }
+
+        // 9. 최신 예약 상태 확인
         if (reservation.getRsvStatus() != ReservationStatus.WAIT) {
             throw new PaymentException(
                     "결제 가능한 예약 상태가 아닙니다."
             );
         }
 
-        // 일정 조회 + 비관적 락
-        Schedule schedule = scheduleRepository
-                .findByIdForUpdate(reservation.getSchNo())
-                .orElseThrow(() ->
-                        new PaymentException(
-                                "해당 일정을 찾을 수 없습니다."
-                        )
-                );
+        // 10. 최신 결제 금액 재검증
+        if (!payment.getPayAmount().equals(paymentConfirmDTO.getPayAmount())) {
+            throw new PaymentException("결제 금액이 일치하지 않습니다.");
+        }
 
-        // 현재 확정 예약 인원 재확인
+        // 11. 현재 확정 예약 인원 재확인
         Integer reservedCount =
                 reservationRepository.sumConfirmedCount(
                         schedule.getSchNo(),
                         ReservationStatus.CONFIRMED
                 );
 
-        // 남은 정원 계산
+        // 12. 남은 정원 계산
         Integer remainingCount =
                 schedule.getSchCapacity() - reservedCount;
 
-        // 현재 예약 인원이 남은 정원을 초과하는지 확인
+        // 13. 정원 초과 여부 확인
         if (reservation.getRsvCount() > remainingCount) {
             throw new PaymentException(
                     "예약 가능한 인원을 초과했습니다."
             );
         }
 
-        // Toss 결제 승인 요청
-        // test_sk + ":"를 Base64 인코딩
+        // 14. 토스페이먼츠 인증 정보 생성
         String auth = Base64.getEncoder()
                 .encodeToString(
-                        (tossSecretKey+":")
+                        (tossSecretKey + ":")
                                 .getBytes(StandardCharsets.UTF_8)
                 );
 
+        // 15. 토스페이먼츠 승인 요청 데이터 생성
         Map<String, Object> requestBody = Map.of(
                 "paymentKey", paymentConfirmDTO.getPayKey(),
                 "orderId", paymentConfirmDTO.getOrderNo(),
                 "amount", paymentConfirmDTO.getPayAmount()
         );
 
+        // 16. 토스페이먼츠 결제 승인 요청
         try {
 
             restClient.post()
@@ -207,8 +242,10 @@ public class PaymentServiceImpl implements PaymentService{
 
         } catch (HttpClientErrorException e) {
 
+            // 결제 세션 만료
             if (e.getStatusCode() == HttpStatus.NOT_FOUND
-                    && e.getResponseBodyAsString().contains("NOT_FOUND_PAYMENT_SESSION")) {
+                    && e.getResponseBodyAsString()
+                    .contains("NOT_FOUND_PAYMENT_SESSION")) {
 
                 payment.fail();
 
@@ -220,13 +257,41 @@ public class PaymentServiceImpl implements PaymentService{
             throw e;
         }
 
-        // 결제 성공
+        // 17. 결제 성공 처리
         payment.success(paymentConfirmDTO.getPayKey());
 
-        // 연결된 예약 확정
+        // 18. 예약 확정 처리
         reservation.confirm();
 
+        // 19. 결제 결과 반환
         return paymentMapper.toDTO(payment);
+    }
+
+    private static @NonNull Reservation getReservation(PaymentConfirmDTO paymentConfirmDTO, Payment payment) {
+        Reservation reservation = payment.getReservation();
+
+        // 이미 결제 완료된 경우
+        if (payment.getPayStatus() == PaymentStatus.PAID) {
+            throw new PaymentException(
+                    "이미 완료된 결제입니다."
+            );
+        }
+
+        // 금액 검증
+        if (!payment.getPayAmount().equals(paymentConfirmDTO.getPayAmount())) {
+            throw new PaymentException(
+                    "결제 금액이 일치하지 않습니다."
+            );
+        }
+
+
+        // 결제 대기 상태의 예약만 결제 가능
+        if (reservation.getRsvStatus() != ReservationStatus.WAIT) {
+            throw new PaymentException(
+                    "결제 가능한 예약 상태가 아닙니다."
+            );
+        }
+        return reservation;
     }
 
     // 결제 조회
