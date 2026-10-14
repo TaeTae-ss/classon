@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findReservationsToComplete(
             @Param("today") LocalDate today,
             @Param("status") ReservationStatus status
+    );
+
+    // 생성 시각 기준 11분이 지난 결제 대기 예약 조회
+    @Query("""
+    SELECT r
+    FROM Reservation r
+    WHERE r.rsvStatus = :status
+      AND r.rsvCreatedAt <= :expirationTime
+""")
+    List<Reservation> findExpiredWaitingReservations(
+            @Param("status") ReservationStatus status,
+            @Param("expirationTime") LocalDateTime expirationTime
     );
 
     // 로그인 강사가 등록한 클래스들의 예약 목록
