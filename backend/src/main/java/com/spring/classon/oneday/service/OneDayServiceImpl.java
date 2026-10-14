@@ -153,14 +153,21 @@ public class OneDayServiceImpl implements OneDayService {
         MemberSummaryDTO instructor = memberService.getMemberSummary(oneDay.getMemNo());
 
         // 승인된 강사 신청 정보 조회
-        String instructorIntroduction =
+        InstructorRequest instructorRequest =
                 instructorRequestRepository
                         .findFirstByMemNoAndReqStatusOrderByReqNoDesc(
                                 oneDay.getMemNo(),
                                 "APPROVED"
                         )
-                        .map(InstructorRequest::getReqIntroduction)
                         .orElse(null);
+
+        String instructorIntroduction = instructorRequest != null
+                ? instructorRequest.getReqIntroduction()
+                : null;
+
+        String instructorCareer = instructorRequest != null
+                ? instructorRequest.getReqCareer()
+                : null;
 
         Integer maxCapacity = scheduleRepository.findByClsNo(clsNo).stream()
                 .map(schedule -> schedule.getSchCapacity())
@@ -175,7 +182,7 @@ public class OneDayServiceImpl implements OneDayService {
                 .catName(category.getCatName())
                 .instructorName(instructor.getMemNickname())
                 .reqIntroduction(instructorIntroduction)
-                .reqCareer(instructorIntroduction)
+                .reqCareer(instructorCareer)
                 .maxCapacity(maxCapacity)
                 .rating(rating)
                 .clsPrice(oneDay.getClsPrice())
