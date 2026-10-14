@@ -50,7 +50,7 @@ export default function PasswordPage() {
       setSent(true);
       setMessage("인증번호가 이메일로 발송되었습니다.");
     } catch {
-      setError("가입된 이메일인지 확인해주세요.");
+      setError("입력한 이메일로 비밀번호를 재설정할 수 없습니다.");
     } finally {
       setBusy(false);
     }
