@@ -36,6 +36,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
+        // 500 서버 오류 처리
+        if (
+            error.response?.status === 500 &&
+            window.location.pathname !== "/error/500"
+        ) {
+            window.location.assign("/error/500");
+        }
+        
         const originalRequest = error.config;
 
         // 요청 정보가 없으면 오류 반환
