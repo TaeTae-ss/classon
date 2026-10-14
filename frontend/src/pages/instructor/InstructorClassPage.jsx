@@ -55,7 +55,7 @@ export default function InstructorClassPage() {
               <tr key={c.clsNo}>
                 <td className="text-left py-[18px] px-[17px] border-b border-[#f0ebe6]">
                   <Link
-                    className="text-[#d97215]"
+                    className="text-black"
                     to={`/class/${c.clsNo}`}
                   >
                     {c.clsName}
