@@ -248,14 +248,21 @@ export default function BoardReadPage({
       />
 
       <article className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
-        <h2>{title}</h2>
-
-        <p className="text-right text-[14px] text-[#85888d]">
-          {date}
-          {inquiry && ` · ${inquiryStatus}`}
+     <h2>{title}</h2>
+     
+     {inquiry && admin && (
+      <p className="mt-3 text-[14px] text-[#555]">
+        <span className="font-semibold">작성자: </span>
+        {item.inqMemNickname || "알 수 없는 회원"}
         </p>
-
-        <div className="border-t border-[#eee] mt-5" />
+      )}
+      
+      <p className="text-right text-[14px] text-[#85888d]">
+        {date}
+        {inquiry && ` · ${inquiryStatus}`}
+      </p>
+      
+      <div className="border-t border-[#eee] mt-5" />
 
         <div className="min-h-[264px] whitespace-pre-wrap py-[29px] leading-[2]">
           {content}

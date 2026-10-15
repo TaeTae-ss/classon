@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.spring.classon.member.entity.Member;
+import com.spring.classon.member.repository.MemberRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 public class InquiryServiceImpl implements InquiryService {
 
     private final InquiryRepository inquiryRepository;
+    private final MemberRepository memberRepository;
 
     // 문의 등록
     @Override
@@ -147,11 +150,19 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     // Entity -> DTO 변환
+    // Entity -> DTO 변환
     private InquiryDTO entityToDTO(Inquiry inquiry) {
+
+        // 문의 작성자 회원번호로 닉네임 조회
+        String nickname = memberRepository
+                .findById(inquiry.getInqMemNo())
+                .map(Member::getMemNickname)
+                .orElse("알 수 없는 회원");
 
         return InquiryDTO.builder()
                 .inqNo(inquiry.getInqNo())
                 .inqMemNo(inquiry.getInqMemNo())
+                .inqMemNickname(nickname)
                 .inqStatus(inquiry.getInqStatus())
                 .inqCreatedAt(inquiry.getInqCreatedAt())
                 .inqTitle(inquiry.getInqTitle())
