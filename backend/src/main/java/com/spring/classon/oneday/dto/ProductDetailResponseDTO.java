@@ -25,6 +25,10 @@ public class ProductDetailResponseDTO {
 
     private Integer clsPrice;
 
+    private String clsLevel;
+
+    private Integer clsDuration;
+
     private String clsDesc;
 
     private String clsRoadAddr;
