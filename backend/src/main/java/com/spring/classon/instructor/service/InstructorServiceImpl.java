@@ -7,11 +7,13 @@ import com.spring.classon.instructor.mapper.*;
 import com.spring.classon.instructor.repository.*;
 import com.spring.classon.member.entity.*;
 import com.spring.classon.member.repository.*;
+import com.spring.classon.common.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -55,6 +57,70 @@ public class InstructorServiceImpl implements InstructorService {
                         );
 
         return instructorMapper.toResponseDto(request);
+    }
+
+    // 관리자 강사 신청 목록 페이지 조회
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponseDTO<InstructorResponseDTO> getInstructorRequestList(
+            PageRequestDTO pageRequestDTO) {
+
+        // 페이지 요청값 검증
+        if (pageRequestDTO.getPage() < 1
+                || pageRequestDTO.getSize() < 1
+                || pageRequestDTO.getSize() > 100) {
+            throw new IllegalArgumentException("잘못된 페이지 요청입니다.");
+        }
+
+        // 페이지 단위로 강사 신청 조회
+        Page<InstructorRequest> result =
+                instructorRequestRepository.findAllByOrderByReqNoDesc(
+                        pageRequestDTO.getPageable("reqNo")
+                );
+
+        // 응답 DTO 변환
+        List<InstructorResponseDTO> dtoList = result.getContent()
+                .stream()
+                .map(request -> {
+                    Member member = memberRepository.findById(request.getMemNo())
+                            .orElse(null);
+
+                    if (member == null) {
+                        return null;
+                    }
+
+                    MemberPrivate memberPrivate =
+                            memberPrivateRepository.findById(request.getMemNo())
+                                    .orElse(null);
+
+                    if (memberPrivate == null) {
+                        return null;
+                    }
+
+                    String rejReason = instructorRejectionRepository
+                            .findFirstByReqNoOrderByRejNoDesc(request.getReqNo())
+                            .map(InstructorRejection::getRejReason)
+                            .orElse(null);
+
+                    return InstructorResponseDTO.builder()
+                            .reqNo(request.getReqNo())
+                            .memNo(request.getMemNo())
+                            .memNickname(member.getMemNickname())
+                            .memEmail(memberPrivate.getMemEmail())
+                            .reqIntroduction(request.getReqIntroduction())
+                            .reqCareer(request.getReqCareer())
+                            .reqStatus(request.getReqStatus())
+                            .rejReason(rejReason)
+                            .build();
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        return new PageResponseDTO<>(
+                dtoList,
+                pageRequestDTO,
+                result.getTotalElements()
+        );
     }
 
     // 전체 강사 신청 목록 조회(관리자)

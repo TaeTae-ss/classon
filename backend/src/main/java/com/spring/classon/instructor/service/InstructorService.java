@@ -1,6 +1,7 @@
 package com.spring.classon.instructor.service;
 
 import com.spring.classon.instructor.dto.*;
+import com.spring.classon.common.dto.*;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,11 @@ public interface InstructorService {
     // 강사 신청 상태 조회
     InstructorResponseDTO getInstructorRequest(
             Long reqNo
+    );
+
+    // 관리자 강사 신청 목록 페이지 조회
+    PageResponseDTO<InstructorResponseDTO> getInstructorRequestList(
+            PageRequestDTO pageRequestDTO
     );
 
     // 회원 번호로 강사 신청 조회

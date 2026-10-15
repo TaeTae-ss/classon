@@ -1,9 +1,8 @@
 
 package com.spring.classon.instructor.controller;
 
-import com.spring.classon.instructor.dto.InstructorApprovalDTO;
-import com.spring.classon.instructor.dto.InstructorDocumentResponseDTO;
-import com.spring.classon.instructor.dto.InstructorResponseDTO;
+import com.spring.classon.common.dto.*;
+import com.spring.classon.instructor.dto.*;
 import com.spring.classon.instructor.service.InstructorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +21,11 @@ public class AdminInstructorController {
 
     // 전체 강사 신청 목록 조회(관리자)
     @GetMapping
-    public ResponseEntity<List<InstructorResponseDTO>> getInstructorRequestList() {
+    public ResponseEntity<PageResponseDTO<InstructorResponseDTO>> getInstructorRequestList(
+            @ModelAttribute PageRequestDTO pageRequestDTO) {
+
         return ResponseEntity.ok(
-                instructorService.getInstructorRequestList()
+                instructorService.getInstructorRequestList(pageRequestDTO)
         );
     }
 
