@@ -6,7 +6,9 @@ import MyPage from "../pages/member/MyPage";
 import InstructorDashboard from "../pages/instructor/InstructorDashboard";
 import InstructorClassPage from "../pages/instructor/InstructorClassPage";
 import InstructorClassForm from "../pages/instructor/InstructorClassForm";
+import ReservationDetailPage from "../pages/class/ReservationDetailPage";
 import SchedulePage from "../pages/instructor/SchedulePage";
+
 
 import ReservationListPage from "../pages/class/ReservationListPage";
 import ReviewListPage from "../pages/class/ReviewListPage";
@@ -57,6 +59,11 @@ const instructorRouter = (
         <Route
             path="instructor/schedules"
             element={<SchedulePage />}
+        />
+
+        <Route
+            path="instructor/reservations/:rsvNo"
+            element={<ReservationDetailPage instructor />}
         />
 
         <Route

@@ -185,6 +185,8 @@ public class OneDayServiceImpl implements OneDayService {
                 .reqCareer(instructorCareer)
                 .maxCapacity(maxCapacity)
                 .rating(rating)
+                .clsLevel(oneDay.getClsLevel())
+                .clsDuration(oneDay.getClsDuration())
                 .clsPrice(oneDay.getClsPrice())
                 .clsDesc(oneDay.getClsDesc())
                 .clsRoadAddr(oneDay.getClsRoadAddr())

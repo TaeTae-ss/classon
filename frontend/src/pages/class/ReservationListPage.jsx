@@ -178,7 +178,9 @@ export default function ReservationListPage({
               navigate(
                 payment
                   ? `/member/payments/reservation/${r.rsvNo}`
-                  : `/member/reservations/${r.rsvNo}`
+                  : instructor
+                    ? `/instructor/reservations/${r.rsvNo}`
+                    : `/member/reservations/${r.rsvNo}`
               );
             }}
           >
@@ -209,7 +211,9 @@ export default function ReservationListPage({
                   to={
                     payment
                       ? `/member/payments/reservation/${r.rsvNo}`
-                      : `/member/reservations/${r.rsvNo}`
+                      : instructor
+                        ? `/instructor/reservations/${r.rsvNo}`
+                        : `/member/reservations/${r.rsvNo}`
                   }
                 >
                   상세 보기
@@ -223,15 +227,18 @@ export default function ReservationListPage({
               )}
             </div>
           </article>
-        ))}
+        ))
+      }
 
-      {!loading && !error && !list.length && (
-        <Empty to="/class" label="클래스 탐색">
-          해당 내역이 없습니다.
-        </Empty>
-      )}
+      {
+        !loading && !error && !list.length && (
+          <Empty to="/class" label="클래스 탐색">
+            해당 내역이 없습니다.
+          </Empty>
+        )
+      }
 
       {!loading && !error && <Pagination {...pagination} />}
-    </Workspace>
+    </Workspace >
   );
 }

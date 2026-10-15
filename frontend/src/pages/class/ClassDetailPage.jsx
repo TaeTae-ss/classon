@@ -11,6 +11,11 @@ import ClassReview from "../../components/review/ClassReview";
 
 const IMAGE_BASE = "http://localhost:8080";
 
+const formatDuration = (minutes) => {
+  if (minutes == null) return "정보 없음";
+  return `${minutes}분`;
+};
+
 export default function ClassDetailPage() {
   const { clsNo } = useParams();
   const [item, setItem] = useState(null);
@@ -131,6 +136,9 @@ export default function ClassDetailPage() {
           </p>
           <p>
             {money(item.clsPrice)}
+          </p>
+          <p>
+            {item.clsLevel} · {item.clsDuration}분
           </p>
           <BookingForm
             key={item.id}
