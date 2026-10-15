@@ -212,7 +212,9 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
                     >
                       <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">{id}</td>
                       {inquiry && admin && (
-                        <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">회원 {item.inqMemNo}</td>
+                        <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
+                          {item.inqMemNickname || "알 수 없는 회원"}
+                        </td>
                       )}
                       <td className="text-left py-[18px] px-[17px] border-b border-[#f0ebe6]">
                         {title}

@@ -17,6 +17,8 @@ public class InquiryDTO {
 
     private Long inqMemNo;
 
+    private String inqMemNickname;
+
     private String inqStatus;
 
     private LocalDateTime inqCreatedAt;
