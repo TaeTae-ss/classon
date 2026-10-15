@@ -1,115 +1,163 @@
--- CLASS:ON 공지사항 샘플 데이터 10건
--- 기존 공지사항과 제목이 같으면 추가하지 않음
--- NOT_NO는 Oracle IDENTITY 자동 생성
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    'CLASS:ON 서비스 이용 안내',
-    'CLASS:ON 원데이 클래스 서비스 이용 방법을 안내드립니다.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = 'CLASS:ON 서비스 이용 안내'
-);
+-- CLASS:ON 공지사항 10건 상세 본문
+-- Oracle SQL Developer에서 F5(스크립트 실행)
+-- 제목이 같으면 본문을 갱신하고, 없으면 새로 등록합니다.
+-- NOT_NO는 IDENTITY 자동 생성, 기존 작성일은 유지합니다.
+-- 화면 줄바꿈: React에서 white-space: pre-line 또는 pre-wrap 적용
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '원데이 클래스 예약 안내',
-    '클래스 상세 페이지에서 원하는 일정과 인원을 선택하여 예약할 수 있습니다.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '원데이 클래스 예약 안내'
-);
+MERGE INTO NOTICE n
+    USING (
+        SELECT 'CLASS:ON 서비스 이용 안내' title,
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               'CLASS:ON을 이용해 주셔서 감사합니다.' || CHR(10) ||
+               '다양한 원데이 클래스를 편리하게 찾아보고 예약하실 수 있도록 서비스 이용 방법을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 서비스 이용 방법' || CHR(10) ||
+               '• 클래스 목록에서 관심 있는 수업을 찾아보세요.' || CHR(10) ||
+               '• 클래스 상세 페이지에서 장소, 가격, 수업 내용과 일정을 확인해 주세요.' || CHR(10) ||
+               '• 원하는 일정과 인원을 선택하고 예약 및 결제를 진행해 주세요.' || CHR(10) ||
+               '• 예약 및 결제 내역은 마이페이지에서 확인할 수 있습니다.' || CHR(10) || CHR(10) ||
+               '서비스 이용 중 궁금한 점은 고객센터 문의 기능을 이용해 주세요.' || CHR(10) ||
+               '감사합니다.' content FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '클래스 결제 안내',
-    '클래스 예약 시 제공되는 결제 수단을 이용해 결제를 진행해 주세요.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '클래스 결제 안내'
-);
+        UNION ALL
+        SELECT '원데이 클래스 예약 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '원데이 클래스 예약 방법을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 예약 절차' || CHR(10) ||
+               '• 클래스 상세 페이지에서 수업 내용과 장소를 확인합니다.' || CHR(10) ||
+               '• 예약 가능한 날짜와 남은 인원을 확인합니다.' || CHR(10) ||
+               '• 참여 인원을 선택한 뒤 예약하기 버튼을 누릅니다.' || CHR(10) ||
+               '• 예약 정보를 확인하고 결제 단계로 이동합니다.' || CHR(10) || CHR(10) ||
+               '■ 유의사항' || CHR(10) ||
+               '• 일정별 정원에 따라 예약 가능한 인원이 달라질 수 있습니다.' || CHR(10) ||
+               '• 예약 내역과 상태는 마이페이지에서 확인해 주세요.' || CHR(10) || CHR(10) ||
+               '원활한 클래스 참여를 위해 예약 정보를 다시 한번 확인해 주세요.' FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '예약 취소 및 환불 안내',
-    '예약 취소 및 환불 가능 여부는 클래스별 취소 정책에 따라 달라질 수 있습니다.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '예약 취소 및 환불 안내'
-);
+        UNION ALL
+        SELECT '클래스 결제 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '클래스 예약 후 결제를 진행하는 방법을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 결제 절차' || CHR(10) ||
+               '• 예약한 클래스와 인원, 결제 금액을 확인합니다.' || CHR(10) ||
+               '• 필수 약관을 확인하고 동의합니다.' || CHR(10) ||
+               '• 결제하기 버튼을 눌러 화면의 안내에 따라 진행합니다.' || CHR(10) || CHR(10) ||
+               '■ 확인 사항' || CHR(10) ||
+               '• 결제 전 예약 인원과 최종 금액을 확인해 주세요.' || CHR(10) ||
+               '• 결제 결과와 예약 상태는 마이페이지에서 확인해 주세요.' || CHR(10) ||
+               '• 결제 도중 문제가 발생하면 고객센터에 문의해 주세요.' || CHR(10) || CHR(10) ||
+               '안전하고 편리한 서비스 이용을 위해 노력하겠습니다.' FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '강사 등록 및 승인 절차 안내',
-    '강사 등록 신청 후 관리자 검토 및 승인 절차가 진행됩니다.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '강사 등록 및 승인 절차 안내'
-);
+        UNION ALL
+        SELECT '예약 취소 및 환불 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '예약 취소 및 환불 관련 사항을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 예약 취소 확인' || CHR(10) ||
+               '• 마이페이지에서 예약 내역과 현재 예약 상태를 확인해 주세요.' || CHR(10) ||
+               '• 취소 가능한 예약은 제공되는 취소 절차에 따라 신청할 수 있습니다.' || CHR(10) || CHR(10) ||
+               '■ 결제 취소 및 환불' || CHR(10) ||
+               '• 환불 가능 여부는 예약 및 결제 상태와 적용되는 취소 기준에 따라 달라질 수 있습니다.' || CHR(10) ||
+               '• 취소 또는 환불 결과는 관련 내역에서 확인해 주세요.' || CHR(10) || CHR(10) ||
+               '취소 진행 중 문제가 발생하면 예약 정보를 확인한 뒤 고객센터로 문의해 주세요.' FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '클래스 준비물 확인 안내',
-    '클래스 참여 전 상세 페이지에서 준비물과 유의사항을 확인해 주세요.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '클래스 준비물 확인 안내'
-);
+        UNION ALL
+        SELECT '강사 등록 및 승인 절차 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               'CLASS:ON에서 클래스를 운영하고 싶은 회원을 위한 강사 신청 절차를 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 강사 신청 절차' || CHR(10) ||
+               '• 로그인 후 강사 신청 화면에서 필요한 정보를 입력합니다.' || CHR(10) ||
+               '• 요청되는 증빙자료를 확인하고 신청서를 제출합니다.' || CHR(10) ||
+               '• 관리자가 신청 내용을 검토하여 승인 여부를 결정합니다.' || CHR(10) || CHR(10) ||
+               '■ 안내사항' || CHR(10) ||
+               '• 제출한 정보와 증빙자료를 정확하게 확인해 주세요.' || CHR(10) ||
+               '• 승인 후에는 강사 권한에 따라 클래스 관리 기능을 이용할 수 있습니다.' || CHR(10) || CHR(10) ||
+               '강사 신청과 관련된 궁금한 점은 고객센터로 문의해 주세요.' FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '클래스 후기 작성 안내',
-    '클래스 참여 후 이용 경험을 바탕으로 후기를 작성해 주세요.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '클래스 후기 작성 안내'
-);
+        UNION ALL
+        SELECT '클래스 준비물 확인 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '원활한 원데이 클래스 참여를 위해 준비물 확인 방법을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 참여 전 확인사항' || CHR(10) ||
+               '• 예약한 클래스의 상세 소개와 안내사항을 확인해 주세요.' || CHR(10) ||
+               '• 클래스 장소와 수업 일정을 미리 확인해 주세요.' || CHR(10) ||
+               '• 준비물이 안내되어 있다면 수업 전에 챙겨 주세요.' || CHR(10) || CHR(10) ||
+               '■ 참고사항' || CHR(10) ||
+               '• 클래스마다 필요한 준비물과 진행 방식이 다를 수 있습니다.' || CHR(10) ||
+               '• 자세한 내용은 해당 클래스의 상세 정보를 참고해 주세요.' || CHR(10) || CHR(10) ||
+               '즐거운 클래스 경험이 되시기를 바랍니다.' FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '고객센터 문의 이용 안내',
-    '서비스 이용 중 불편사항이 발생하면 고객센터 문의 기능을 이용해 주세요.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '고객센터 문의 이용 안내'
-);
+        UNION ALL
+        SELECT '클래스 후기 작성 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '클래스 참여 경험을 다른 회원과 공유할 수 있도록 후기 이용 방법을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 후기 작성 안내' || CHR(10) ||
+               '• 참여한 클래스의 이용 경험을 바탕으로 후기를 작성해 주세요.' || CHR(10) ||
+               '• 수업 진행, 난이도, 준비 과정 등 도움이 되는 내용을 남겨 주세요.' || CHR(10) ||
+               '• 평점과 후기는 다른 회원이 클래스를 선택할 때 참고할 수 있습니다.' || CHR(10) || CHR(10) ||
+               '■ 이용 시 유의사항' || CHR(10) ||
+               '• 실제 경험을 바탕으로 정확한 내용을 작성해 주세요.' || CHR(10) ||
+               '• 다른 이용자를 배려하는 표현을 사용해 주세요.' || CHR(10) || CHR(10) ||
+               '소중한 후기는 더 나은 클래스 경험을 만드는 데 도움이 됩니다.' FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '부적절한 클래스 및 강사 신고 안내',
-    '부적절한 클래스 운영이나 이용약관 위반 사항은 고객센터를 통해 신고할 수 있습니다.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '부적절한 클래스 및 강사 신고 안내'
-);
+        UNION ALL
+        SELECT '고객센터 문의 이용 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '서비스 이용 중 궁금하거나 불편한 사항이 있을 때 이용할 수 있는 고객센터 문의 기능을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 문의 등록 방법' || CHR(10) ||
+               '• 로그인 후 고객센터 문의 화면으로 이동합니다.' || CHR(10) ||
+               '• 문의 제목과 내용을 작성하여 등록합니다.' || CHR(10) ||
+               '• 등록한 문의의 상세 내용과 상태를 확인할 수 있습니다.' || CHR(10) || CHR(10) ||
+               '■ 문의 작성 시 참고사항' || CHR(10) ||
+               '• 예약 또는 결제 관련 문의는 상황을 구체적으로 작성해 주세요.' || CHR(10) ||
+               '• 비밀번호나 결제 인증정보 등 민감한 정보는 문의 내용에 입력하지 마세요.' || CHR(10) || CHR(10) ||
+               '고객님의 문의를 확인하고 안내드리겠습니다.' FROM DUAL
 
-INSERT INTO NOTICE (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
-SELECT
-    '개인정보 보호 및 계정 보안 안내',
-    '개인정보 보호를 위해 계정 비밀번호를 안전하게 관리해 주세요.',
-    LOCALTIMESTAMP
-FROM DUAL
-WHERE NOT EXISTS (
-    SELECT 1 FROM NOTICE
-    WHERE NOT_TITLE = '개인정보 보호 및 계정 보안 안내'
-);
+        UNION ALL
+        SELECT '고객센터 문의 답변 확인 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '고객센터에 등록한 문의의 상태와 관리자 답변을 확인하는 방법을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 문의 상태 안내' || CHR(10) ||
+               '• 접수: 문의가 등록되어 답변을 기다리는 상태입니다.' || CHR(10) ||
+               '• 완료: 관리자의 답변이 등록된 상태입니다.' || CHR(10) || CHR(10) ||
+               '■ 답변 확인 방법' || CHR(10) ||
+               '• 자신의 문의 목록에서 문의 제목을 선택합니다.' || CHR(10) ||
+               '• 문의 상세 화면에서 상태와 관리자 답변을 확인합니다.' || CHR(10) || CHR(10) ||
+               '문의 내용에 따라 답변까지 시간이 소요될 수 있습니다. 양해 부탁드립니다.' FROM DUAL
 
-COMMIT;
+        UNION ALL
+        SELECT '개인정보 보호 및 계정 보안 안내',
+               '안녕하세요. CLASS:ON입니다.' || CHR(10) || CHR(10) ||
+               '안전한 서비스 이용을 위한 개인정보 보호 및 계정 보안 수칙을 안내드립니다.' || CHR(10) || CHR(10) ||
+               '■ 계정 보안 수칙' || CHR(10) ||
+               '• 비밀번호는 다른 사람과 공유하지 마세요.' || CHR(10) ||
+               '• 여러 서비스에서 동일한 비밀번호를 반복 사용하지 않는 것이 좋습니다.' || CHR(10) ||
+               '• 공용 기기에서 이용한 뒤에는 로그아웃해 주세요.' || CHR(10) || CHR(10) ||
+               '■ 개인정보 보호 안내' || CHR(10) ||
+               '• 문의 작성 시 주민등록번호, 비밀번호 등 민감한 정보를 입력하지 마세요.' || CHR(10) ||
+               '• 계정에서 의심스러운 활동을 발견하면 비밀번호를 변경하고 고객센터에 문의해 주세요.' || CHR(10) || CHR(10) ||
+               'CLASS:ON은 안전한 서비스 환경을 위해 노력하겠습니다.' FROM DUAL
+    ) src
+    ON (n.NOT_TITLE = src.title)
+    WHEN MATCHED THEN
+        UPDATE SET n.NOT_CONTENT = src.content
+    WHEN NOT MATCHED THEN
+        INSERT (NOT_TITLE, NOT_CONTENT, NOT_CREATED_AT)
+            VALUES (src.title, src.content, LOCALTIMESTAMP);
+
+-- 변경 사항을 검토한 뒤 필요하면 COMMIT하세요.
+-- COMMIT;
+
+SELECT NOT_NO, NOT_TITLE, NOT_CREATED_AT
+FROM NOTICE
+WHERE NOT_TITLE IN (
+                    'CLASS:ON 서비스 이용 안내',
+                    '원데이 클래스 예약 안내',
+                    '클래스 결제 안내',
+                    '예약 취소 및 환불 안내',
+                    '강사 등록 및 승인 절차 안내',
+                    '클래스 준비물 확인 안내',
+                    '클래스 후기 작성 안내',
+                    '고객센터 문의 이용 안내',
+                    '고객센터 문의 답변 확인 안내',
+                    '개인정보 보호 및 계정 보안 안내'
+    )
+ORDER BY NOT_NO;
