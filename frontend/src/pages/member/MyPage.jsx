@@ -198,6 +198,13 @@ export default function MyPage({ instructor = false, edit = false }) {
       const response = await getInstructorRequestByMemNo(memNo);
       const data = getResponseData(response);
 
+      // 실제 신청 정보가 없으면 신청 버튼 표시
+if (!data?.reqNo) {
+  setRequest(null);
+  setInstructorDocuments([]);
+  return;
+}
+
       setRequest(data || null);
       setInstructorDocuments([]);
 
