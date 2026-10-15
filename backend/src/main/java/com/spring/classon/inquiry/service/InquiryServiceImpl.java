@@ -44,7 +44,7 @@ public class InquiryServiceImpl implements InquiryService {
     public List<InquiryDTO> getListByMember(Long inqMemNo) {
 
         return inquiryRepository
-                .findByInqMemNoOrderByInqCreatedAtDesc(inqMemNo)
+                .findByInqMemNoOrderByInqNoDesc(inqMemNo)
                 .stream()
                 .map(this::entityToDTO)
                 .toList();
@@ -71,7 +71,7 @@ public class InquiryServiceImpl implements InquiryService {
             InquiryPageRequestDTO pageRequestDTO) {
 
         Pageable pageable =
-                pageRequestDTO.getPageable("inqCreatedAt");
+                pageRequestDTO.getPageable("inqNo");
 
         String keyword = pageRequestDTO.getKeyword();
         String status = pageRequestDTO.getStatus();

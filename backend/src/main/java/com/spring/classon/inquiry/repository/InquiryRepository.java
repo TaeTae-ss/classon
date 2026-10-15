@@ -12,9 +12,7 @@ import java.util.List;
 public interface InquiryRepository
         extends JpaRepository<Inquiry, Long> {
 
-    List<Inquiry> findByInqMemNoOrderByInqCreatedAtDesc(
-            Long inqMemNo
-    );
+    List<Inquiry> findByInqMemNoOrderByInqNoDesc(Long inqMemNo);
 
     @Query("""
         SELECT i
