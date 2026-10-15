@@ -42,6 +42,7 @@ const primaryButtonStyle =
 
 export default function ReservationDetailPage({
   cancel = false,
+  instructor = false,
 }) {
   const { rsvNo } = useParams();
   const navigate = useNavigate();
@@ -53,39 +54,39 @@ export default function ReservationDetailPage({
   const [cancelLoading, setCancelLoading] = useState(false);
 
   useEffect(() => {
-  let active = true;
+    let active = true;
 
-  const fetchReservation = async () => {
-    try {
-      setLoading(true);
-      setError("");
+    const fetchReservation = async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      const data = await getReservation(rsvNo);
+        const data = await getReservation(rsvNo);
 
-      if (active) {
-        setReservation(data);
+        if (active) {
+          setReservation(data);
+        }
+      } catch (error) {
+        console.error("예약 상세 조회 실패:", error);
+
+        if (active) {
+          setError("예약 정보를 불러오지 못했습니다.");
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
       }
-    } catch (error) {
-      console.error("예약 상세 조회 실패:", error);
+    };
 
-      if (active) {
-        setError("예약 정보를 불러오지 못했습니다.");
-      }
-    } finally {
-      if (active) {
-        setLoading(false);
-      }
+    if (rsvNo) {
+      fetchReservation();
     }
-  };
 
-  if (rsvNo) {
-    fetchReservation();
-  }
-
-  return () => {
-    active = false;
-  };
-}, [rsvNo, cancel]);
+    return () => {
+      active = false;
+    };
+  }, [rsvNo, cancel]);
 
   // 예약 취소
   const handleCancel = async () => {
@@ -99,10 +100,10 @@ export default function ReservationDetailPage({
       await cancelReservation(rsvNo, reason);
 
       setReservation((prev) =>
-      prev
-        ? { ...prev, rsvStatus: "CANCEL" }
-        : prev
-    );
+        prev
+          ? { ...prev, rsvStatus: "CANCEL" }
+          : prev
+      );
 
       navigate(`/member/reservations/${rsvNo}`, {
         replace: true,
@@ -224,57 +225,72 @@ export default function ReservationDetailPage({
           </>
         ) : (
           /* 일반 예약 상세 화면 */
-          <div className="mt-7 border-t border-[#F3E8DC] pt-5">
+          < div className="mt-7 border-t border-[#F3E8DC] pt-5">
             {currentStatus === "CONFIRMED" && (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/member/reservations"
+                  to={
+                    instructor
+                      ? "/instructor/reservations"
+                      : "/member/reservations"
+                  }
                   className={secondaryButtonStyle}
                 >
-                  예약 내역으로
+                  {instructor ? "예약 회원 목록으로" : "예약 내역으로"}
                 </Link>
 
-                <Link
-                  to={`/member/reservations/${reservation.rsvNo}/cancel`}
-                  className={primaryButtonStyle}
-                >
-                  예약 취소
-                </Link>
+                {!instructor && (
+                  <Link
+                    to={`/member/reservations/${reservation.rsvNo}/cancel`}
+                    className={primaryButtonStyle}
+                  >
+                    예약 취소
+                  </Link>
+                )}
               </div>
             )}
 
             {currentStatus === "COMPLETED" && (
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link
-                  to="/member/reservations"
+                  to={
+                    instructor
+                      ? "/instructor/reservations"
+                      : "/member/reservations"
+                  }
                   className={secondaryButtonStyle}
                 >
-                  예약 내역으로
+                  {instructor ? "예약 회원 목록으로" : "예약 내역으로"}
                 </Link>
               </div>
             )}
 
             {(currentStatus === "WAIT" ||
               currentStatus === "CANCEL") && (
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link
-                  to="/member/reservations"
-                  className={secondaryButtonStyle}
-                >
-                  예약 내역으로
-                </Link>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Link
+                    to={
+                      instructor
+                        ? "/instructor/reservations"
+                        : "/member/reservations"
+                    }
+                    className={secondaryButtonStyle}
+                  >
+                    {instructor ? "예약 회원 목록으로" : "예약 내역으로"}
+                  </Link>
 
-                {currentStatus === "CANCEL" && (
-                  <div className="flex flex-1 items-center justify-center rounded-xl bg-[#FFF7ED] px-5 py-3 font-medium text-[#C2410C]">
-                    취소 완료
-                  </div>
-                )}
-              </div>
-            )}
+                  {currentStatus === "CANCEL" && (
+                    <div className="flex flex-1 items-center justify-center rounded-xl bg-[#FFF7ED] px-5 py-3 font-medium text-[#C2410C]">
+                      취소 완료
+                    </div>
+                  )}
+                </div>
+              )}
           </div>
-        )}
-      </section>
-    </div>
+        )
+        }
+      </section >
+    </div >
   );
 }
 
