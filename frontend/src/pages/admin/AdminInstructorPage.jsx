@@ -6,6 +6,7 @@ import {
   getAdminInstructorDocument,
   updateAdminInstructorStatus,
 } from "../../api/adminApi";
+import Pagination from "../../components/common/Pagination";
 
 const statusLabels = {
   NEW: "검토 대기",
@@ -30,6 +31,10 @@ export default function AdminInstructorPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [documentsLoading, setDocumentsLoading] = useState(false);
@@ -42,28 +47,42 @@ export default function AdminInstructorPage() {
   // 신청 상태 필터
   const [selectedStatus, setSelectedStatus] = useState("ALL");
 
-  // 신청 목록 조회
-  const fetchRequests = useCallback(async () => {
-    setLoading(true);
-    setError("");
+// 신청 목록 조회
+const fetchRequests = useCallback(async () => {
+  setLoading(true);
+  setError("");
 
-    try {
-      const response = await getAdminInstructorList();
-      setRequests(getListData(response));
-    } catch (err) {
-      console.error("강사 신청 목록 조회 실패:", err);
-      setError(
-        err.response?.data?.message ||
-          "강사 신청 목록을 불러오지 못했습니다.",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  try {
+    const response = await getAdminInstructorList({
+      page,
+      size: 10,
+    });
 
-  useEffect(() => {
-    fetchRequests();
-  }, [fetchRequests]);
+    // 응답 구조 확인 및 데이터 추출
+    const data = response?.data ?? response;
+
+    setRequests(data?.dtoList ?? []);
+    setTotalPage(data?.totalPage ?? 1);
+    setTotalCount(data?.totalCount ?? 0);
+    setPage(data?.currentPage ?? page);
+  } catch (err) {
+    console.error("강사 신청 목록 조회 실패:", err);
+    setError(
+      err.response?.data?.message ||
+        "강사 신청 목록을 불러오지 못했습니다.",
+    );
+  } finally {
+    setLoading(false);
+  }
+}, [page]);
+
+useEffect(() => {
+  fetchRequests();
+}, [fetchRequests]);
+
+useEffect(() => {
+  fetchRequests();
+}, [fetchRequests]);
 
   // 신청 상세 및 증빙자료 조회
   const handleViewDetail = async (request) => {
@@ -398,6 +417,14 @@ export default function AdminInstructorPage() {
               </table>
             </div>
           )}
+
+          {/* 페이지네이션 */}
+          <Pagination
+            page={page}
+            pages={totalPage}
+            onChange={setPage}
+          />
+          
         </div>
 
         {/* 신청 상세 모달 */}
