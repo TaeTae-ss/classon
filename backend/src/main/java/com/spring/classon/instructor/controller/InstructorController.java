@@ -54,19 +54,11 @@ public class InstructorController {
 
     // 회원 번호로 강사 신청 조회
     @GetMapping("/member/{memNo}")
-    public ResponseEntity<InstructorResponseDTO>
-    getInstructorRequestByMemNo(
+    public ResponseEntity<InstructorResponseDTO> getInstructorRequestByMemNo(
             @PathVariable Long memNo
     ) {
-
         InstructorResponseDTO response =
-                instructorService.getInstructorRequestByMemNo(
-                        memNo
-                );
-
-        if (response == null) {
-            return ResponseEntity.notFound().build();
-        }
+                instructorService.getInstructorRequestByMemNo(memNo);
 
         return ResponseEntity.ok(response);
     }
