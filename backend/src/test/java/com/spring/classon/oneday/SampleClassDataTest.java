@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-@Disabled("샘플 데이터 등록용 — 필요할 때만 실행")
+// @Disabled("샘플 데이터 등록용 — 필요할 때만 실행")
 @SpringBootTest(properties = "spring.jpa.hibernate.ddl-auto=none")
 class SampleClassDataTest {
 
@@ -50,7 +50,9 @@ class SampleClassDataTest {
     @Rollback
     void registerSampleClasses() throws Exception {
 
-        Path imageRoot = Path.of("C:/classon/sample-images");
+        Path imageRoot = Path.of(
+                "C:/springbootdeveloper/springbootcoding/website-react-project/classon/sample-images"
+        );
 
         List<Sample> samples = List.of(
                 new Sample(

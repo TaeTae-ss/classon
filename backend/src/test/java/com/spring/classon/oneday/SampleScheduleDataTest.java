@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Disabled("샘플 데이터 등록용 — 필요할 때만 실행")
+// @Disabled("샘플 데이터 등록용 — 필요할 때만 실행")
 @SpringBootTest(properties = "spring.jpa.hibernate.ddl-auto=none")
 class SampleScheduleDataTest {
 
