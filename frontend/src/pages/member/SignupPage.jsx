@@ -96,7 +96,10 @@ export default function SignupPage() {
       required={key !== "detail"}
       value={form[key]}
       onChange={(e) => {
-        const value = e.target.value;
+        const value = 
+        key === "phone"
+        ? e.target.value.replace(/\D/g, "").slice(0, 11)
+        : e.target.value;
 
         setForm({
           ...form,
@@ -291,7 +294,18 @@ export default function SignupPage() {
       });
 
       hasError = true;
-    }
+    } else if (!/^010\d{8}$/.test(form.phone)) {
+        setPhoneMessage({
+          text: "전화번호는 010으로 시작하는 11자리 숫자로 입력해주세요.",
+          type: "error",
+        });
+      hasError = true;
+    } else {
+        setPhoneMessage({
+          text: "",
+          type: "",
+        });
+      }
 
     // 도로명 주소
     if (!form.address.trim()) {
@@ -699,7 +713,7 @@ export default function SignupPage() {
 
           {/* 전화번호 */}
           {field("phone", "전화번호", "tel", {
-            pattern: "[0-9-]{9,13}",
+            maxLength: 11,
           })}
 
           {/* 전화번호 오류 메시지 */}

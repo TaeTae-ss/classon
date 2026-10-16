@@ -1,8 +1,10 @@
 import axios from "./axios";
 
-// 강사 신청 목록 조회
-export const getAdminInstructorList = async () => {
-  const response = await axios.get("/api/admin/instructor");
+// 관리자 강사 신청 목록 조회
+export const getAdminInstructorList = async (params = {}) => {
+  const response = await axios.get("/api/admin/instructor", {
+    params,
+  });
   return response.data;
 };
 
