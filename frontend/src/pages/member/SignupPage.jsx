@@ -769,7 +769,7 @@ export default function SignupPage() {
 
               <button
                 type="button"
-                className="ml-auto bg-transparent border-0 p-0 text-[14px] text-[#6b7280] hover:text-[#f97316] transition-colors duration-200 cursor-pointer"
+                className="ml-auto bg-transparent border-0 p-0 text-[16px] text-[#374151] hover:text-[#f97316] transition-colors duration-200 cursor-pointer"
                 onClick={() => setTermsModal("service")}
               >
                 내용보기 &gt;
@@ -798,7 +798,7 @@ export default function SignupPage() {
 
               <button
                 type="button"
-                className="ml-auto bg-transparent border-0 p-0 text-[14px] text-[#6b7280] hover:text-[#f97316] transition-colors duration-200 cursor-pointer"
+                className="ml-auto bg-transparent border-0 p-0 text-[16px] text-[#374151] hover:text-[#f97316] transition-colors duration-200 cursor-pointer"
                 onClick={() => setTermsModal("privacy")}
               >
                 내용보기 &gt;
@@ -851,7 +851,7 @@ export default function SignupPage() {
             </div>
 
             {/* 모달 내용 */}
-            <div className="max-h-[55vh] overflow-y-auto px-[24px] py-[22px] text-[15px] leading-[1.8] text-[#4b5563]">
+            <div className="max-h-[55vh] overflow-y-auto px-[24px] py-[22px] text-[16px] leading-[1.8] text-[#374151]">
               {termsModal === "service" ? (
                 <>
                   <h3 className="font-bold text-[#1f2937] mb-[8px]">

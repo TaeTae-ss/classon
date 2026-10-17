@@ -68,19 +68,19 @@ export default function AdminReview() {
         description="등록된 후기를 조회하고 관리할 수 있습니다."
       />
 
-      <p className="text-right text-[14px] text-[#85888d] mb-2">
+      <p className="text-right text-[16px] text-[#374151] mb-2">
         전체 {filtered.length}건
       </p>
 
       <div className="overflow-x-auto border border-[#eee5db] rounded-[10px] bg-white">
-        <table className="w-full border-collapse text-[14px]">
+        <table className="w-full border-collapse text-[16px]">
           <thead className="bg-[#faf8f5]">
             <tr>
               {["클래스명", "작성자", "평점", "후기 내용", "상태", "관리"].map(
                 (title) => (
                   <th
                     key={title}
-                    className="text-left text-[#777] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
+                    className="text-left text-[#374151] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
                   >
                     {title}
                   </th>
@@ -157,15 +157,15 @@ export default function AdminReview() {
                       className="bg-[#faf8f5] px-6 py-5 border-b border-[#f0ebe6]"
                     >
                       <div className="space-y-3">
-                        <h3 className="font-semibold text-[15px]">
+                        <h3 className="font-semibold text-[16px]">
                           후기 상세 내용
                         </h3>
 
-                        <p className="text-[14px] leading-7 whitespace-pre-wrap break-words">
+                        <p className="text-[16px] leading-7 whitespace-pre-wrap break-words">
                           {review.revContent}
                         </p>
 
-                        <p className="text-[13px] text-[#888]">
+                        <p className="text-[16px] text-[#374151]">
                           작성자: {review.memNickname || "작성자"}
                           {" · "}
                           평점: ★ {review.revRating}
@@ -180,7 +180,7 @@ export default function AdminReview() {
         </table>
 
         {filtered.length === 0 && (
-          <p className="text-center py-10 text-[#85888d]">
+          <p className="text-center py-10 text-[#374151]">
             {reviews.length === 0
               ? "등록된 후기가 없습니다."
               : "검색 결과가 없습니다."}

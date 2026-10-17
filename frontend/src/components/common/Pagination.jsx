@@ -1,5 +1,5 @@
 const baseButton =
-  "inline-flex items-center justify-center cursor-pointer flex-none min-w-[32px] h-8 rounded-none text-[13px] hover:bg-transparent hover:border-transparent hover:text-brand hover:underline disabled:opacity-40 disabled:cursor-default focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2";
+  "inline-flex items-center justify-center cursor-pointer flex-none min-w-[32px] h-8 rounded-none text-[16px] hover:bg-transparent hover:border-transparent hover:text-brand hover:underline disabled:opacity-40 disabled:cursor-default focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2";
 
 export default function Pagination({ page = 1, pages = 1, onChange }) {
   const start = Math.floor((page - 1) / 5) * 5 + 1;
@@ -11,7 +11,7 @@ export default function Pagination({ page = 1, pages = 1, onChange }) {
       aria-label="목록 페이지 이동"
     >
       <button
-        className={`${baseButton} mx-2 px-[10px] bg-transparent border border-transparent text-[#333] font-normal`}
+        className={`${baseButton} mx-2 px-[10px] bg-transparent border border-transparent text-[#374151] font-normal`}
         type="button"
         aria-label="이전 5페이지 묶음"
         disabled={start === 1}
@@ -32,7 +32,7 @@ export default function Pagination({ page = 1, pages = 1, onChange }) {
         </button>
       ))}
       <button
-        className={`${baseButton} mx-2 px-[10px] bg-transparent border border-transparent text-[#333] font-normal`}
+        className={`${baseButton} mx-2 px-[10px] bg-transparent border border-transparent text-[#374151] font-normal`}
         type="button"
         aria-label="다음 5페이지 묶음"
         disabled={end === pages}

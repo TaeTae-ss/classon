@@ -84,7 +84,7 @@ export default function ClassReview({ clsNo }) {
             : "-"}
         </span>
 
-        <span className="text-sm text-[#85888d]">
+        <span className="text-base text-[#374151]">
           평균 평점
         </span>
       </div>
@@ -95,7 +95,7 @@ export default function ClassReview({ clsNo }) {
           className="border-t border-[#eee] py-6"
           key={r.revNo}
         >
-          <div className="mb-2 text-[14px] font-semibold text-[#333]">
+          <div className="mb-2 text-[16px] font-semibold text-[#333]">
             {r.memNickname || "작성자"}
           </div>
 
@@ -104,7 +104,7 @@ export default function ClassReview({ clsNo }) {
             {"☆".repeat(5 - r.revRating)}
           </span>
 
-          <span className="ml-3 text-[14px] text-[#85888d]">
+          <span className="ml-3 text-[16px] text-[#374151]">
             {r.revCreatedAt?.replace("T", " ").slice(0, 16)}
           </span>
 
@@ -118,10 +118,10 @@ export default function ClassReview({ clsNo }) {
 
       {reviews.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-[15px] text-[#85888d]">
+          <p className="text-[16px] text-[#374151]">
             아직 작성된 후기가 없습니다.
           </p>
-          <p className="mt-2 text-[13px] text-[#a0a0a0]">
+          <p className="mt-2 text-[16px] text-[#374151]">
             첫 번째 수강 후기를 기다리고 있어요.
           </p>
         </div>

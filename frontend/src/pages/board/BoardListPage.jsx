@@ -170,10 +170,10 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
         ) : null}
       />
 
-      <p className="text-right text-[14px] text-[#85888d]">전체 {count}건</p>
+      <p className="text-right text-[16px] text-[#374151]">전체 {count}건</p>
 
       {loading ? (
-        <p className="text-center py-10 text-[#85888d]">
+        <p className="text-center py-10 text-[#374151]">
           {inquiry ? "문의 목록을 불러오는 중입니다." : "공지사항을 불러오는 중입니다."}
         </p>
       ) : error ? (
@@ -181,20 +181,20 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
       ) : (
         <>
           <div className="overflow-x-auto border border-[#eee5db] rounded-[10px] bg-white">
-            <table className="w-full border-collapse text-[14px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
+            <table className="w-full border-collapse text-[16px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
               <thead>
                 <tr>
-                  <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">번호</th>
+                  <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">번호</th>
                   {inquiry && admin && (
-                    <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">작성자</th>
+                    <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">작성자</th>
                   )}
-                  <th className="text-left text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">제목</th>
-                  <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">{inquiry ? "접수일" : "작성일"}</th>
+                  <th className="text-left text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">제목</th>
+                  <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">{inquiry ? "접수일" : "작성일"}</th>
                   {inquiry && (
-                    <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">처리 상태</th>
+                    <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">처리 상태</th>
                   )}
                   {admin && !inquiry && (
-                    <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">관리</th>
+                    <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">관리</th>
                   )}
                 </tr>
               </thead>
@@ -222,7 +222,7 @@ export default function BoardListPage({ inquiry = false, admin = false }) {
                       <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">{date}</td>
                       {inquiry && (
                         <td className="text-center py-[18px] px-[17px] border-b border-[#f0ebe6]">
-                          <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
+                          <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[16px] font-bold">
                             {statusNames[inquiryStatus] ?? inquiryStatus ?? "-"}
                           </span>
                         </td>

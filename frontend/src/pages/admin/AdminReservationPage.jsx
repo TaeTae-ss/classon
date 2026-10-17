@@ -31,7 +31,7 @@ export default function AdminReservationPage() {
       />
       <ul className="list-none flex gap-[10px] flex-wrap my-6 p-0">
         <li role="button" tabIndex={0}
-          className={`text-2xl cursor-pointer p-0 text-[#777] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${tab === "reservation" ? "text-accent font-semibold" : ""}`}
+          className={`text-2xl cursor-pointer p-0 text-[#374151] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${tab === "reservation" ? "text-accent font-semibold" : ""}`}
           onClick={() => setTab("reservation")}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
@@ -43,7 +43,7 @@ export default function AdminReservationPage() {
           예약 현황
         </li>
         <li role="button" tabIndex={0}
-          className={`text-2xl cursor-pointer p-0 text-[#777] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${tab === "payment" ? "text-accent font-semibold" : ""}`}
+          className={`text-2xl cursor-pointer p-0 text-[#374151] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${tab === "payment" ? "text-accent font-semibold" : ""}`}
           onClick={() => setTab("payment")}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
@@ -56,16 +56,16 @@ export default function AdminReservationPage() {
         </li>
       </ul>
       <div className="overflow-x-auto border border-[#eee5db] rounded-[10px] bg-white">
-        <table className="w-full border-collapse text-[14px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
+        <table className="w-full border-collapse text-[16px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
           <thead>
             <tr>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">예약번호</th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">회원</th>
-              <th className="text-left text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">클래스</th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">일정</th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">{tab === "payment" ? "결제 금액" : "인원"}</th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">상태</th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">관리</th>
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">예약번호</th>
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">회원</th>
+              <th className="text-left text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">클래스</th>
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">일정</th>
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">{tab === "payment" ? "결제 금액" : "인원"}</th>
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">상태</th>
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">관리</th>
             </tr>
           </thead>
           <tbody>

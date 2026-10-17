@@ -33,19 +33,19 @@ export default function InstructorClassPage() {
       />
 
       <div className="overflow-x-auto border border-[#eee5db] rounded-[10px] bg-white">
-        <table className="w-full border-collapse text-[14px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
+        <table className="w-full border-collapse text-[16px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
           <thead>
             <tr>
-              <th className="text-left text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
+              <th className="text-left text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
                 클래스명
               </th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
                 카테고리
               </th>
-              <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
+              <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
                 수강료
               </th>
-              {/* <th className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
+              {/* <th className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]">
                 관리
               </th> */}
             </tr>

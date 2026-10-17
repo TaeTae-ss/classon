@@ -5,7 +5,7 @@ export function DemoBar() {
   const [role, setRole] = useStore("role", "PUBLIC");
   const location = useLocation();
   return (
-    <div className="flex items-center flex-wrap gap-[22px] px-4 py-[11px] bg-[#fff6ec] border border-[#ffdfbd] rounded-[7px] text-[13px] text-[#925522]">
+    <div className="flex items-center flex-wrap gap-[22px] px-4 py-[11px] bg-[#fff6ec] border border-[#ffdfbd] rounded-[7px] text-[16px] text-[#925522]">
       <span>퍼블리싱 미리보기 · 예시 데이터</span>
       <label className="flex items-center gap-[10px] ml-auto max-md:ml-0">
         화면 권한{" "}
@@ -16,7 +16,7 @@ export function DemoBar() {
             setRole(e.target.value);
             window.location.assign(location.pathname + location.search);
           }}
-          className="text-[13px] px-[10px] py-[3px]"
+          className="text-[16px] px-[10px] py-[3px]"
         >
           <option value="PUBLIC">비회원</option>
           <option value="USER">회원</option>

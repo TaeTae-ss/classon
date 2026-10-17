@@ -77,7 +77,7 @@ const pagination = usePagination(
             </span>
 
             <svg
-                className={`w-5 h-5 text-[#85888d] transition-transform duration-200 ${
+                className={`w-5 h-5 text-[#374151] transition-transform duration-200 ${
                     openClsNo === item.clsNo ? "rotate-180" : ""
                 }`}
                 fill="none"
@@ -103,7 +103,7 @@ const pagination = usePagination(
                 <>
                     {pagination.items.map((review) => (
                       <div key={review.revNo} className="border-b py-3">
-                        <p className="mb-2 text-[14px] font-semibold text-[#333]">
+                        <p className="mb-2 text-[16px] font-semibold text-[#333]">
                           {review.memNickname || "작성자"}
                         </p>
 

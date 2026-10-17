@@ -245,7 +245,7 @@ export default function PaymentPage() {
               key={term.key}
               className="flex items-center justify-between gap-3 pt-3"
             >
-              <label className="flex items-center gap-2 text-sm">
+              <label className="flex items-center gap-2 text-base">
                 <input
                   type="checkbox"
                   checked={agreements[term.key]}
@@ -268,7 +268,7 @@ export default function PaymentPage() {
               <button
                 type="button"
                 onClick={() => setSelectedTerm(term.key)}
-                className="shrink-0 text-sm text-[#6B7280] underline underline-offset-4 hover:text-[#F97316]"
+                className="shrink-0 text-sm text-[#374151] underline underline-offset-4 hover:text-[#F97316] !bg-transparent"
               >
                 약관 보기
               </button>
@@ -278,7 +278,7 @@ export default function PaymentPage() {
 
         {/* 오류 메시지 */}
         {error && (
-          <p className="mt-[16px] text-red-500 text-[14px]">
+          <p className="mt-[16px] text-red-500 text-[16px]">
             {error}
           </p>
         )}
@@ -292,7 +292,7 @@ export default function PaymentPage() {
           </strong>
         </div>
 
-        <p className="text-[13px] leading-[1.8] text-[#999]">
+        <p className="text-[16px] leading-[1.8] text-[#374151]">
           결제 정보를 확인한 후 결제를 진행해주세요.
         </p>
 

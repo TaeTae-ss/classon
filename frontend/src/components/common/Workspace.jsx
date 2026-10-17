@@ -79,7 +79,7 @@ export function Workspace({ kind = "member", children }) {
   return (
     <div className="grid grid-cols-[216px_minmax(0,1fr)] gap-9 mt-[34px] max-[900px]:grid-cols-[180px_minmax(0,1fr)] max-[900px]:gap-[22px] max-md:grid-cols-1">
       <aside className="bg-white border border-[#e5e7eb] rounded-xl px-[18px] py-5 max-md:flex max-md:overflow-x-auto max-md:gap-[6px] max-md:border max-md:p-3">
-        <h2 className="text-[19px] px-3 mb-[18px] text-[#252b31] max-md:hidden">
+        <h2 className="text-[19px] px-3 mb-[18px] text-black max-md:hidden">
           {menuKind === "admin"
             ? "관리자 메뉴"
             : menuKind === "instructor"
@@ -93,7 +93,7 @@ export function Workspace({ kind = "member", children }) {
             aria-label={group.title}
             key={group.title}
           >
-            <h3 className="mt-0 mb-[10px] px-3 text-[15px] font-semibold text-[#858b93] max-md:m-0 max-md:whitespace-nowrap">
+            <h3 className="mt-0 mb-[10px] px-3 text-[16px] font-semibold text-black max-md:m-0 max-md:whitespace-nowrap">
               {group.title}
             </h3>
 
@@ -110,7 +110,7 @@ export function Workspace({ kind = "member", children }) {
                     window.dispatchEvent(new Event("admin-members-refresh"));
                   }
                 }}
-                className="block rounded-[7px] px-[14px] py-3 mb-1 text-[14px] text-[#555b63] max-md:whitespace-nowrap max-md:mb-0 [&.active]:bg-[#fff0e1] [&.active]:text-[#f4770b] [&.active]:font-bold"
+                className="block rounded-[7px] px-[14px] py-3 mb-1 text-[16px] text-[#374151] max-md:whitespace-nowrap max-md:mb-0 [&.active]:bg-[#fff0e1] [&.active]:text-[#f4770b] [&.active]:font-bold"
               >
                 {label}
               </NavLink>

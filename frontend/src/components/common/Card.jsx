@@ -40,7 +40,7 @@ export function Card({ item, liked = false, onToggleFavorite, select, selected, 
       )}
 
       <div className="p-[19px] max-md:p-[13px]">
-        <span className="text-[14px] text-[#85888d]">
+        <span className="text-[16px] text-[#374151]">
           {item.catName} · {item.clsLevel}
         </span>
 
@@ -50,7 +50,7 @@ export function Card({ item, liked = false, onToggleFavorite, select, selected, 
           </h3>
         </Link>
 
-        <p className="text-[14px] mb-3 flex justify-between max-md:block">
+        <p className="text-[16px] mb-3 flex justify-between max-md:block">
           {item.instructorName} 강사{" "}
           <span className="text-[#eb790b] whitespace-nowrap max-md:block">
             ★ {item.rating ?? "0.0"}

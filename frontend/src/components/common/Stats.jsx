@@ -5,7 +5,7 @@ export function Stats({ items }) {
     >
       {items.map(([label, value]) => (
         <div className="bg-white border border-[#eee5db] rounded-[10px] p-6 max-[420px]:p-[18px]" key={label}>
-          <span className="text-[14px] text-[#888]">{label}</span>
+          <span className="text-[16px] text-[#374151]">{label}</span>
           <strong className="block text-[31px] mt-[10px]">{value}</strong>
         </div>
       ))}

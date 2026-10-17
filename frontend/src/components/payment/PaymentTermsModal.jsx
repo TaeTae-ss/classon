@@ -73,14 +73,14 @@ export function PaymentTermsModal({ termKey, onClose }) {
             type="button"
             onClick={onClose}
             aria-label="약관 닫기"
-            className="text-2xl text-[#6B7280] hover:text-[#1F2937]"
+            className="text-2xl text-[#374151] hover:text-[#1F2937]"
           >
             ×
           </button>
         </div>
 
         <div className="overflow-y-auto p-5">
-          <p className="whitespace-pre-line text-sm leading-7 text-[#4B5563]">
+          <p className="whitespace-pre-line text-sm leading-7 text-[#374151]">
             {term.content}
           </p>
         </div>

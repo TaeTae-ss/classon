@@ -242,7 +242,7 @@ export default function PasswordPage() {
 
           {message && (
             <p
-              className="px-[16px] py-[12px] mt-[18px] rounded-[7px] bg-[#f3f7f2] text-[#477754] text-[14px] leading-[1.5]"
+              className="px-[16px] py-[12px] mt-[18px] rounded-[7px] bg-[#f3f7f2] text-[#477754] text-[16px] leading-[1.5]"
               role="status"
             >
               {message}
@@ -251,7 +251,7 @@ export default function PasswordPage() {
 
           {error && (
             <p
-              className="px-[16px] py-[12px] mt-[18px] rounded-[7px] bg-[#fff1f1] text-[#c94a4a] text-[14px] leading-[1.5]"
+              className="px-[16px] py-[12px] mt-[18px] rounded-[7px] bg-[#fff1f1] text-[#c94a4a] text-[16px] leading-[1.5]"
               role="alert"
             >
               {error}
@@ -259,11 +259,11 @@ export default function PasswordPage() {
           )}
         </form>
 
-        <div className="flex justify-center mt-[22px] text-[14px] text-[#6B7280]">
+        <div className="flex justify-center mt-[22px] text-[16px] text-[#374151]">
           <button
             type="button"
             onClick={() => navigate("/auth/login")}
-            className="bg-transparent p-0 border-0 text-[#6B7280] hover:bg-transparent hover:text-[#F97316] transition-colors duration-200 cursor-pointer"
+            className="bg-transparent p-0 border-0 text-[#374151] hover:bg-transparent hover:text-[#F97316] transition-colors duration-200 cursor-pointer"
           >
             로그인으로 돌아가기
           </button>

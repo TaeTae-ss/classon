@@ -304,7 +304,7 @@ export default function BookingForm({
       </div>
 
       <p
-        className="text-[13px] leading-[1.8] text-[#999]"
+        className="text-[16px] leading-[1.8] text-[#374151"
         style={{
           marginTop: 12,
           marginBottom: 0,

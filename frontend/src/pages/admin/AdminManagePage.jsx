@@ -207,7 +207,7 @@ function AdminMemberManagement() {
         description="등록된 정보를 조회하고 관리할 수 있습니다."
       />
 
-      <p className="text-right text-[14px] text-[#85888d]">
+      <p className="text-right text-[16px] text-[#374151]">
         전체 {totalCount}건
       </p>
 
@@ -263,13 +263,13 @@ function AdminMemberManagement() {
       )}
 
       <div className="overflow-x-auto border border-[#eee5db] rounded-[10px] bg-white">
-        <table className="w-full border-collapse text-[14px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
+        <table className="w-full border-collapse text-[16px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
           <thead>
             <tr>
               {["번호", "닉네임", "이메일", "회원정보", "관리"].map((label) => (
                 <th
                   key={label}
-                  className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
+                  className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
                 >
                   {label}
                 </th>
@@ -309,7 +309,7 @@ function AdminMemberManagement() {
       </div>
 
       {loading && (
-        <p className="py-6 text-center text-[#85888d]">
+        <p className="py-6 text-center text-[#374151]">
           회원 정보를 불러오는 중입니다.
         </p>
       )}
@@ -458,7 +458,7 @@ function AdminClassManagement() {
         description="등록된 정보를 조회하고 관리할 수 있습니다."
       />
 
-      <p className="text-right text-[14px] text-[#85888d]">
+      <p className="text-right text-[16px] text-[#374151]">
         전체 {totalCount}건
       </p>
 
@@ -506,14 +506,14 @@ function AdminClassManagement() {
       )}
 
       <div className="overflow-x-auto border border-[#eee5db] rounded-[10px] bg-white">
-        <table className="w-full border-collapse text-[14px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
+        <table className="w-full border-collapse text-[16px] whitespace-nowrap [&_tr:last-child>td]:border-b-0">
           <thead>
             <tr>
               {["번호", "클래스명", "강사", "카테고리", "가격", "관리"].map(
                 (label) => (
                   <th
                     key={label}
-                    className="text-center text-[#777] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
+                    className="text-center text-[#374151] bg-[#faf8f5] font-semibold py-[18px] px-[17px] border-b border-[#f0ebe6]"
                   >
                     {label}
                   </th>
@@ -562,7 +562,7 @@ function AdminClassManagement() {
       </div>
 
       {loading && (
-        <p className="py-6 text-center text-[#85888d]">
+        <p className="py-6 text-center text-[#374151]">
           클래스 정보를 불러오는 중입니다.
         </p>
       )}

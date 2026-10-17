@@ -16,7 +16,7 @@ import { Field } from "../../components/common/Field";
 function FragmentRow({ label, value }) {
   return (
     <>
-      <dt className="text-[#888]">{label}</dt>
+      <dt className="text-[#374151]">{label}</dt>
       <dd className="m-0 font-semibold">{value}</dd>
     </>
   );
@@ -33,7 +33,7 @@ const statusLabel = {
 const secondaryButtonStyle =
   "flex flex-1 items-center justify-center min-h-[48px] " +
   "rounded-xl border border-[#E5E7EB] bg-white px-5 py-3 " +
-  "font-medium text-[#4B5563] transition hover:bg-[#F9FAFB]";
+  "font-medium text-[#374151] transition hover:bg-[#F9FAFB]";
 
 const primaryButtonStyle =
   "flex flex-1 items-center justify-center min-h-[48px] " +
@@ -118,7 +118,7 @@ export default function ReservationDetailPage({
 
   if (loading) {
     return (
-      <p className="py-10 text-center text-[#777]">
+      <p className="py-10 text-center text-[#374151]">
         예약 정보를 불러오는 중입니다.
       </p>
     );
@@ -173,12 +173,12 @@ export default function ReservationDetailPage({
                 이미 취소된 예약입니다.
               </div>
             ) : currentStatus === "COMPLETED" ? (
-              <div className="rounded-lg bg-[#F9FAFB] px-4 py-5 text-center text-[#6B7280]">
+              <div className="rounded-lg bg-[#F9FAFB] px-4 py-5 text-center text-[#374151]">
                 수강이 완료된 예약은 취소할 수 없습니다.
               </div>
             ) : currentStatus !== "CONFIRMED" &&
               currentStatus !== "WAIT" ? (
-              <div className="rounded-lg bg-[#F9FAFB] px-4 py-5 text-center text-[#6B7280]">
+              <div className="rounded-lg bg-[#F9FAFB] px-4 py-5 text-center text-[#374151]">
                 현재 예약 상태에서는 취소할 수 없습니다.
               </div>
             ) : (
@@ -193,7 +193,7 @@ export default function ReservationDetailPage({
                 </Field>
 
                 <div className="mt-5 flex items-center justify-between border-t border-[#F3E8DC] py-5">
-                  <span className="text-[#6B7280]">
+                  <span className="text-[#374151]">
                     환불 예정 금액
                   </span>
 

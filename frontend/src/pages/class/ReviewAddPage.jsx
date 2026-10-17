@@ -121,12 +121,12 @@ export default function ReviewAddPage() {
           />
         </Field>
 
-        <span className="text-right text-[14px] text-[#85888d]">
+        <span className="text-right text-[16px] text-[#374151]">
           {content.length}/1000
         </span>
 
         {error && (
-          <p role="alert" className="mt-3 text-[14px] text-red-600">
+          <p role="alert" className="mt-3 text-[16px] text-red-600">
             {error}
           </p>
         )}

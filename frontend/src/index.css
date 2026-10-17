@@ -50,7 +50,7 @@
     --color-orange-light: #FFEDD5;
 
     --color-text: #1F2937;
-    --color-text-sub: #6B7280;
+    --color-text-sub: #374151;
 
     --color-white: #FFFFFF;
     --color-border: #E5E7EB;
@@ -88,7 +88,7 @@ button {
     --color-brand: #F97316;
     --color-brand-light: #FFEDD5;
     --color-ink: #1F2937;
-    --color-ink-sub: #6B7280;
+    --color-ink-sub: #374151;
     --color-line: #E5E7EB;
     --color-accent: #ff7900;
     --color-accent-dark: #e96900;
@@ -101,7 +101,7 @@ button {
  */
 @layer base {
     .co-page {
-        @apply max-w-[1392px] mx-auto px-6 pt-[14px] pb-[54px] text-[#252b31] text-[17px] leading-[1.65] [zoom:0.9];
+        @apply max-w-[1392px] mx-auto px-6 pt-[14px] pb-[54px] text-[#374151] text-[17px] leading-[1.65] [zoom:0.9];
     }
     .co-page a {
         @apply no-underline text-inherit;
@@ -113,7 +113,7 @@ button {
         @apply mt-0;
     }
     .co-page h1 {
-        @apply text-[32px] tracking-[-1px] leading-[1.35] mb-3 font-bold;
+        @apply text-[32px] tracking-[-1px] leading-[1.35] mb-3 font-bold text-[#1F1F1F];
     }
     .co-page h2 {
         @apply text-2xl mb-6 font-bold;
@@ -122,7 +122,7 @@ button {
         @apply text-[19px] leading-[1.5] font-bold;
     }
     .co-page p {
-        @apply text-[#72777e];
+        @apply text-[#374151];
     }
     .co-page h1,
     .co-page h2,
