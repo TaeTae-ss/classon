@@ -19,7 +19,7 @@ export function ClassSummary({ reservation }) {
 
       <div>
         <h3 className="text-[24px] mb-[6px]">{item.clsName}</h3>
-        <p className="m-0 text-[16px] text-[#6B7280]">
+        <p className="m-0 text-[16px] text-[#374151]">
           {item.instructorName} 강사
         </p>
       </div>

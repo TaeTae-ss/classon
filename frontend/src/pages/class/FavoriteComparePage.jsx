@@ -10,7 +10,7 @@ import { ButtonLink } from "../../components/common/ButtonLink";
 function FragmentRow({ label, value }) {
   return (
     <>
-      <dt className="text-[#888]">{label}</dt>
+      <dt className="text-[#374151]">{label}</dt>
       <dd className="m-0 font-semibold">{value}</dd>
     </>
   );

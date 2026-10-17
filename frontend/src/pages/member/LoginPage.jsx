@@ -176,7 +176,7 @@ export default function LoginPage() {
 
           {message && (
             <p
-              className="px-[16px] py-[12px] mb-[18px] rounded-[7px] bg-[#f3f7f2] text-[#477754] text-[14px] leading-[1.5]"
+              className="px-[16px] py-[12px] mb-[18px] rounded-[7px] bg-[#f3f7f2] text-[#477754] text-[16px] leading-[1.5]"
               role="status"
             >
               {message}
@@ -185,7 +185,7 @@ export default function LoginPage() {
 
           {error && (
             <p
-              className="px-[16px] py-[12px] mb-[18px] rounded-[7px] bg-[#fff1f1] text-[#c94a4a] text-[14px] leading-[1.5]"
+              className="px-[16px] py-[12px] mb-[18px] rounded-[7px] bg-[#fff1f1] text-[#c94a4a] text-[16px] leading-[1.5]"
               role="alert"
             >
               {error}
@@ -201,11 +201,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="flex justify-center items-center gap-[14px] mt-[22px] text-[14px] text-[#6B7280]">
+        <div className="flex justify-center items-center gap-[14px] mt-[22px] text-[16px] text-[#374151]">
           <button
             type="button"
             onClick={() => navigate("/auth/password")}
-            className="bg-transparent p-0 border-0 text-[#6B7280] hover:bg-transparent hover:text-[#F97316] transition-colors duration-200 cursor-pointer"
+            className="bg-transparent p-0 border-0 text-[#374151] hover:bg-transparent hover:text-[#F97316] transition-colors duration-200 cursor-pointer"
           >
             비밀번호 찾기
           </button>
@@ -215,7 +215,7 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => navigate("/auth/signup")}
-            className="bg-transparent p-0 border-0 text-[#6B7280] hover:bg-transparent hover:text-[#F97316] transition-colors duration-200 cursor-pointer"
+            className="bg-transparent p-0 border-0 text-[#374151] hover:bg-transparent hover:text-[#F97316] transition-colors duration-200 cursor-pointer"
           >
             회원가입
           </button>

@@ -138,7 +138,7 @@ export default function ReservationListPage({
           <li
             role="button"
             tabIndex={0}
-            className={`text-2xl cursor-pointer p-0 text-[#777] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${filter === status.value ? "text-accent font-semibold" : ""
+            className={`text-2xl cursor-pointer p-0 text-[#374151] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${filter === status.value ? "text-accent font-semibold" : ""
               }`}
             key={status.value}
             onClick={() => setFilter(status.value)}
@@ -155,7 +155,7 @@ export default function ReservationListPage({
       </ul>
 
       {loading && (
-        <p className="text-center py-10 text-[#777]">
+        <p className="text-center py-10 text-[#374151]">
           예약 내역을 불러오는 중입니다.
         </p>
       )}
@@ -187,7 +187,7 @@ export default function ReservationListPage({
             <ClassSummary reservation={r} />
 
             <div>
-              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
+              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[16px] font-bold">
                 {statusLabel[r.rsvStatus] ?? r.rsvStatus}
               </span>
 
@@ -221,7 +221,7 @@ export default function ReservationListPage({
               )}
 
               {instructor && (
-                <p className="text-[13px] leading-[1.8] text-[#999]">
+                <p className="text-[16px] leading-[1.8] text-[#374151]">
                   {r.memNickname} · {r.memEmail}
                 </p>
               )}

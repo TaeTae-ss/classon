@@ -144,7 +144,7 @@ export default function SchedulePage() {
     return (
       <Workspace kind="instructor">
         <Heading title="수업 일정 관리" />
-        <div className="py-[66px] text-center text-[#85888d]">내 클래스 목록을 불러오는 중입니다.</div>
+        <div className="py-[66px] text-center text-[#374151]">내 클래스 목록을 불러오는 중입니다.</div>
       </Workspace>
     );
   }
@@ -279,7 +279,7 @@ export default function SchedulePage() {
               </div>
               {deleteTarget === s.schNo ? (
                 <div className="flex items-center gap-[7px] ml-auto">
-                  <span className="text-[14px] text-[#ac4326]">삭제할까요?</span>
+                  <span className="text-[16px] text-[#ac4326]">삭제할까요?</span>
                   <button
                     className="bg-transparent border-0 text-[#ac4326] p-[7px] font-bold"
                     onClick={() => confirmDelete(s.schNo)}

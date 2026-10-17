@@ -849,7 +849,7 @@ if (!data?.reqNo) {
               </span>
             </div>
 
-            <p className="text-[14px] leading-[1.7] text-red-700">
+            <p className="text-[16px] leading-[1.7] text-red-700">
               비밀번호 변경 후 90일이 경과했습니다.
               계정 보안을 위해 비밀번호를 변경해 주세요.
             </p>
@@ -925,7 +925,7 @@ if (!data?.reqNo) {
                 required
                 disabled
                 value={form.email}
-                className="bg-[#f5f5f5] text-[#888] cursor-default"
+                className="bg-[#f5f5f5] text-[#374151] cursor-default"
               />
 
               {/* 닉네임 */}
@@ -935,7 +935,7 @@ if (!data?.reqNo) {
                 required
                 disabled
                 value={form.nickname}
-                className="bg-[#f5f5f5] text-[#888] cursor-default"
+                className="bg-[#f5f5f5] text-[#374151] cursor-default"
               />
 
               {/* 핸드폰 */}
@@ -985,7 +985,7 @@ if (!data?.reqNo) {
                   비밀번호 변경
                 </h3>
 
-                <p className="text-[13px] text-[#6b7280] mb-[18px]">
+                <p className="text-[16px] text-[#374151] mb-[18px]">
                   비밀번호를 변경하지 않으려면 아래 항목을 모두 비워 두세요.
                 </p>
 
@@ -1013,7 +1013,7 @@ if (!data?.reqNo) {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
 
-                <p className="text-[13px] leading-[1.7] text-[#888]">
+                <p className="text-[16px] leading-[1.7] text-[#374151]">
                   영문과 숫자를 포함하여 8~20자로 입력해 주세요.
                 </p>
               </div>
@@ -1078,7 +1078,7 @@ if (!data?.reqNo) {
                 ],
               ].map(([k, v]) => (
                 <div key={k} style={{ display: "contents" }}>
-                  <dt className="text-[#888]">{k}</dt>
+                  <dt className="text-[#374151]">{k}</dt>
                   <dd className="m-0 font-semibold">{v}</dd>
                 </div>
               ))}
@@ -1105,7 +1105,7 @@ if (!data?.reqNo) {
 
           {request && !editingInstructorApplication ? (
             <>
-              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
+              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[16px] font-bold">
                 {getInstructorStatus(request.reqStatus)}
               </span>
 
@@ -1155,7 +1155,7 @@ if (!data?.reqNo) {
                     })}
                   </ul>
                 ) : (
-                  <p className="mt-2 text-sm text-[#6b7280]">
+                  <p className="mt-2 text-sm text-[#374151]">
                     증빙자료를 불러오지 못했습니다.
                   </p>
                 )}
@@ -1198,7 +1198,7 @@ if (!data?.reqNo) {
                   value={introduction}
                   onChange={(e) => setIntroduction(e.target.value)}
                   placeholder="강사로서 자신을 소개해 주세요."
-                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[15px] leading-[1.7] outline-none focus:border-[#f97316]"
+                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[16px] leading-[1.7] outline-none focus:border-[#f97316]"
                 />
               </Field>
 
@@ -1218,7 +1218,7 @@ if (!data?.reqNo) {
                   value={career}
                   onChange={(e) => setCareer(e.target.value)}
                   placeholder="관련 경력, 강의 경험 및 활동 이력을 작성해 주세요."
-                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[15px] leading-[1.7] outline-none focus:border-[#f97316]"
+                  className="w-full min-h-[150px] resize-y rounded-lg border border-[#e5ddd5] px-4 py-3 text-[16px] leading-[1.7] outline-none focus:border-[#f97316]"
                 />
               </Field>
 
@@ -1239,11 +1239,11 @@ if (!data?.reqNo) {
                   onChange={(e) =>
                     setCertificateFile(e.target.files?.[0] || null)
                   }
-                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[16px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
                 />
 
                 {certificateFile && (
-                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                  <p className="mt-1.5 break-all text-[12px] text-[#374151]">
                     {certificateFile.name}
                   </p>
                 )}
@@ -1266,11 +1266,11 @@ if (!data?.reqNo) {
                   onChange={(e) =>
                     setCareerFile(e.target.files?.[0] || null)
                   }
-                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[16px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
                 />
 
                 {careerFile && (
-                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                  <p className="mt-1.5 break-all text-[12px] text-[#374151]">
                     {careerFile.name}
                   </p>
                 )}
@@ -1284,17 +1284,17 @@ if (!data?.reqNo) {
                   onChange={(e) =>
                     setOtherFile(e.target.files?.[0] || null)
                   }
-                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
+                  className="block w-full rounded-lg border border-[#e5ddd5] bg-white px-3 py-2 text-[16px] file:mr-3 file:rounded-md file:border-0 file:bg-[#fff0df] file:px-3 file:py-1.5 file:font-semibold file:text-[#df700e]"
                 />
 
                 {otherFile && (
-                  <p className="mt-1.5 break-all text-[12px] text-[#6b7280]">
+                  <p className="mt-1.5 break-all text-[12px] text-[#374151]">
                     {otherFile.name}
                   </p>
                 )}
               </Field>
 
-              <p className="text-[13px] leading-[1.8] text-[#999]">
+              <p className="text-[16px] leading-[1.8] text-[#374151]">
                 PDF, JPG, JPEG, PNG 파일을 업로드할 수 있습니다.
                 자기소개, 자격증, 경력증명서는 필수이며 기타 서류는 선택 사항입니다.
               </p>
@@ -1356,14 +1356,14 @@ if (!data?.reqNo) {
         request?.rejReason && (
           <section className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px]">
             <div className="flex items-center gap-2 mb-3">
-              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
+              <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[16px] font-bold">
                 신청 반려
               </span>
               <h3 className="font-bold text-[#1f2937]">
                 반려 사유
               </h3>
             </div>
-            <p className="text-[16px] leading-[1.8] text-[#6b7280] whitespace-pre-wrap break-words">
+            <p className="text-[16px] leading-[1.8] text-[#374151] whitespace-pre-wrap break-words">
               {request.rejReason}
             </p>
           </section>
@@ -1408,13 +1408,13 @@ if (!data?.reqNo) {
               회원 탈퇴
             </h2>
 
-            <p className="mb-4 text-[14px] leading-[1.8] text-[#4b5563]">
+            <p className="mb-4 text-[16px] leading-[1.8] text-[#374151]">
               탈퇴하면 계정에 연결된 개인정보가 삭제되며, 탈퇴 후에는
               계정을 복구할 수 없습니다.
             </p>
 
             {withdrawalCheck?.message && (
-              <p className="mb-4 rounded-lg bg-[#fff7ed] p-3 text-[14px] text-[#9a3412]">
+              <p className="mb-4 rounded-lg bg-[#fff7ed] p-3 text-[16px] text-[#9a3412]">
                 {withdrawalCheck.message}
               </p>
             )}
@@ -1425,7 +1425,7 @@ if (!data?.reqNo) {
                 탈퇴 전 확인 사항
               </p>
 
-              <ul className="list-disc space-y-1 pl-5 text-[13px] leading-[1.8] text-[#6b7280]">
+              <ul className="list-disc space-y-1 pl-5 text-[16px] leading-[1.8] text-[#374151]">
                 <li>탈퇴 후에는 계정 복구가 불가능합니다.</li>
                 <li>
                   진행 중인 예약, 결제, 환불 및 클래스 상태에 따라 탈퇴가 제한될 수 있습니다.
@@ -1438,7 +1438,7 @@ if (!data?.reqNo) {
             </div>
 
             {/* 약관 동의 */}
-            <label className="mb-6 flex cursor-pointer items-start gap-2 text-[14px] leading-[1.7] text-[#1f2937]">
+            <label className="mb-6 flex cursor-pointer items-start gap-2 text-[16px] leading-[1.7] text-[#374151]">
               <input
                 type="checkbox"
                 checked={agreedToTerms}

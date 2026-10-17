@@ -51,7 +51,7 @@ export default function ClassDetailPage() {
   }, [clsNo]);
 
   if (loading) {
-    return <div className="py-[66px] text-center text-[#85888d]">클래스 정보를 불러오는 중입니다.</div>;
+    return <div className="py-[66px] text-center text-[#374151]">클래스 정보를 불러오는 중입니다.</div>;
   }
 
   if (!item)
@@ -78,10 +78,10 @@ export default function ClassDetailPage() {
               />
             </div>
           )}
-          <nav className="flex gap-6 border-b border-[#eee] mt-0 mb-6 pb-[14px]">
-            <a className="text-[#8b725a]" href="#introduction">클래스 소개</a>
-            <a className="text-[#8b725a]" href="#instructor">강사 소개</a>
-            <a className="text-[#8b725a]" href="#reviews">수강 후기</a>
+          <nav className="flex gap-6 border-b border-[#eee] mt-0 mb-6 pb-[16px]">
+            <a className="text-[#59412F]" href="#introduction">클래스 소개</a>
+            <a className="text-[#59412F]" href="#instructor">강사 소개</a>
+            <a className="text-[#59412F]" href="#reviews">수강 후기</a>
           </nav>
           <section id="introduction" className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] scroll-mt-[120px]">
             <h2>클래스 소개</h2>
@@ -117,14 +117,14 @@ export default function ClassDetailPage() {
             <KakaoMap address={item.clsRoadAddr}>
               📍 {item.clsRoadAddr?.split(" ").slice(0, 2).join(" ")}
             </KakaoMap>
-            <p className="text-[13px] leading-[1.8] text-[#999]" style={{ marginTop: 12 }}>
+            <p className="text-[16px] leading-[1.8] text-[#374151]" style={{ marginTop: 12 }}>
               정확한 방문 안내는 예약 정보를 확인해주세요.
             </p>
           </section>
           <ClassReview clsNo={item.clsNo} />
         </div>
         <div className="bg-white border border-[#ebe6e0] rounded-xl p-[31px] mb-[26px] max-md:p-[23px] sticky top-[124px] self-start max-md:static min-[769px]:max-[1024px]:top-[220px]">
-          <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[13px] font-bold">
+          <span className="inline-block px-3 py-[3px] rounded-[24px] bg-[#fff0df] text-[#df700e] text-[16px] font-bold">
             {item.catName}
           </span>
           <h1 style={{ marginTop: 16 }}>{item.clsName}</h1>

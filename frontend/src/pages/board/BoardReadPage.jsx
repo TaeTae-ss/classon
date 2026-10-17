@@ -201,7 +201,7 @@ export default function BoardReadPage({
   // 로딩 화면
   if (loading) {
     return (
-      <p className="text-center py-10 text-[#85888d]">
+      <p className="text-center py-10 text-[#374151]">
         {inquiry
           ? "문의 내용을 불러오는 중입니다."
           : "공지사항을 불러오는 중입니다."}
@@ -251,13 +251,13 @@ export default function BoardReadPage({
      <h2>{title}</h2>
      
      {inquiry && admin && (
-      <p className="mt-3 text-[14px] text-[#555]">
+      <p className="mt-3 text-[16px] text-[#555]">
         <span className="font-semibold">작성자: </span>
         {item.inqMemNickname || "알 수 없는 회원"}
         </p>
       )}
       
-      <p className="text-right text-[14px] text-[#85888d]">
+      <p className="text-right text-[16px] text-[#374151]">
         {date}
         {inquiry && ` · ${inquiryStatus}`}
       </p>

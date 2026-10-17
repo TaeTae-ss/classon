@@ -93,7 +93,7 @@ export default function ClassListPage() {
           <li
             role="button"
             tabIndex={0}
-            className={`text-2xl cursor-pointer p-0 text-[#777] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${categoryId === null ? "text-accent font-semibold" : ""}`}
+            className={`text-2xl cursor-pointer p-0 text-[#374151] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${categoryId === null ? "text-accent font-semibold" : ""}`}
             onClick={() => selectCategory(null)}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
@@ -109,7 +109,7 @@ export default function ClassListPage() {
               role="button"
               tabIndex={0}
               key={c.catNo}
-              className={`text-2xl cursor-pointer p-0 text-[#777] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${categoryId === c.catNo ? "text-accent font-semibold" : ""}`}
+              className={`text-2xl cursor-pointer p-0 text-[#374151] hover:text-[#ea6500] focus-visible:outline-2 focus-visible:outline-[#ea6500] focus-visible:outline-offset-[3px] ${categoryId === c.catNo ? "text-accent font-semibold" : ""}`}
               onClick={() => selectCategory(c.catNo)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
@@ -122,10 +122,10 @@ export default function ClassListPage() {
             </li>
           ))}
         </ul>
-        <p className="text-right text-[14px] text-[#85888d] ml-auto">총 {totalCount}개의 클래스</p>
+        <p className="text-right text-[16px] text-[#374151] ml-auto">총 {totalCount}개의 클래스</p>
       </div>
       {loading ? (
-        <div className="py-[66px] text-center text-[#85888d]">클래스 목록을 불러오는 중입니다.</div>
+        <div className="py-[66px] text-center text-[#374151]">클래스 목록을 불러오는 중입니다.</div>
       ) : list.length ? (
         <div className="grid grid-cols-3 gap-6 max-[900px]:grid-cols-2 max-md:gap-3 max-[420px]:grid-cols-1">
           {list.map((c) => (
@@ -144,11 +144,11 @@ export default function ClassListPage() {
                 )}
               </div>
               <div className="p-[19px] max-md:p-[13px]">
-                <span className="text-[14px] text-[#85888d]">
+                <span className="text-[16px] text-[#374151]">
                   {c.catName} · {c.clsLevel}
                 </span>
                 <h3 className="my-2 mb-3 max-md:text-[16px]">{c.clsName}</h3>
-                <p className="text-[14px] mb-3 flex justify-between max-md:block">
+                <p className="text-[16px] mb-3 flex justify-between max-md:block">
                   {c.instructorName} 강사{" "}
                   <span className="text-[#eb790b] whitespace-nowrap max-md:block">
                     ★ {c.rating != null ? c.rating.toFixed(1) : "-"}

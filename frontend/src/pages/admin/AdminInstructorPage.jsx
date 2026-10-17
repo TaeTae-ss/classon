@@ -213,13 +213,13 @@ useEffect(() => {
 
   return (
     <Workspace kind="admin">
-      <div className="min-w-0 text-[#252b31]">
+      <div className="min-w-0 text-[#374151]">
         {/* 페이지 제목 */}
         <div className="mb-8">
           <h1 className="mb-3 text-[28px] font-bold">
             강사 신청 관리
           </h1>
-          <p className="text-[15px] text-[#858b93]">
+          <p className="text-[16px] text-[#374151]">
             강사 신청 내용을 확인하고 승인 및 반려를 처리할 수 있습니다.
           </p>
         </div>
@@ -236,12 +236,12 @@ useEffect(() => {
                 : "border-[#ebe2d9] hover:border-[#F97316]"
             }`}
           >
-            <p className="mb-3 text-sm text-[#858b93]">
+            <p className="mb-3 text-sm text-[#374151]">
               검토 대기
             </p>
             <p className="text-2xl font-bold text-[#f4770b]">
               {pendingCount}
-              <span className="ml-1 text-sm font-normal text-[#858b93]">
+              <span className="ml-1 text-sm font-normal text-[#374151]">
                 건
               </span>
             </p>
@@ -257,12 +257,12 @@ useEffect(() => {
                 : "border-[#ebe2d9] hover:border-[#F97316]"
             }`}
           >
-            <p className="mb-3 text-sm text-[#858b93]">
+            <p className="mb-3 text-sm text-[#374151]">
               승인 완료
             </p>
             <p className="text-2xl font-bold text-[#27834b]">
               {approvedCount}
-              <span className="ml-1 text-sm font-normal text-[#858b93]">
+              <span className="ml-1 text-sm font-normal text-[#374151]">
                 건
               </span>
             </p>
@@ -278,12 +278,12 @@ useEffect(() => {
                 : "border-[#ebe2d9] hover:border-[#F97316]"
             }`}
           >
-            <p className="mb-3 text-sm text-[#858b93]">
+            <p className="mb-3 text-sm text-#374151]">
               반려
             </p>
             <p className="text-2xl font-bold text-[#d84a4a]">
               {rejectedCount}
-              <span className="ml-1 text-sm font-normal text-[#858b93]">
+              <span className="ml-1 text-sm font-normal text-[#374151]">
                 건
               </span>
             </p>
@@ -297,7 +297,7 @@ useEffect(() => {
               <h2 className="text-xl font-bold">
                 강사 신청 목록
               </h2>
-              <p className="mt-2 text-sm text-[#858b93]">
+              <p className="mt-2 text-sm text-[#374151]">
                 총 {filteredRequests.length}건의 신청이 있습니다.
               </p>
             </div>
@@ -330,7 +330,7 @@ useEffect(() => {
           </div>
 
           {loading ? (
-            <div className="p-12 text-center text-sm text-[#858b93]">
+            <div className="p-12 text-center text-sm text-[#374151]">
               신청 목록을 불러오는 중입니다.
             </div>
           ) : error ? (
@@ -347,7 +347,7 @@ useEffect(() => {
               </button>
             </div>
           ) : filteredRequests.length === 0 ? (
-            <div className="p-12 text-center text-sm text-[#858b93]">
+            <div className="p-12 text-center text-sm text-[#374151]">
               {requests.length === 0
                 ? "등록된 강사 신청이 없습니다."
                 : "선택한 상태의 강사 신청이 없습니다."}
@@ -458,7 +458,7 @@ useEffect(() => {
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <p className="mb-1 text-xs text-[#858b93]">
+                    <p className="mb-1 text-xs text-[#374151]">
                       신청 회원
                     </p>
                     <p className="font-semibold">
@@ -468,7 +468,7 @@ useEffect(() => {
                   </div>
 
                   <div>
-                    <p className="mb-1 text-xs text-[#858b93]">
+                    <p className="mb-1 text-xs text-[#374151]">
                       이메일
                     </p>
                     <p className="break-all font-medium">
@@ -477,7 +477,7 @@ useEffect(() => {
                   </div>
 
                   <div>
-                    <p className="mb-1 text-xs text-[#858b93]">
+                    <p className="mb-1 text-xs text-[#374151]">
                       신청 상태
                     </p>
                     <span
@@ -529,11 +529,11 @@ useEffect(() => {
                   </h3>
 
                   {documentsLoading ? (
-                    <p className="text-sm text-[#858b93]">
+                    <p className="text-sm text-[#374151]">
                       증빙자료를 불러오는 중입니다.
                     </p>
                   ) : documents.length === 0 ? (
-                    <p className="rounded-lg border border-dashed border-[#e5e7eb] p-5 text-center text-sm text-[#858b93]">
+                    <p className="rounded-lg border border-dashed border-[#e5e7eb] p-5 text-center text-sm text-[#374151]">
                       등록된 증빙자료가 없습니다.
                     </p>
                   ) : (
@@ -592,7 +592,7 @@ useEffect(() => {
                       className="w-full resize-none rounded-lg border border-[#ded8d1] p-3 text-sm outline-none focus:border-[#f97316]"
                     />
 
-                    <p className="mt-1 text-right text-xs text-[#858b93]">
+                    <p className="mt-1 text-right text-xs text-[#374151]">
                       {rejectReason.length}/100
                     </p>
 
@@ -631,7 +631,7 @@ useEffect(() => {
                     </div>
                   </div>
                 ) : (
-                  <p className="border-t border-[#ebe6e0] pt-4 text-sm text-[#858b93]">
+                  <p className="border-t border-[#ebe6e0] pt-4 text-sm text-[#374151]">
                     이미 처리된 신청입니다. 승인 또는 반려 처리를 다시 할 수 없습니다.
                   </p>
                 )}

@@ -83,7 +83,7 @@ export default function ReviewListPage({ instructor = false }) {
           </p>
 
           <div className="flex justify-between items-center mt-4 pt-3 border-t border-[#ebe6e0]">
-            <span className="text-[14px] text-[#85888d]">
+            <span className="text-[16px] text-[#374151]">
               {r.revCreatedAt?.replace("T", " ").slice(0, 16)}
             </span>
 
@@ -98,7 +98,7 @@ export default function ReviewListPage({ instructor = false }) {
           </div>
         {selected === r.revNo && (
           <div className="mt-3 p-4 bg-[#faf8f5] rounded-lg">
-            <p className="text-[15px] font-semibold text-[#333333]">
+            <p className="text-[16px] font-semibold text-[#333333]">
               정말 이 후기를 삭제하시겠습니까?
             </p>
 

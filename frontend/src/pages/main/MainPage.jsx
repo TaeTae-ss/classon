@@ -81,7 +81,7 @@ export default function MainPage() {
             일상에 즐거움을 더하다.
           </h1>
 
-          <p className="text-[16px] leading-[1.9] text-[#78664f] mb-9 max-md:text-[14px]">
+          <p className="text-[16px] leading-[1.9] text-[#78664f] mb-9 max-md:text-[16px]">
             망설였던 도전부터 새로운 발견까지.
             <br />
             나에게 맞는 원데이 클래스를 만나보세요.
@@ -129,7 +129,7 @@ export default function MainPage() {
                 aria-hidden="true"
               />
 
-              <span className="text-[14px] font-medium">
+              <span className="text-[16px] font-medium">
                 {category.catName}
               </span>
             </Link>
@@ -140,7 +140,7 @@ export default function MainPage() {
       <section>
         <div className="flex justify-between items-center mb-6">
           <h2>새로운 취미를 발견해보세요</h2>
-          <Link className="text-[#e57315] text-[14px]" to="/class">
+          <Link className="text-[#e57315] text-[16px]" to="/class">
             전체 보기 →
           </Link>
         </div>
